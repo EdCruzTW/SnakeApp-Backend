@@ -7,14 +7,21 @@ const CONFIG = {
   // Detectar automáticamente si estamos en desarrollo o producción
   API_URL: (() => {
     const href = window.location.href;
+    const origin = window.location.origin;
+    
+    console.log("🔍 Debug config.js");
+    console.log("  - href:", href);
+    console.log("  - origin:", origin);
     
     // Si estamos en localhost o 127.0.0.1, usar localhost
     if (href.includes("localhost") || href.includes("127.0.0.1")) {
+      console.log("  - Modo: DESARROLLO (localhost)");
       return "http://localhost:3000";
     }
     
     // Si estamos en producción (Railway u otro host), usar el dominio actual
-    return window.location.origin;
+    console.log("  - Modo: PRODUCCIÓN");
+    return origin;
   })(),
   
   // Endpoints de la API

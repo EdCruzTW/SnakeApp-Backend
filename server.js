@@ -290,7 +290,7 @@ app.get("/", (_, res) => res.sendFile(path.join(__dirname, "public", "index.html
 app.get("/juego", (_, res) => res.sendFile(path.join(__dirname, "public", "juego.html")));
 app.get("/profesor", (_, res) => res.sendFile(path.join(__dirname, "public", "profesor.html")));
 
-app.listen(PORT, () => {
-  console.log(`\n🐍 Snake Matemático corriendo en http://localhost:${PORT}`);
-  console.log(`📊 Panel del profesor: http://localhost:${PORT}/profesor\n`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`\n🐍 Snake Matemático corriendo en puerto ${PORT}`);
+  console.log(`📊 Panel del profesor: https://snakeapp-production.up.railway.app/profesor\n`);
 });
