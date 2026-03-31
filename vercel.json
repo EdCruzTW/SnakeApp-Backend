@@ -1,0 +1,12 @@
+{
+  "buildCommand": "npm install",
+  "devCommand": "node index.js",
+  "installCommand": "npm install",
+  "framework": null,
+  "functions": {
+    "index.js": {
+      "memory": 512,
+      "maxDuration": 60
+    }
+  }
+}
