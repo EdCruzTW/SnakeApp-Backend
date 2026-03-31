@@ -4,24 +4,11 @@
 // Este archivo se autoconfigura dependiendo de dónde se ejecute
 
 const CONFIG = {
-  // Detectar automáticamente si estamos en desarrollo o producción
+  // La API está en el mismo servidor que el frontend
   API_URL: (() => {
-    const href = window.location.href;
     const origin = window.location.origin;
-    
-    console.log("🔍 Debug config.js");
-    console.log("  - href:", href);
-    console.log("  - origin:", origin);
-    
-    // Si estamos en localhost o 127.0.0.1, usar localhost backend
-    if (href.includes("localhost") || href.includes("127.0.0.1")) {
-      console.log("  - Modo: DESARROLLO (localhost)");
-      return "http://localhost:3000";
-    }
-    
-    // Si estamos en netlify (production), usar Vercel backend
-    console.log("  - Modo: PRODUCCIÓN (Netlify)");
-    return "https://snake-app-backend-a8kp.vercel.app";
+    console.log("🔍 Usando API en el mismo servidor:", origin);
+    return origin; // El servidor Express sirve tanto API como frontend
   })(),
   
   // Endpoints de la API

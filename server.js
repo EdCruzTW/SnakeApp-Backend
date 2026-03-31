@@ -3,30 +3,32 @@ const Database = require("better-sqlite3");
 const path = require("path");
 const cors = require("cors");
 const fs = require("fs");
-const os = require("os");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ── Usar /tmp en Vercel, o db/ en desarrollo ──────────────────────────────────
-const dbDir = process.env.VERCEL ? path.join(os.tmpdir(), "snake-db") : path.join(__dirname, "db");
+// ── Configuración de base de datos (persiste en Railway)
+const dbDir = path.join(__dirname, "db");
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
 
-// ── Configuración de contraseña del profesor ──────────────────────────────────
+// ── Configuración de contraseña del profesor
 const PROFESOR_PASSWORD = process.env.PROFESOR_PASSWORD || "profesor123";
-const PROFESSOR_TOKENS = new Map(); // Almacenar tokens activos
+const PROFESSOR_TOKENS = new Map();
 
-// ── CORS Configuration para permitir clientes remotos ───────────────────────
+// ── CORS Configuration
 app.use(cors({
   origin: function(origin, callback) {
-    callback(null, true); // Permitir todas las origins
+    callback(null, true);
   },
   credentials: true
 }));
 
-// ── Base de datos ─────────────────────────────────────────────────────────────
+// ── Servir archivos estáticos del frontend
+app.use(express.static(path.join(__dirname, "public")));
+
+// ── Base de datos
 const db = new Database(path.join(dbDir, "snake.db"));
 db.pragma("journal_mode = WAL");
 
@@ -56,10 +58,10 @@ db.exec(`
   );
 `);
 
-// ── Middlewares ───────────────────────────────────────────────────────────────
+// ── Middlewares
 app.use(express.json());
 
-// ── API: Autenticación del profesor ────────────────────────────────────────────
+// ── API: Autenticación del profesor
 app.post("/api/profesor/login", (req, res) => {
   const { password } = req.body;
   if (!password) return res.status(400).json({ error: "Contraseña requerida" });
@@ -68,14 +70,13 @@ app.post("/api/profesor/login", (req, res) => {
     return res.status(401).json({ error: "Contraseña incorrecta" });
   }
   
-  // Generar token
   const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  PROFESSOR_TOKENS.set(token, Date.now() + (24 * 60 * 60 * 1000)); // Válido 24 horas
+  PROFESSOR_TOKENS.set(token, Date.now() + (24 * 60 * 60 * 1000));
   
   res.json({ ok: true, token });
 });
 
-// ── Verificar token del profesor ───────────────────────────────────────────────
+// ── Verificar token del profesor
 function verifyProfessorToken(req, res, next) {
   const token = req.headers['x-professor-token'] || req.query.token;
   
@@ -83,7 +84,6 @@ function verifyProfessorToken(req, res, next) {
     return res.status(401).json({ error: "No autorizado" });
   }
   
-  // Verificar si el token ha expirado
   if (Date.now() > PROFESSOR_TOKENS.get(token)) {
     PROFESSOR_TOKENS.delete(token);
     return res.status(401).json({ error: "Token expirado" });
@@ -92,7 +92,7 @@ function verifyProfessorToken(req, res, next) {
   next();
 }
 
-// ── API: Buscar alumno (solo lectura, sin guardar) ──────────────────────────
+// ── API: Buscar alumno
 app.post("/api/buscar-alumno", (req, res) => {
   try {
     const nombre = (req.body.nombre || "").trim();
@@ -112,13 +112,12 @@ app.post("/api/buscar-alumno", (req, res) => {
   }
 });
 
-// ── API: Alumno entra (crea nuevo si no existe) ──────────────────────────────
+// ── API: Alumno entra
 app.post("/api/entrar", (req, res) => {
   try {
     const nombre = (req.body.nombre || "").trim();
     if (!nombre) return res.status(400).json({ error: "Nombre requerido" });
 
-    // Insertar o ignorar si ya existe
     db.prepare(`INSERT OR IGNORE INTO alumnos (nombre) VALUES (?)`).run(nombre);
     
     const alumno = db.prepare(`SELECT * FROM alumnos WHERE nombre = ?`).get(nombre);
@@ -133,7 +132,7 @@ app.post("/api/entrar", (req, res) => {
   }
 });
 
-// ── API: Guardar partida completa ─────────────────────────────────────────────
+// ── API: Guardar partida
 app.post("/api/partida", (req, res) => {
   try {
     const { alumno_id, puntuacion, nivel_max, errores } = req.body;
@@ -166,7 +165,7 @@ app.post("/api/partida", (req, res) => {
   }
 });
 
-// ── API: Historial de un alumno ───────────────────────────────────────────────
+// ── API: Historial de un alumno
 app.get("/api/alumno/:id/historial", (req, res) => {
   try {
     const partidas = db.prepare(`
@@ -183,7 +182,7 @@ app.get("/api/alumno/:id/historial", (req, res) => {
   }
 });
 
-// ── API: Errores de una partida ───────────────────────────────────────────────
+// ── API: Errores de una partida
 app.get("/api/partida/:id/errores", (req, res) => {
   try {
     const errores = db.prepare(`
@@ -196,7 +195,7 @@ app.get("/api/partida/:id/errores", (req, res) => {
   }
 });
 
-// ── API: Dashboard del profesor ───────────────────────────────────────────────
+// ── API: Dashboard del profesor
 app.get("/api/profesor/resumen", verifyProfessorToken, (req, res) => {
   try {
     const alumnos = db.prepare(`
@@ -267,7 +266,7 @@ app.get("/api/profesor/operaciones-erradas", verifyProfessorToken, (req, res) =>
   }
 });
 
-// ── API: Eliminar alumno 
+// ── API: Eliminar alumno
 app.delete("/api/alumno/:id", (req, res) => {
   try {
     const alumnoId = req.params.id;
@@ -285,14 +284,19 @@ app.delete("/api/alumno/:id", (req, res) => {
   }
 });
 
-// ── Health check ──────────────────────────────────────────────────────────────
+// ── Health check
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
+// ── Servir SPA: redirigir rutas desconocidas a index.html
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`\n🐍 Snake Matemático Backend corriendo en puerto ${PORT}`);
-  console.log(`📊 API disponible para frontend\n`);
+  console.log(`\n🐍 Snake Matemático corriendo en puerto ${PORT}`);
+  console.log(`✅ API + Frontend disponible\n`);
 });
 
 module.exports = app;

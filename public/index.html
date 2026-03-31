@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snake Matemático</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #080c1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Mono', monospace;
+      color: #e2e8f0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated grid background */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(99,140,255,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,140,255,0.07) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: gridScroll 20s linear infinite;
+    }
+    @keyframes gridScroll { to { background-position: 40px 40px; } }
+
+    /* Floating particles */
+    .particle {
+      position: fixed;
+      border-radius: 50%;
+      animation: float linear infinite;
+      pointer-events: none;
+    }
+    @keyframes float {
+      0%   { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(74,222,128,0.2);
+      border-radius: 24px;
+      padding: 50px 48px 44px;
+      width: min(480px, 94vw);
+      box-shadow: 0 0 0 1px rgba(74,222,128,0.06), 0 30px 80px rgba(0,0,0,0.7);
+      backdrop-filter: blur(12px);
+      text-align: center;
+    }
+
+    .snake-icon {
+      font-size: 56px;
+      margin-bottom: 12px;
+      display: block;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(22px, 5vw, 30px);
+      font-weight: 900;
+      letter-spacing: 3px;
+      background: linear-gradient(90deg, #4ade80, #86efac, #4ade80);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 12px rgba(74,222,128,0.3));
+      margin-bottom: 6px;
+    }
+
+    .tagline {
+      color: #64748b;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 36px;
+    }
+
+    .input-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 18px 24px;
+      font-family: 'Space Mono', monospace;
+      font-size: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 2px solid rgba(74,222,128,0.2);
+      border-radius: 14px;
+      color: #e2e8f0;
+      outline: none;
+      text-align: center;
+      letter-spacing: 1px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input[type="text"]::placeholder { color: #475569; }
+    input[type="text"]:focus {
+      border-color: #4ade80;
+      box-shadow: 0 0 0 3px rgba(74,222,128,0.1);
+    }
+
+    #error-msg {
+      color: #f87171;
+      font-size: 12px;
+      margin-top: -12px;
+      margin-bottom: 12px;
+      min-height: 16px;
+      letter-spacing: 1px;
+    }
+
+    .btn-play {
+      width: 100%;
+      padding: 18px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      background: #4ade80;
+      color: #020617;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-play::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.2s;
+    }
+    .btn-play:hover {
+      background: #86efac;
+      box-shadow: 0 0 30px rgba(74,222,128,0.4);
+      transform: translateY(-2px);
+    }
+    .btn-play:active { transform: translateY(0); }
+    .btn-play:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* Bienvenida de regreso */
+    #bienvenida {
+      display: none;
+      margin-top: 20px;
+      padding: 14px 20px;
+      background: rgba(74,222,128,0.06);
+      border: 1px solid rgba(74,222,128,0.15);
+      border-radius: 12px;
+      font-size: 13px;
+    }
+    #bienvenida .nombre { color: #4ade80; font-weight: 700; }
+    #bienvenida .stats  { color: #64748b; font-size: 11px; margin-top: 4px; }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 28px 0 20px;
+      color: #334155; font-size: 11px; letter-spacing: 2px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: #1e293b;
+    }
+
+    .btn-profesor {
+      width: 100%;
+      padding: 12px;
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 2px;
+      background: transparent;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-profesor:hover {
+      border-color: #60a5fa;
+      color: #60a5fa;
+      background: rgba(96,165,250,0.05);
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <span class="snake-icon">🐍</span>
+  <h1>Snake Matemático</h1>
+  <p class="tagline">¡Demuestra tus habilidades!</p>
+
+  <div class="input-wrap">
+    <input type="text" id="nombre" placeholder="Escribe tu nombre completo" maxlength="50" autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
+
+  <div id="error-msg"></div>
+
+  <div id="bienvenida">
+    <div>¡Hola de nuevo, <span class="nombre" id="bienvenida-nombre"></span>!</div>
+    <div class="stats" id="bienvenida-stats"></div>
+  </div>
+
+  <button class="btn-play" id="btn-jugar" onclick="entrar()">¡JUGAR!</button>
+
+  <div class="divider">ACCESO</div>
+  <button class="btn-profesor" onclick="window.location='./profesor.html'">Panel del Profesor →</button>
+</div>
+
+<script>
+  // Partículas flotantes
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 6 + 3;
+    const colors = ['#4ade80','#22c55e','#60a5fa','#fbbf24'];
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}vw;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      opacity:0.4;
+      animation-duration:${8 + Math.random()*12}s;
+      animation-delay:${Math.random()*10}s;
+    `;
+    document.body.appendChild(p);
+  }
+</script>
+
+<script src="config.js"></script>
+<script>
+  let alumnoId = null;
+  let debounceTimer = null;
+
+  const input = document.getElementById('nombre');
+
+  // Autocompletar mientras escribe
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    document.getElementById('bienvenida').style.display = 'none';
+    document.getElementById('error-msg').textContent = '';
+    if (input.value.trim().length < 3) return;
+    debounceTimer = setTimeout(buscarAlumno, 500);
+  });
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') entrar();
+  });
+
+  async function buscarAlumno() {
+    const nombre = input.value.trim();
+    if (!nombre) return;
+    try {
+      const res = await fetch(CONFIG.ENDPOINTS.buscarAlumno, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre })
+      });
+      const data = await res.json();
+      if (data.found && data.stats.partidas > 0) {
+        alumnoId = data.alumno.id;
+        document.getElementById('bienvenida-nombre').textContent = data.alumno.nombre;
+        document.getElementById('bienvenida-stats').textContent =
+          `${data.stats.partidas} partida${data.stats.partidas !== 1 ? 's' : ''} jugada${data.stats.partidas !== 1 ? 's' : ''} · Mejor puntuación: ${data.stats.mejor}`;
+        document.getElementById('bienvenida').style.display = 'block';
+      }
+    } catch {}
+  }
+
+  async function entrar() {
+    const nombre = input.value.trim();
+    if (!nombre) {
+      document.getElementById('error-msg').textContent = '⚠ Escribe tu nombre para continuar';
+      return;
+    }
+    if (nombre.length < 2) {
+      document.getElementById('error-msg').textContent = '⚠ El nombre es muy corto';
+      return;
+    }
+    const btn = document.getElementById('btn-jugar');
+    btn.disabled = true;
+    btn.textContent = 'Cargando...';
+    try {
+      const res = await fetch(CONFIG.ENDPOINTS.entrar, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre })
+      });
+      const data = await res.json();
+      if (data.alumno) {
+        sessionStorage.setItem('alumno_id', data.alumno.id);
+        sessionStorage.setItem('alumno_nombre', data.alumno.nombre);
+        window.location = './juego.html';
+      }
+    } catch (e) {
+      document.getElementById('error-msg').textContent = '⚠ Error de conexión. Intenta de nuevo.';
+      btn.disabled = false;
+      btn.textContent = '¡JUGAR!';
+    }
+  }
+</script>
+</body>
+</html>
