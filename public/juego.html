@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Snake Matemático · Jugando</title>
+  <title>MathSnake</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -86,11 +86,12 @@
       text-transform: uppercase; margin-bottom: 12px; opacity: 0.85;
     }
 
-    .canvas-wrap { position: relative; z-index: 1; }
+    .canvas-wrap { position: relative; z-index: 1; touch-action: none; }
 
     #game {
       border-radius: 16px; background: #0b1120; display: block; max-width: 100%;
       height: auto; aspect-ratio: 1;
+      touch-action: none;
       box-shadow: 0 0 0 1px rgba(99,140,255,0.2), 0 0 0 3px rgba(99,140,255,0.06),
         0 20px 60px rgba(0,0,0,0.85);
     }
@@ -192,18 +193,29 @@
       color: #94a3b8; margin: 0 2px;
     }
 
-    .dpad { position:relative;z-index:1;display:none;margin-top:clamp(12px, 3vw, 16px);flex-direction:column;align-items:center; }
-    @media (max-width:600px) { .dpad { display:flex; } }
-    .dpad-row { display:flex; gap:clamp(4px, 1vw, 6px); }
-    .dpad-btn {
-      width:clamp(45px, 12vw, 60px); height:clamp(45px, 12vw, 60px); background:rgba(148,163,255,0.06);
-      border:1px solid rgba(74,222,128,0.2); border-radius:10px;
-      color:#4ade80; font-size:clamp(18px, 4vw, 24px); cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      transition:background 0.1s; -webkit-tap-highlight-color:transparent;
+    .dpad { 
+      position:fixed; bottom:16px; left:50%; transform:translateX(-50%); z-index:1;
+      display:none; flex-direction:column; align-items:center; 
+      background: rgba(2,6,23,0.85); backdrop-filter: blur(8px);
+      padding: 16px; border-radius: 16px;
+      border: 1px solid rgba(74,222,128,0.2);
     }
-    .dpad-btn:active { background:rgba(74,222,128,0.15); }
-    .dpad-spacer { width:clamp(45px, 12vw, 60px); height:clamp(45px, 12vw, 60px); }
+    @media (max-width:600px) { .dpad { display:flex; } }
+    .dpad-row { display:flex; gap:8px; }
+    .dpad-btn {
+      width: 56px; height: 56px; 
+      background: rgba(74,222,128,0.12); border: 2px solid rgba(74,222,128,0.3);
+      border-radius: 12px; color:#4ade80; font-size: 24px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation; user-select: none;
+    }
+    .dpad-btn:active { 
+      background: rgba(74,222,128,0.25); 
+      border-color: rgba(74,222,128,0.6);
+      box-shadow: 0 0 12px rgba(74,222,128,0.4);
+    }
+    .dpad-spacer { width: 56px; height: 56px; }
   </style>
 </head>
 <body>
@@ -661,9 +673,16 @@ document.addEventListener("keydown", e => {
   if ([" ","arrowup","arrowdown","arrowleft","arrowright"].includes(k)) e.preventDefault();
 });
 document.getElementById("btn-up").addEventListener("click",    ()=>{ if(dir.y===0) nextDir={x:0,y:-1}; });
+document.getElementById("btn-up").addEventListener("touchstart", (e)=>{ e.preventDefault(); if(dir.y===0) nextDir={x:0,y:-1}; });
+
 document.getElementById("btn-down").addEventListener("click",  ()=>{ if(dir.y===0) nextDir={x:0,y:1}; });
+document.getElementById("btn-down").addEventListener("touchstart", (e)=>{ e.preventDefault(); if(dir.y===0) nextDir={x:0,y:1}; });
+
 document.getElementById("btn-left").addEventListener("click",  ()=>{ if(dir.x===0) nextDir={x:-1,y:0}; });
+document.getElementById("btn-left").addEventListener("touchstart", (e)=>{ e.preventDefault(); if(dir.x===0) nextDir={x:-1,y:0}; });
+
 document.getElementById("btn-right").addEventListener("click", ()=>{ if(dir.x===0) nextDir={x:1,y:0}; });
+document.getElementById("btn-right").addEventListener("touchstart", (e)=>{ e.preventDefault(); if(dir.x===0) nextDir={x:1,y:0}; });
 document.getElementById("restart-btn").addEventListener("click", initGame);
 
 // ── Loop ──────────────────────────────────────────────────────────────────────
