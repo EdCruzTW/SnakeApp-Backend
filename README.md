@@ -83,3 +83,4 @@ No necesitas instalar nada extra — SQLite va incluido con `better-sqlite3`.
 | GET  | `/api/profesor/errores-globales` | Errores agrupados por tipo |
 | GET  | `/api/profesor/errores-por-alumno` | Heatmap alumno × tipo |
 | GET  | `/api/profesor/operaciones-erradas` | Top 20 operaciones más fallidas |
+# SnakeApp
