@@ -21,6 +21,7 @@ snake-app/
 ## 📡 PASO 1: Desplegar Backend en Vercel
 
 ### 1.1 Crear un repositorio separado para el Backend
+
 ```bash
 mkdir ~/snake-app-backend
 cd ~/snake-app-backend
@@ -34,6 +35,7 @@ git push -u origin main
 ```
 
 ### 1.2 Desplegar en Vercel
+
 1. Ve a https://vercel.com/new
 2. Conecta tu GitHub y selecciona el repo `SnakeApp-Backend`
 3. Vercel detectará automáticamente que es un proyecto Node.js
@@ -47,6 +49,7 @@ git push -u origin main
 ## 🎨 PASO 2: Desplegar Frontend en Netlify
 
 ### 2.1 Actualizar config.js con la URL de Vercel
+
 1. Abre `/frontend/config.js`
 2. Busca esta línea:
    ```javascript
@@ -55,6 +58,7 @@ git push -u origin main
 3. Reemplázala con la URL real que obtuviste de Vercel
 
 ### 2.2 Crear repositorio separado para el Frontend
+
 ```bash
 mkdir ~/snake-app-frontend
 cd ~/snake-app-frontend
@@ -68,6 +72,7 @@ git push -u origin main
 ```
 
 ### 2.3 Desplegar en Netlify
+
 1. Ve a https://app.netlify.com/
 2. Click en "Add new site" → "Import an existing project"
 3. Conecta tu GitHub y selecciona `SnakeApp-Frontend`
@@ -82,11 +87,13 @@ git push -u origin main
 ## ✅ Verificar que funciona
 
 1. **Test Backend:**
+
    ```bash
    curl -X POST https://tu-vercel-url.vercel.app/api/profesor/login \
      -H "Content-Type: application/json" \
      -d '{"password":"profesor123"}'
    ```
+
    Deberías recibir un `token`.
 
 2. **Test Frontend:**
@@ -106,6 +113,7 @@ git push -u origin main
 Después de hacer cambios:
 
 ### Para cambios en Backend:
+
 ```bash
 cd ~/snake-app-backend
 git add -A && git commit -m "Descripción" && git push
@@ -113,6 +121,7 @@ git add -A && git commit -m "Descripción" && git push
 ```
 
 ### Para cambios en Frontend:
+
 ```bash
 cd ~/snake-app-frontend
 git add -A && git commit -m "Descripción" && git push
@@ -130,11 +139,11 @@ const CONFIG = {
   API_URL: (() => {
     const href = window.location.href;
     const origin = window.location.origin;
-    
+
     if (href.includes("localhost") || href.includes("127.0.0.1")) {
       return "http://localhost:3000";
     }
-    
+
     // ← CAMBIAR ESTO a tu URL de Vercel
     return "https://tu-url-vercel.vercel.app";
   })(),
@@ -156,14 +165,17 @@ Ahora estudiantes acceden a Netlify (rápido, CDN global) y se conectan a Vercel
 ## 🆘 Troubleshooting
 
 **Q: "Error de conexión" desde estudiantes**
+
 - Verifica que `config.js` tiene la URL correcta de Vercel
 - Confirma que Vercel está online (Dashboard → Deployments)
 
 **Q: CORS errors**
+
 - El backend ya permite todas las origins
 - Si persiste, abre issue en Backend
 
 **Q: Profesor panel no abre**
+
 - Verifica en DevTools (F12) si se conecta a Vercel
 - Confirma contraseña en Vercel environment variables
 

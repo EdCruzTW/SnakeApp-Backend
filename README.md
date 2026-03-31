@@ -1,53 +1,66 @@
-# 🐍 Snake Matemático — Guía de instalación
+# 🐍 Snake Matemático
 
-## Requisitos
-- Node.js 18 o superior (https://nodejs.org)
+Juego educativo de Snake con tracking de progreso de estudiantes.
 
-## Instalación (solo la primera vez)
+## 🏗️ Arquitectura
 
+- **Backend:** Node.js/Express en Vercel
+- **Frontend:** HTML/CSS/JS en Netlify
+- **Base de datos:** SQLite en Vercel
+
+## 📁 Estructura
+
+```
+snake-app/
+├── backend/          ← API Node.js (Deploy en Vercel)
+│   ├── index.js
+│   ├── package.json
+│   └── vercel.json
+├── frontend/         ← HTML/CSS/JS (Deploy en Netlify)
+│   ├── index.html    (Login)
+│   ├── juego.html    (Juego)
+│   ├── profesor.html (Panel profesor)
+│   └── config.js     (Config API)
+├── README.md
+└── DEPLOYMENT_VERCEL_NETLIFY.md
+```
+
+## 🚀 Despliegue
+
+Ver `DEPLOYMENT_VERCEL_NETLIFY.md` para instrucciones detalladas.
+
+### URLs de producción (una vez desplegado):
+- **Frontend:** https://snakeapp-frontend.netlify.app
+- **Backend:** https://snakeapp-backend.vercel.app
+
+## 🎮 Cómo jugar
+
+1. Abre el frontend en el navegador
+2. Ingresa tu nombre
+3. Resuelve operaciones matemáticas comiendo respuestas correctas
+4. El profesor puede ver tu progreso en el panel
+
+## 🔐 Acceso Profesor
+
+**URL:** `/profesor.html`  
+**Contraseña:** Ver variable de entorno `PROFESOR_PASSWORD` en Vercel
+
+## 📊 Para desarrolladores
+
+### Backend (Vercel):
 ```bash
-# 1. Entra a la carpeta del proyecto
-cd snake-matematico
-
-# 2. Instala las dependencias
+cd backend
 npm install
-
-# 3. Inicia el servidor
 npm start
 ```
 
-Abre en el navegador: **http://localhost:3000**
+### Frontend (desarrollo local):
+Abre `frontend/index.html` en el navegador (o usa un servidor local)
 
----
-
-## Páginas disponibles
-
-| URL | Descripción |
-|-----|-------------|
-| `http://localhost:3000/` | Entrada de alumnos (estilo Kahoot) |
-| `http://localhost:3000/juego` | El juego |
-| `http://localhost:3000/profesor` | Panel del profesor con análisis |
-
----
-
-## Para que los alumnos jueguen desde otra computadora
-
-1. Averigua tu IP local:
-   - Windows: `ipconfig` en CMD → busca "IPv4"
-   - Mac/Linux: `ifconfig` o `ip addr`
-2. Comparte esta URL con los alumnos:  
-   `http://[TU-IP]:3000`  
-   Ejemplo: `http://192.168.1.15:3000`
-
-Todos deben estar conectados a la misma red Wi-Fi.
-
----
-
-## Estructura de archivos
-
+```bash
+python3 -m http.server 8000
+# Luego abre http://localhost:8000/frontend/
 ```
-snake-matematico/
-├── server.js          ← Backend (Express + SQLite)
 ├── package.json
 ├── db/
 │   └── snake.db       ← Base de datos (se crea automáticamente)
