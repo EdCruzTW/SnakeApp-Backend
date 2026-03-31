@@ -3,12 +3,13 @@ const Database = require("better-sqlite3");
 const path = require("path");
 const cors = require("cors");
 const fs = require("fs");
+const os = require("os");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ── Crear directorio db si no existe ──────────────────────────────────────────
-const dbDir = path.join(__dirname, "db");
+// ── Usar /tmp en Vercel, o db/ en desarrollo ──────────────────────────────────
+const dbDir = process.env.VERCEL ? path.join(os.tmpdir(), "snake-db") : path.join(__dirname, "db");
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
