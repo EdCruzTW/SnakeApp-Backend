@@ -119,6 +119,18 @@
     .bar-wrap { height: 8px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; }
     .bar { height:100%; border-radius:4px; background: linear-gradient(90deg, #f87171, #fca5a5); transition: width 1s ease; }
 
+    /* Heatmap alumno × tipo */
+    .heatmap-wrap { overflow-x: auto; }
+    .heatmap { border-collapse: collapse; min-width: 100%; font-size: clamp(9px, 2vw, 11px); }
+    .heatmap th, .heatmap td { padding: clamp(4px, 1vw, 6px) clamp(6px, 1vw, 10px); text-align:center; white-space:nowrap; }
+    .heatmap th { color: var(--muted); font-size:clamp(7px, 1.5vw, 9px); letter-spacing:0.5px; }
+    .heatmap td.alumno-cell { text-align:left; color: var(--text); font-size:clamp(10px, 2vw, 12px); font-weight:700; }
+    .cell-val {
+      display:inline-block; width:clamp(24px, 5vw, 32px); height:clamp(20px, 4vw, 26px); border-radius:4px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:clamp(8px, 1.5vw, 11px); font-family:'Orbitron',sans-serif;
+    }
+
     /* Operaciones más fallidas */
     .op-row { display:flex; align-items:center; justify-content:space-between;
       padding: clamp(6px, 1vw, 9px) clamp(8px, 2vw, 12px); border-radius:8px; margin-bottom:6px;
@@ -286,6 +298,12 @@
     <div id="errores-tipo"><div class="loading">Cargando...</div></div>
   </div>
 
+  <!-- Heatmap alumno × tipo -->
+  <div class="card grid-full">
+    <div class="card-title"><span>🗺</span> Mapa de dificultad · Alumno vs Tipo de operación</div>
+    <div class="heatmap-wrap" id="heatmap"><div class="loading">Cargando...</div></div>
+  </div>
+
 </div>
 
 <!-- Detalle alumno overlay -->
@@ -378,7 +396,7 @@ let alumnosData = [];
 let erroresTipoData = [];
 
 async function cargarTodo() {
-  await Promise.all([cargarResumen(), cargarErroresTipo(), cargarOpsFallidas()]);
+  await Promise.all([cargarResumen(), cargarErroresTipo(), cargarHeatmap(), cargarOpsFallidas()]);
 }
 
 async function cargarResumen() {
@@ -480,6 +498,58 @@ async function cargarOpsFallidas() {
   } catch(e) { console.error(e); }
 }
 
+async function cargarHeatmap() {
+  try {
+    const res  = await fetch(CONFIG.ENDPOINTS.profesor.erroresPorAlumno, {
+      headers: getAuthHeaders()
+    });
+    const data = await res.json();
+    const cont = document.getElementById('heatmap');
+    if (data.length===0) { cont.innerHTML='<div class="empty">Sin datos aún</div>'; return; }
+
+    // Construir matriz
+    const alumnos = [...new Set(data.map(d=>d.nombre))];
+    const tipos   = [...new Set(data.map(d=>d.tipo_op))];
+    const matrix  = {};
+    data.forEach(d => {
+      if (!matrix[d.nombre]) matrix[d.nombre]={};
+      matrix[d.nombre][d.tipo_op]=d.errores;
+    });
+    const maxVal = Math.max(1,...data.map(d=>d.errores));
+
+    function heatColor(val) {
+      if (!val) return 'rgba(255,255,255,0.03)';
+      const t = val/maxVal;
+      const r = Math.round(30 + t*218);
+      const g = Math.round(60 - t*50);
+      const b = Math.round(30 - t*20);
+      return `rgba(${r},${g},${b},${0.3+t*0.5})`;
+    }
+
+    cont.innerHTML = `
+      <table class="heatmap">
+        <thead><tr>
+          <th style="text-align:left">Alumno</th>
+          ${tipos.map(t=>`<th>${escHtml(t)}</th>`).join('')}
+        </tr></thead>
+        <tbody>
+          ${alumnos.map(nombre=>`
+            <tr>
+              <td class="alumno-cell">${escHtml(nombre)}</td>
+              ${tipos.map(tipo=>{
+                const val=(matrix[nombre]||{})[tipo]||0;
+                return `<td>
+                  <div class="cell-val" style="background:${heatColor(val)};color:${val?'#fca5a5':'#334155'}">
+                    ${val||'·'}
+                  </div>
+                </td>`;
+              }).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) { console.error(e); }
+}
 
 // ── Detalle por alumno ────────────────────────────────────────────────────────
 async function verDetalle(id, nombre, partidas, mejor) {
