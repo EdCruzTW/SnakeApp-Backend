@@ -659,8 +659,18 @@ document.getElementById("btn-right").addEventListener("click", ()=>{ if(dir.x===
 document.getElementById("restart-btn").addEventListener("click", initGame);
 
 // ── Loop ──────────────────────────────────────────────────────────────────────
-let lastTime=0; const INTERVAL=150;
+let lastTime=0;
+
+function getGameSpeed() {
+  const level = getLevel();
+  // Velocidad base: 150ms
+  // Cada nivel reduce 12ms (max 60ms en nivel 7+)
+  const speed = Math.max(60, 150 - (level * 12));
+  return speed;
+}
+
 function gameLoop(ts) {
+  const INTERVAL = getGameSpeed();
   if (ts-lastTime>=INTERVAL) { update(); lastTime=ts; }
   draw();
   requestAnimationFrame(gameLoop);
