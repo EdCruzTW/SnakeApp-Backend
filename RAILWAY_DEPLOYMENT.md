@@ -19,11 +19,13 @@
 ## Paso 4: Configuración automática
 
 Railway detectará automáticamente:
+
 - ✅ `railway.json` - Configuración de build
 - ✅ `package.json` - Dependencias Node.js
 - ✅ `server.js` - Script de inicio
 
 Railway comenzará a:
+
 1. 📥 Descargar código
 2. 📦 Instalar dependencias (`npm install`)
 3. 🔨 Compilar (crear carpeta `/db`)
@@ -43,6 +45,7 @@ Si quieres cambiar la contraseña del profesor:
 ## Paso 6: Obtener URL pública
 
 Una vez desplegado:
+
 1. Click en el proyecto
 2. Click en **"Deployments"**
 3. Verás una URL como: `https://tuapp-production-xxxx.up.railway.app`
@@ -50,6 +53,7 @@ Una vez desplegado:
 ## ✅ ¡Listo!
 
 Ahora puedes acceder a:
+
 - **Juego (Estudiantes)**: https://tuapp-production-xxxx.up.railway.app
 - **Panel (Profesor)**: https://tuapp-production-xxxx.up.railway.app/profesor.html
 
@@ -58,12 +62,14 @@ Ahora puedes acceder a:
 ## 🔍 Verificar que todo funciona
 
 ### Salud del servidor
+
 ```
 curl https://tuapp-production-xxxx.up.railway.app/api/health
 # Respuesta esperada: {"status":"ok"}
 ```
 
 ### Probar login del profesor
+
 ```bash
 curl -X POST https://tuapp-production-xxxx.up.railway.app/api/profesor/login \
   -H "Content-Type: application/json" \
@@ -76,16 +82,21 @@ curl -X POST https://tuapp-production-xxxx.up.railway.app/api/profesor/login \
 ## 🐛 Si algo no funciona
 
 ### El servidor se queda "Building"
+
 → Revisa los logs en Railway → Deployments → View Logs
 
 ### Error "Module not found"
+
 → Verifica que `npm install` terminó correctamente
 
 ### Contraseña del profesor no funciona
+
 → Revisa que la variable de entorno está correcta:
+
 - Railway → Variables → `PROFESOR_PASSWORD`
 
 ### La BD está vacía
+
 → Es normal, los estudiantes la llenarán a medida que jueguen
 
 ---
@@ -94,7 +105,7 @@ curl -X POST https://tuapp-production-xxxx.up.railway.app/api/profesor/login \
 
 1. **La BD persiste** en Railway entre redeploys
 2. **Los datos se pierden** solo si eliminas el volumen en Railway
-3. **Cambios futuros**: 
+3. **Cambios futuros**:
    - Edita los archivos en `/public` para cambios frontend
    - Edita `server.js` para cambios backend
    - Haz `git push origin railway` para desplegar cambios
