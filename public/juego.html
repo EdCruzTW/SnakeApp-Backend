@@ -211,7 +211,7 @@
   </div>
 
   <div id="operation">Cargando...</div>
-  <div id="level-label">Nivel 1 · Suma &amp; Resta</div>
+  <div id="level-label">NIVEL 1</div>
 
   <div class="canvas-wrap">
     <canvas id="game" width="840" height="840"></canvas>
@@ -421,12 +421,8 @@ function newQuestion() {
   const level = getLevel();
   nivelMax = Math.max(nivelMax, level + 1);
 
-  const levelNames = [
-    'Nivel 1 · Suma & Resta','Nivel 2 · Multiplicación','Nivel 3 · División',
-    'Nivel 4 · Jerarquía básica','Nivel 5 · Jerarquía + División',
-    'Nivel 6 · Paréntesis','Nivel 7 · Expresiones dobles','Nivel 8 · Maestro'
-  ];
-  document.getElementById("level-label").textContent = levelNames[Math.min(level,7)];
+  // Solo mostrar el número del nivel sin nombres de operaciones
+  document.getElementById("level-label").textContent = `NIVEL ${level + 1}`;
 
   const ops = buildOps(level);
   let chosen = null;
