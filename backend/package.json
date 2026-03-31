@@ -1,0 +1,18 @@
+{
+  "name": "snake-matematico-backend",
+  "version": "1.0.0",
+  "description": "API backend para Snake educativo",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "better-sqlite3": "^9.2.2",
+    "cors": "^2.8.5"
+  }
+}
