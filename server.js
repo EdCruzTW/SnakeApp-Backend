@@ -2,9 +2,16 @@ const express = require("express");
 const Database = require("better-sqlite3");
 const path = require("path");
 const cors = require("cors");
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ── Crear directorio db si no existe ──────────────────────────────────────────
+const dbDir = path.join(__dirname, "db");
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
 
 // ── Configuración de contraseña del profesor ──────────────────────────────────
 const PROFESOR_PASSWORD = process.env.PROFESOR_PASSWORD || "profesor123";
@@ -19,7 +26,7 @@ app.use(cors({
 }));
 
 // ── Base de datos ─────────────────────────────────────────────────────────────
-const db = new Database(path.join(__dirname, "db", "snake.db"));
+const db = new Database(path.join(dbDir, "snake.db"));
 db.pragma("journal_mode = WAL");
 
 // Inicializar tablas
