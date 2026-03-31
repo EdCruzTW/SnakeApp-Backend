@@ -26,6 +26,7 @@ const CONFIG = {
       historial: (id) => `${this.API_URL}/api/alumno/${id}/historial`,
       errores: (id) => `${this.API_URL}/api/partida/${id}/errores`,
       profesor: {
+        login: `${this.API_URL}/api/profesor/login`,
         resumen: `${this.API_URL}/api/profesor/resumen`,
         erroresGlobales: `${this.API_URL}/api/profesor/errores-globales`,
         erroresPorAlumno: `${this.API_URL}/api/profesor/errores-por-alumno`,

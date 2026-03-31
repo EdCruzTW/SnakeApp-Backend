@@ -6,6 +6,10 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ── Configuración de contraseña del profesor ──────────────────────────────────
+const PROFESOR_PASSWORD = process.env.PROFESOR_PASSWORD || "profesor123";
+const PROFESSOR_TOKENS = new Map(); // Almacenar tokens activos
+
 // ── CORS Configuration para permitir clientes remotos ───────────────────────
 const allowedOrigins = [
   "http://localhost:3000",
@@ -62,6 +66,39 @@ db.serialize(() => {
 // ── Middlewares ───────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+
+// ── API: Autenticación del profesor ────────────────────────────────────────────
+app.post("/api/profesor/login", (req, res) => {
+  const { password } = req.body;
+  if (!password) return res.status(400).json({ error: "Contraseña requerida" });
+  
+  if (password !== PROFESOR_PASSWORD) {
+    return res.status(401).json({ error: "Contraseña incorrecta" });
+  }
+  
+  // Generar token
+  const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  PROFESSOR_TOKENS.set(token, Date.now() + (24 * 60 * 60 * 1000)); // Válido 24 horas
+  
+  res.json({ ok: true, token });
+});
+
+// ── Verificar token del profesor ───────────────────────────────────────────────
+function verifyProfessorToken(req, res, next) {
+  const token = req.headers['x-professor-token'] || req.query.token;
+  
+  if (!token || !PROFESSOR_TOKENS.has(token)) {
+    return res.status(401).json({ error: "No autorizado" });
+  }
+  
+  // Verificar si el token ha expirado
+  if (Date.now() > PROFESSOR_TOKENS.get(token)) {
+    PROFESSOR_TOKENS.delete(token);
+    return res.status(401).json({ error: "Token expirado" });
+  }
+  
+  next();
+}
 
 // ── API: Buscar alumno (solo lectura, sin guardar) ──────────────────────────
 app.post("/api/buscar-alumno", (req, res) => {
@@ -173,7 +210,7 @@ app.get("/api/partida/:id/errores", (req, res) => {
 });
 
 // ── API: Dashboard del profesor ───────────────────────────────────────────────
-app.get("/api/profesor/resumen", (req, res) => {
+app.get("/api/profesor/resumen", verifyProfessorToken, (req, res) => {
   db.all(`
     SELECT a.id, a.nombre, a.creado,
       COUNT(p.id) as partidas_jugadas,
@@ -190,7 +227,7 @@ app.get("/api/profesor/resumen", (req, res) => {
   });
 });
 
-app.get("/api/profesor/errores-globales", (req, res) => {
+app.get("/api/profesor/errores-globales", verifyProfessorToken, (req, res) => {
   db.all(`
     SELECT tipo_op,
       COUNT(*) as total_errores,
@@ -204,7 +241,7 @@ app.get("/api/profesor/errores-globales", (req, res) => {
   });
 });
 
-app.get("/api/profesor/errores-por-alumno", (req, res) => {
+app.get("/api/profesor/errores-por-alumno", verifyProfessorToken, (req, res) => {
   db.all(`
     SELECT a.nombre, e.tipo_op, COUNT(*) as errores
     FROM errores e
@@ -218,7 +255,7 @@ app.get("/api/profesor/errores-por-alumno", (req, res) => {
   });
 });
 
-app.get("/api/profesor/operaciones-erradas", (req, res) => {
+app.get("/api/profesor/operaciones-erradas", verifyProfessorToken, (req, res) => {
   db.all(`
     SELECT e.operacion, e.respuesta_correcta, e.tipo_op, COUNT(*) as frecuencia
     FROM errores e
