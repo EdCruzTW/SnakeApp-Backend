@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel del Profesor · Snake Matemático</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080c1a; --surface: #0f172a; --card: #111827;
+      --border: rgba(99,140,255,0.15);
+      --green: #4ade80; --blue: #60a5fa; --amber: #fbbf24;
+      --red: #f87171; --purple: #a78bfa;
+      --text: #e2e8f0; --muted: #64748b;
+    }
+
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh; padding: 24px 20px 48px;
+    }
+
+    body::before {
+      content:''; position:fixed; inset:0; pointer-events:none;
+      background-image:
+        linear-gradient(rgba(99,140,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,140,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    .header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 28px; flex-wrap: wrap; gap: 12px;
+      position: relative; z-index: 1;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif; font-size: clamp(18px,3vw,26px);
+      font-weight: 900; letter-spacing: 3px;
+      background: linear-gradient(90deg, #60a5fa, #a78bfa);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .subtitle-h { color: var(--muted); font-size: 11px; letter-spacing: 2px; margin-top: 4px; }
+
+    .btn-actualizar {
+      padding: 10px 20px; font-family: 'Space Mono', monospace; font-size: 11px;
+      letter-spacing: 2px; background: transparent;
+      border: 1px solid var(--blue); color: var(--blue);
+      border-radius: 8px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .btn-actualizar:hover { background: rgba(96,165,250,0.1); }
+
+    /* KPI cards */
+    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 14px; margin-bottom: 28px; position:relative;z-index:1; }
+    .kpi {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 18px 20px;
+    }
+    .kpi-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+    .kpi-val { font-family: 'Orbitron', sans-serif; font-size: 28px; }
+    .kpi-val.green { color: var(--green); filter: drop-shadow(0 0 6px rgba(74,222,128,0.35)); }
+    .kpi-val.blue  { color: var(--blue);  filter: drop-shadow(0 0 6px rgba(96,165,250,0.35)); }
+    .kpi-val.amber { color: var(--amber); filter: drop-shadow(0 0 6px rgba(251,191,36,0.35)); }
+    .kpi-val.red   { color: var(--red);   filter: drop-shadow(0 0 6px rgba(248,113,113,0.35)); }
+
+    /* Grid principal */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; position:relative;z-index:1; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+    .grid-full { grid-column: 1 / -1; }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 22px 22px 20px; overflow: hidden;
+    }
+    .card-title {
+      font-size: 10px; letter-spacing: 3px; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 18px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title span { font-size: 16px; }
+
+    /* Tabla de alumnos */
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th {
+      text-align: left; padding: 8px 12px; font-size: 9px; letter-spacing: 2px;
+      color: var(--muted); text-transform: uppercase; border-bottom: 1px solid var(--border);
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid rgba(99,140,255,0.06); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(99,140,255,0.04); }
+    .rank { font-family:'Orbitron',sans-serif; font-size:12px; color:var(--muted); }
+    .rank-1 { color: #fbbf24; }
+    .rank-2 { color: #94a3b8; }
+    .rank-3 { color: #b45309; }
+    .nombre-alumno { font-weight:700; color: var(--text); }
+    .badge {
+      display:inline-block; padding:2px 8px; border-radius:5px;
+      font-size:10px; letter-spacing:1px;
+    }
+    .badge-green { background:rgba(74,222,128,0.12); color:#4ade80; }
+    .badge-blue  { background:rgba(96,165,250,0.12); color:#60a5fa; }
+    .badge-amber { background:rgba(251,191,36,0.12);  color:#fbbf24; }
+
+    /* Barras de error por tipo */
+    .error-tipo-row { margin-bottom: 14px; }
+    .error-tipo-header { display:flex; justify-content:space-between; margin-bottom:5px; font-size:12px; }
+    .error-tipo-nombre { color: var(--text); }
+    .error-tipo-count  { color: var(--red); font-family:'Orbitron',sans-serif; font-size:11px; }
+    .bar-wrap { height: 10px; background:rgba(255,255,255,0.05); border-radius:5px; overflow:hidden; }
+    .bar { height:100%; border-radius:5px; background: linear-gradient(90deg, #f87171, #fca5a5); transition: width 1s ease; }
+
+    /* Heatmap alumno × tipo */
+    .heatmap-wrap { overflow-x: auto; }
+    .heatmap { border-collapse: collapse; min-width: 100%; font-size: 11px; }
+    .heatmap th, .heatmap td { padding: 6px 10px; text-align:center; white-space:nowrap; }
+    .heatmap th { color: var(--muted); font-size:9px; letter-spacing:1px; }
+    .heatmap td.alumno-cell { text-align:left; color: var(--text); font-size:12px; font-weight:700; }
+    .cell-val {
+      display:inline-block; width:32px; height:26px; border-radius:5px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:11px; font-family:'Orbitron',sans-serif;
+    }
+
+    /* Operaciones más fallidas */
+    .op-row { display:flex; align-items:center; justify-content:space-between;
+      padding: 9px 12px; border-radius:9px; margin-bottom:6px;
+      background: rgba(248,113,113,0.05); border:1px solid rgba(248,113,113,0.1); }
+    .op-expr { font-family:'Orbitron',sans-serif; color:#fca5a5; font-size:13px; }
+    .op-meta { color:var(--muted); font-size:10px; margin-top:2px; }
+    .op-freq { color:var(--red); font-family:'Orbitron',sans-serif; font-size:14px; }
+
+    /* Detalle por alumno */
+    #detalle-overlay {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7);
+      backdrop-filter:blur(6px); z-index:100; overflow-y:auto;
+      padding: 40px 20px;
+    }
+    #detalle-overlay.show { display:flex; align-items:flex-start; justify-content:center; }
+    .detalle-card {
+      background: #0f172a; border:1px solid var(--border);
+      border-radius:20px; padding:32px; width:min(640px,100%);
+      position:relative;
+    }
+    .detalle-close {
+      position:absolute; top:16px; right:16px;
+      background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer;
+    }
+    .detalle-close:hover { color:var(--text); }
+    .detalle-nombre { font-family:'Orbitron',sans-serif; font-size:20px; color:var(--blue); margin-bottom:6px; }
+    .detalle-stat { font-size:11px; color:var(--muted); letter-spacing:2px; margin-bottom:20px; }
+    .partida-row {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 14px; border-radius:9px; margin-bottom:6px;
+      background:rgba(255,255,255,0.03); border:1px solid var(--border);
+      font-size:12px; cursor:pointer; transition:background 0.15s;
+    }
+    .partida-row:hover { background:rgba(99,140,255,0.07); }
+    .partida-fecha { color:var(--muted); font-size:10px; }
+    .partida-score { font-family:'Orbitron',sans-serif; color:var(--green); }
+    .partida-errores { color:var(--red); font-size:10px; }
+
+    .loading { text-align:center; color:var(--muted); padding:40px; letter-spacing:2px; font-size:12px; }
+    .empty   { text-align:center; color:var(--muted); padding:24px; font-size:12px; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Panel del Profesor</h1>
+    <div class="subtitle-h">Snake Matemático · Análisis de aprendizaje</div>
+  </div>
+  <button class="btn-actualizar" onclick="cargarTodo()">↻ Actualizar datos</button>
+</div>
+
+<!-- KPIs -->
+<div class="kpis">
+  <div class="kpi"><div class="kpi-label">Alumnos registrados</div><div class="kpi-val green" id="kpi-alumnos">—</div></div>
+  <div class="kpi"><div class="kpi-label">Partidas totales</div><div class="kpi-val blue" id="kpi-partidas">—</div></div>
+  <div class="kpi"><div class="kpi-label">Mejor puntuación</div><div class="kpi-val amber" id="kpi-mejor">—</div></div>
+  <div class="kpi"><div class="kpi-label">Total de errores</div><div class="kpi-val red" id="kpi-errores">—</div></div>
+</div>
+
+<div class="grid">
+
+  <!-- Ranking de alumnos -->
+  <div class="card grid-full">
+    <div class="card-title"><span>🏆</span> Ranking de alumnos</div>
+    <div id="tabla-alumnos"><div class="loading">Cargando...</div></div>
+  </div>
+
+  <!-- Operaciones más fallidas -->
+  <div class="card">
+    <div class="card-title"><span>❌</span> Operaciones más fallidas</div>
+    <div id="ops-fallidas"><div class="loading">Cargando...</div></div>
+  </div>
+
+  <!-- Errores por tipo de operación -->
+  <div class="card">
+    <div class="card-title"><span>📊</span> Errores por tipo de operación</div>
+    <div id="errores-tipo"><div class="loading">Cargando...</div></div>
+  </div>
+
+  <!-- Heatmap alumno × tipo -->
+  <div class="card grid-full">
+    <div class="card-title"><span>🗺</span> Mapa de dificultad · Alumno vs Tipo de operación</div>
+    <div class="heatmap-wrap" id="heatmap"><div class="loading">Cargando...</div></div>
+  </div>
+
+</div>
+
+<!-- Detalle alumno overlay -->
+<div id="detalle-overlay">
+  <div class="detalle-card">
+    <button class="detalle-close" onclick="cerrarDetalle()">✕</button>
+    <div class="detalle-nombre" id="det-nombre">—</div>
+    <div class="detalle-stat" id="det-stat">—</div>
+    <div id="det-partidas"></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+let alumnosData = [];
+let erroresTipoData = [];
+
+async function cargarTodo() {
+  await Promise.all([cargarResumen(), cargarErroresTipo(), cargarHeatmap(), cargarOpsFallidas()]);
+}
+
+async function cargarResumen() {
+  try {
+    const res  = await fetch(CONFIG.ENDPOINTS.profesor.resumen);
+    alumnosData = await res.json();
+
+    // KPIs
+    const totalPartidas = alumnosData.reduce((s,a)=>s+a.partidas_jugadas,0);
+    const mejorPuntuacion = Math.max(0,...alumnosData.map(a=>a.mejor_puntuacion));
+    document.getElementById('kpi-alumnos').textContent  = alumnosData.length;
+    document.getElementById('kpi-partidas').textContent = totalPartidas;
+    document.getElementById('kpi-mejor').textContent    = mejorPuntuacion;
+
+    // Tabla ranking
+    const cont = document.getElementById('tabla-alumnos');
+    if (alumnosData.length === 0) { cont.innerHTML = '<div class="empty">Sin alumnos aún</div>'; return; }
+
+    const sorted = [...alumnosData].sort((a,b)=>b.mejor_puntuacion-a.mejor_puntuacion);
+    cont.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>#</th><th>Nombre</th><th>Partidas</th>
+          <th>Mejor</th><th>Promedio</th><th>Nivel máx</th><th></th><th></th>
+        </tr></thead>
+        <tbody>
+          ${sorted.map((a,i) => `
+            <tr>
+              <td><span class="rank rank-${i+1}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span></td>
+              <td><span class="nombre-alumno">${escHtml(a.nombre)}</span></td>
+              <td>${a.partidas_jugadas}</td>
+              <td><span class="badge badge-green">${a.mejor_puntuacion}</span></td>
+              <td>${Math.round(a.promedio_puntuacion*10)/10}</td>
+              <td><span class="badge badge-blue">Nv. ${a.nivel_max_alcanzado}</span></td>
+              <td><button onclick="verDetalle(${a.id},'${escHtml(a.nombre).replace(/'/g,"\\'")}',${a.partidas_jugadas},${a.mejor_puntuacion})"
+                style="background:none;border:1px solid #334155;border-radius:6px;padding:4px 10px;color:#64748b;cursor:pointer;font-size:11px;">
+                Ver →
+              </button></td>
+              <td><button onclick="eliminarAlumno(${a.id},'${escHtml(a.nombre).replace(/'/g,"\\'")}',this)"
+                style="background:none;border:1px solid #dc2626;border-radius:6px;padding:4px 10px;color:#dc2626;cursor:pointer;font-size:11px;">
+                ✕
+              </button></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+
+    // Total errores (se calcula en cargarErroresTipo)
+  } catch(e) { console.error(e); }
+}
+
+async function cargarErroresTipo() {
+  try {
+    const res = await fetch(CONFIG.ENDPOINTS.profesor.erroresGlobales);
+    erroresTipoData = await res.json();
+
+    const totalErr = erroresTipoData.reduce((s,e)=>s+e.total_errores,0);
+    document.getElementById('kpi-errores').textContent = totalErr;
+
+    const cont = document.getElementById('errores-tipo');
+    if (erroresTipoData.length===0) { cont.innerHTML='<div class="empty">Sin errores registrados</div>'; return; }
+
+    const max = Math.max(...erroresTipoData.map(e=>e.total_errores));
+    cont.innerHTML = erroresTipoData.map(e => `
+      <div class="error-tipo-row">
+        <div class="error-tipo-header">
+          <span class="error-tipo-nombre">${escHtml(e.tipo_op)}</span>
+          <span class="error-tipo-count">${e.total_errores}</span>
+        </div>
+        <div class="bar-wrap">
+          <div class="bar" style="width:${(e.total_errores/max*100)}%"></div>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function cargarOpsFallidas() {
+  try {
+    const res  = await fetch(CONFIG.ENDPOINTS.profesor.operacionesErradas);
+    const data = await res.json();
+    const cont = document.getElementById('ops-fallidas');
+    if (data.length===0) { cont.innerHTML='<div class="empty">Sin operaciones fallidas</div>'; return; }
+    cont.innerHTML = data.slice(0,10).map(op => `
+      <div class="op-row">
+        <div>
+          <div class="op-expr">${escHtml(op.operacion.replace(' = ?',''))}</div>
+          <div class="op-meta">Respuesta: ${op.respuesta_correcta} · ${escHtml(op.tipo_op)}</div>
+        </div>
+        <div class="op-freq">${op.frecuencia}×</div>
+      </div>
+    `).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function cargarHeatmap() {
+  try {
+    const res  = await fetch(CONFIG.ENDPOINTS.profesor.erroresPorAlumno);
+    const data = await res.json();
+    const cont = document.getElementById('heatmap');
+    if (data.length===0) { cont.innerHTML='<div class="empty">Sin datos aún</div>'; return; }
+
+    // Construir matriz
+    const alumnos = [...new Set(data.map(d=>d.nombre))];
+    const tipos   = [...new Set(data.map(d=>d.tipo_op))];
+    const matrix  = {};
+    data.forEach(d => {
+      if (!matrix[d.nombre]) matrix[d.nombre]={};
+      matrix[d.nombre][d.tipo_op]=d.errores;
+    });
+    const maxVal = Math.max(1,...data.map(d=>d.errores));
+
+    function heatColor(val) {
+      if (!val) return 'rgba(255,255,255,0.03)';
+      const t = val/maxVal;
+      const r = Math.round(30 + t*218);
+      const g = Math.round(60 - t*50);
+      const b = Math.round(30 - t*20);
+      return `rgba(${r},${g},${b},${0.3+t*0.5})`;
+    }
+
+    cont.innerHTML = `
+      <table class="heatmap">
+        <thead><tr>
+          <th style="text-align:left">Alumno</th>
+          ${tipos.map(t=>`<th>${escHtml(t)}</th>`).join('')}
+        </tr></thead>
+        <tbody>
+          ${alumnos.map(nombre=>`
+            <tr>
+              <td class="alumno-cell">${escHtml(nombre)}</td>
+              ${tipos.map(tipo=>{
+                const val=(matrix[nombre]||{})[tipo]||0;
+                return `<td>
+                  <div class="cell-val" style="background:${heatColor(val)};color:${val?'#fca5a5':'#334155'}">
+                    ${val||'·'}
+                  </div>
+                </td>`;
+              }).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch(e) { console.error(e); }
+}
+
+// ── Detalle por alumno ────────────────────────────────────────────────────────
+async function verDetalle(id, nombre, partidas, mejor) {
+  document.getElementById('det-nombre').textContent = nombre;
+  document.getElementById('det-stat').textContent = `${partidas} partidas · Mejor: ${mejor} puntos`;
+  document.getElementById('det-partidas').innerHTML = '<div class="loading">Cargando historial...</div>';
+  document.getElementById('detalle-overlay').classList.add('show');
+
+  try {
+    const res  = await fetch(`/api/alumno/${id}/historial`);
+    const data = await res.json();
+    if (data.length===0) {
+      document.getElementById('det-partidas').innerHTML='<div class="empty">Sin partidas</div>';
+      return;
+    }
+    document.getElementById('det-partidas').innerHTML = data.map(p=>`
+      <div class="partida-row" onclick="verErroresPartida(${p.id})">
+        <div>
+          <div class="partida-fecha">${p.fecha}</div>
+          <div class="partida-errores">${p.total_errores} error${p.total_errores!==1?'es':''} · Nivel máx: ${p.nivel_max}</div>
+        </div>
+        <div class="partida-score">${p.puntuacion} pts</div>
+      </div>
+    `).join('');
+  } catch(e) { console.error(e); }
+}
+
+async function verErroresPartida(partidaId) {
+  try {
+    const res   = await fetch(`/api/partida/${partidaId}/errores`);
+    const errs  = await res.json();
+    if (errs.length===0) { alert('Sin errores en esta partida ✅'); return; }
+    const texto = errs.map(e=>`• ${e.operacion}  →  pusiste ${e.respuesta_dada}, correcto: ${e.respuesta_correcta}  (${e.tipo_op})`).join('\n');
+    alert(`Errores de esta partida:\n\n${texto}`);
+  } catch(e) { console.error(e); }
+}
+
+function cerrarDetalle() {
+  document.getElementById('detalle-overlay').classList.remove('show');
+}
+
+async function eliminarAlumno(id, nombre, btnEl) {
+  if (!confirm(`⚠️ ¿Eliminar a "${nombre}" y todos sus datos?\n\nEsta acción NO se puede deshacer.`)) return;
+  
+  btnEl.disabled = true;
+  btnEl.textContent = '...';
+  
+  try {
+    const res = await fetch(`/api/alumno/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    
+    if (res.ok) {
+      alert(`✅ "${nombre}" ha sido eliminado`);
+      cargarTodo();
+    } else {
+      alert(`❌ Error: ${data.error}`);
+      btnEl.disabled = false;
+      btnEl.textContent = '✕';
+    }
+  } catch(e) {
+    alert(`❌ Error de conexión`);
+    btnEl.disabled = false;
+    btnEl.textContent = '✕';
+  }
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Cerrar overlay al hacer clic fuera
+document.getElementById('detalle-overlay').addEventListener('click', e => {
+  if (e.target===e.currentTarget) cerrarDetalle();
+});
+
+// Cargar al iniciar y auto-refrescar cada 30s
+cargarTodo();
+setInterval(cargarTodo, 30000);
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+⚡ INICIO RÁPIDO - 3 PASOS
+
+═══════════════════════════════════════════════════════════════
+
+PASO 1️⃣  - SUBIR A GITHUB (5 minutos)
+───────────────────────────────────────
+
+Abre Terminal en /Users/edcruz/Desktop/snake-app:
+
+  git init
+  git add .
+  git commit -m "Initial commit - ready for Railway"
+  git remote add origin https://github.com/TU_USUARIO/snake-matematico.git
+  git branch -M main
+  git push -u origin main
+
+(Crea cuenta en GitHub si no tienes: https://github.com)
+
+
+PASO 2️⃣  - DESPLEGAR EN RAILWAY (2 minutos)
+──────────────────────────────────────────
+
+1. Ve a https://railway.app
+2. Click "Login with GitHub"
+3. Click "+ New Project"
+4. "Deploy from GitHub repo"
+5. Selecciona "snake-matematico"
+6. Click "Deploy now"
+7. Espera 2-3 minutos ⏳
+
+Railway automáticamente te da un link tipo:
+  https://snake-matematico-production.up.railway.app
+
+
+PASO 3️⃣  - COMPARTIR CON LOS NIÑOS (1 minuto)
+───────────────────────────────────────────
+
+Envía este link a los niños:
+  https://snake-matematico-production.up.railway.app/
+
+Ellos:
+  1. Abren el link
+  2. Escriben su nombre
+  3. ¡A JUGAR! 🎮
+
+Tú ves todo en:
+  https://snake-matematico-production.up.railway.app/profesor
+
+
+═══════════════════════════════════════════════════════════════
+
+PREGUNTAS FRECUENTES:
+
+¿Cómo veo el progreso de los niños?
+→ Ve a /profesor en tu enlace de Railway
+
+¿Qué pasa si cierro la computadora?
+→ No importa, los datos están en Railway, siempre disponibles
+
+¿Los niños pueden descargar un .exe?
+→ Sí, pero no es necesario. El navegador es suficiente.
+  Si quieres: npm install -g pkg && pkg . --targets win-x64
+
+¿Cuánto cuesta?
+→ Gratis. Railway tiene plan gratuito para esto.
+
+¿Pueden jugar sin internet?
+→ No. Necesitan conexión a internet para conectar con Railway.
+
+═══════════════════════════════════════════════════════════════
+
+DOCUMENTACIÓN COMPLETA: Ver DEPLOYMENT.md
+
