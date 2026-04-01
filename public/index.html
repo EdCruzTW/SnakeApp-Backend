@@ -239,10 +239,11 @@
   <div id="reg-pin-generado" style="display: none; margin-bottom: 20px; padding: 16px; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); border-radius: 12px;">
     <div style="color: #64748b; font-size: 11px; letter-spacing: 1px; margin-bottom: 8px;">TU CÓDIGO DE ACCESO:</div>
     <div id="reg-pin-valor" style="font-family: 'Orbitron', monospace; font-size: 28px; color: #4ade80; letter-spacing: 4px; font-weight: bold; text-align: center; margin-bottom: 8px;"></div>
-    <div style="color: #64748b; font-size: 10px; text-align: center;">⚠ ¡Guarda este código para ingresar!</div>
+    <div style="color: #64748b; font-size: 10px; text-align: center;">⚠ ¡Guarda este código! Lo necesitarás para ingresar.</div>
   </div>
 
   <button class="btn-play" id="btn-crear" onclick="crearCuenta()" style="margin-bottom: 12px;">CREAR CUENTA</button>
+  <button class="btn-play" id="btn-continuar-login" onclick="irALoginConPin()" style="display: none; margin-bottom: 12px; background: #4ade80;">CONTINUAR A INGRESO →</button>
   <button class="btn-play" onclick="mostrarInicio()" style="background: #475569;">← ATRÁS</button>
 </div>
 
@@ -369,21 +370,29 @@
       document.getElementById('reg-nombre').disabled = true;
       document.getElementById('reg-escuela').disabled = true;
       document.getElementById('reg-grupo').disabled = true;
-      btn.textContent = '✓ CUENTA CREADA';
-      btn.disabled = true;
-
-      // Auto-llenar pantalla de ingreso
-      setTimeout(() => {
-        document.getElementById('ing-nombre').value = nombre;
-        document.getElementById('ing-pin').value = data.alumno.pin;
-        mostrarIngreso();
-      }, 2000);
+      document.getElementById('btn-crear').style.display = 'none';
+      document.getElementById('btn-continuar-login').style.display = 'block';
+      
+      // Guardar datos para después
+      window.pinRegistrado = {
+        nombre: nombre,
+        pin: data.alumno.pin
+      };
 
     } catch (e) {
       errorDiv.textContent = '⚠ Error de conexión. Intenta de nuevo.';
       btn.disabled = false;
       btn.textContent = 'CREAR CUENTA';
     }
+  }
+
+  // ── Ir a login con PIN pre-llenado ────────────────────────────────────────
+  function irALoginConPin() {
+    if (window.pinRegistrado) {
+      document.getElementById('ing-nombre').value = window.pinRegistrado.nombre;
+      document.getElementById('ing-pin').value = window.pinRegistrado.pin;
+    }
+    mostrarIngreso();
   }
 
   // ── Ingresar Cuenta ───────────────────────────────────────────────────────
