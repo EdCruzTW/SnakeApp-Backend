@@ -93,6 +93,20 @@
       text-transform: uppercase; margin-bottom: clamp(6px, 1.5vw, 12px); opacity: 0.85;
     }
 
+    .mobile-instructions {
+      position: relative; z-index: 1;
+      font-size: clamp(7px, 1.1vw, 9px); letter-spacing: 1px; color: #94a3ff;
+      background: rgba(99,140,255,0.08);
+      border: 1px solid rgba(99,140,255,0.2);
+      border-radius: 8px; padding: clamp(6px, 1vw, 8px) clamp(10px, 2vw, 14px);
+      text-align: center; margin-bottom: clamp(8px, 1.5vw, 12px);
+      display: none;
+    }
+    
+    @media (max-width: 768px) {
+      .mobile-instructions { display: block; }
+    }
+
     .canvas-wrap { position: relative; z-index: 1; touch-action: none; }
 
     #game {
@@ -216,6 +230,7 @@
 
   <div id="operation">Cargando...</div>
   <div id="level-label">NIVEL 1</div>
+  <div class="mobile-instructions">👆 Desliza con tu dedo para mover la serpiente</div>
 
   <div class="canvas-wrap">
     <canvas id="game" width="840" height="840"></canvas>
@@ -700,9 +715,9 @@ let lastTime=0;
 
 function getGameSpeed() {
   const level = getLevel();
-  // Velocidad base: 150ms
-  // Cada nivel reduce 12ms (max 60ms en nivel 7+)
-  const speed = Math.max(60, 150 - (level * 12));
+  // Velocidad base: 120ms (más fluida que 150ms)
+  // Cada nivel reduce 10ms (max 50ms en nivel 7+)
+  const speed = Math.max(50, 120 - (level * 10));
   return speed;
 }
 
