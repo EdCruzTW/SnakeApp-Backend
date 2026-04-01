@@ -121,6 +121,38 @@
       #game { max-width: calc(100vw - 16px); }
     }
 
+    /* ── OVERLAY START ─────────────────────────────────────────────────────────── */
+    #overlay-start {
+      display: flex; position: absolute; inset: 0; border-radius: 16px;
+      background: rgba(2,6,23,0.96); backdrop-filter: blur(8px);
+      flex-direction: column; align-items: center; justify-content: center; z-index: 10;
+      padding: 32px 28px;
+    }
+    #overlay-start.hidden { display: none; }
+
+    .start-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(24px, 5vw, 40px); font-weight: 900; letter-spacing: 3px;
+      color: #4ade80; filter: drop-shadow(0 0 12px rgba(74,222,128,0.5));
+      margin-bottom: 16px; text-align: center;
+    }
+
+    .start-message {
+      font-size: clamp(12px, 3vw, 16px); color: #94a3ff; text-align: center;
+      margin-bottom: 28px; line-height: 1.5; max-width: 280px;
+    }
+
+    .btn-iniciar {
+      background: linear-gradient(135deg, #4ade80, #86efac);
+      border: none; border-radius: 12px; padding: clamp(12px, 2vw, 16px) clamp(32px, 8vw, 48px);
+      font-family: 'Orbitron', sans-serif; font-size: clamp(14px, 3vw, 18px);
+      font-weight: 700; letter-spacing: 2px; color: #0b1120;
+      cursor: pointer; transition: all 0.3s;
+      filter: drop-shadow(0 0 10px rgba(74,222,128,0.35));
+      text-transform: uppercase;
+    }
+    .btn-iniciar:hover { filter: drop-shadow(0 0 20px rgba(74,222,128,0.6)); transform: scale(1.05); }
+
     /* ── OVERLAY GAME OVER con análisis ─────────────────────────────────── */
     #overlay {
       display: none; position: absolute; inset: 0; border-radius: 16px;
@@ -234,6 +266,11 @@
 
   <div class="canvas-wrap">
     <canvas id="game" width="840" height="840"></canvas>
+    <div id="overlay-start">
+      <div class="start-title">¿LISTO?</div>
+      <div class="start-message">Presiona el botón cuando estés preparado para comenzar el juego</div>
+      <button class="btn-iniciar" id="btn-start">INICIAR JUEGO</button>
+    </div>
     <div id="overlay">
       <div class="overlay-title">GAME OVER</div>
       <div class="overlay-puntos" id="overlay-puntos">0 puntos</div>
@@ -295,6 +332,7 @@ let gameOver, score, bestScore = 0, lives;
 let flashColor, flashTimer, particles;
 let erroresPartida = []; // registro de errores de esta partida
 let nivelMax = 1;
+let gameStarted = false; // control para inicio manual
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 function initGame() {
@@ -708,7 +746,14 @@ canvas.addEventListener("touchend", (e) => {
   }
 }, false);
 
-document.getElementById("restart-btn").addEventListener("click", initGame);
+document.getElementById("restart-btn").addEventListener("click", startGame);
+document.getElementById("btn-start").addEventListener("click", startGame);
+
+function startGame() {
+  gameStarted = true;
+  document.getElementById("overlay-start").classList.add("hidden");
+  initGame();
+}
 
 // ── Loop ──────────────────────────────────────────────────────────────────────
 let lastTime=0;
@@ -722,12 +767,13 @@ function getGameSpeed() {
 }
 
 function gameLoop(ts) {
-  const INTERVAL = getGameSpeed();
-  if (ts-lastTime>=INTERVAL) { update(); lastTime=ts; }
+  if (gameStarted && !gameOver) {
+    const INTERVAL = getGameSpeed();
+    if (ts-lastTime>=INTERVAL) { update(); lastTime=ts; }
+  }
   draw();
   requestAnimationFrame(gameLoop);
 }
-initGame();
 requestAnimationFrame(gameLoop);
 </script>
 </body>
