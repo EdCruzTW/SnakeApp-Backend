@@ -20,8 +20,15 @@
       overflow-x: hidden;
     }
     
+    @media (max-width: 600px) {
+      body { 
+        padding: 8px 4px 8px 4px;
+        min-height: 100dvh;
+      }
+    }
+    
     @media (max-width: 480px) {
-      body { padding: 10px 6px 28px; }
+      body { padding: 6px 4px 6px 4px; }
     }
 
     body::before {
@@ -34,11 +41,11 @@
       pointer-events: none; z-index: 0;
     }
 
-    header { position:relative;z-index:1;text-align:center;margin-bottom:12px; }
+    header { position:relative;z-index:1;text-align:center;margin-bottom:clamp(6px, 2vw, 12px); }
 
     h1 {
       font-family: 'Orbitron', sans-serif;
-      font-size: clamp(18px, 4vw, 28px);
+      font-size: clamp(16px, 3.5vw, 28px);
       font-weight: 900; letter-spacing: 4px;
       background: linear-gradient(90deg, #4ade80, #86efac, #4ade80);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
@@ -46,23 +53,23 @@
     }
 
     #alumno-nombre {
-      font-size: clamp(9px, 2vw, 11px); color: #64748b; letter-spacing: 2px; margin-top: 3px;
+      font-size: clamp(8px, 1.5vw, 11px); color: #64748b; letter-spacing: 2px; margin-top: 2px;
     }
 
     .hud {
       position: relative; z-index: 1;
-      display: flex; gap: clamp(8px, 2vw, 12px); margin-bottom: 10px;
+      display: flex; gap: clamp(6px, 1.5vw, 12px); margin-bottom: clamp(6px, 1.5vw, 10px);
       align-items: center; flex-wrap: wrap; justify-content: center;
     }
 
     .hud-box {
       background: rgba(148,163,255,0.06);
       border: 1px solid rgba(74,222,128,0.15);
-      border-radius: 10px; padding: clamp(6px, 1.5vw, 8px) clamp(12px, 3vw, 20px);
-      text-align: center; min-width: clamp(70px, 20vw, 90px);
+      border-radius: 10px; padding: clamp(4px, 1vw, 8px) clamp(8px, 2vw, 20px);
+      text-align: center; min-width: clamp(60px, 18vw, 90px);
     }
-    .hud-label { font-size: clamp(8px, 1.5vw, 9px); letter-spacing: 2px; color: #64748b; text-transform: uppercase; }
-    .hud-value { font-family:'Orbitron',sans-serif; font-size: clamp(18px, 4vw, 22px); color: #4ade80;
+    .hud-label { font-size: clamp(7px, 1.2vw, 9px); letter-spacing: 2px; color: #64748b; text-transform: uppercase; }
+    .hud-value { font-family:'Orbitron',sans-serif; font-size: clamp(16px, 3.5vw, 22px); color: #4ade80;
       filter: drop-shadow(0 0 5px rgba(74,222,128,0.45)); }
 
     .lives-dots { display:flex; gap:clamp(3px, 1vw, 5px); justify-content:center; margin-top:4px; }
@@ -73,8 +80,8 @@
     #operation {
       position: relative; z-index: 1;
       font-family: 'Orbitron', sans-serif;
-      font-size: clamp(24px, 5vw, 42px); font-weight: 700;
-      margin-bottom: 6px; padding: 12px 36px; border-radius: 14px;
+      font-size: clamp(20px, 4.5vw, 42px); font-weight: 700;
+      margin-bottom: clamp(4px, 1vw, 6px); padding: clamp(8px, 1.5vw, 12px) clamp(20px, 4vw, 36px); border-radius: 14px;
       background: rgba(148,163,255,0.06);
       border: 1px solid rgba(74,222,128,0.2);
       letter-spacing: 2px; color: white;
@@ -82,8 +89,8 @@
 
     #level-label {
       position: relative; z-index: 1;
-      font-size: clamp(9px, 1.5vw, 10px); letter-spacing: 3px; color: #fbbf24;
-      text-transform: uppercase; margin-bottom: 12px; opacity: 0.85;
+      font-size: clamp(8px, 1.2vw, 10px); letter-spacing: 3px; color: #fbbf24;
+      text-transform: uppercase; margin-bottom: clamp(6px, 1.5vw, 12px); opacity: 0.85;
     }
 
     .canvas-wrap { position: relative; z-index: 1; touch-action: none; }
@@ -181,7 +188,7 @@
     .btn-salir:hover { color: #94a3b8; }
 
     .controls {
-      position: relative; z-index: 1; margin-top: 12px;
+      position: relative; z-index: 1; margin-top: clamp(8px, 2vw, 12px);
       display: flex; gap: 16px; align-items: center;
       color: #64748b; font-size: 11px; letter-spacing: 1px;
       flex-wrap: wrap; justify-content: center;
@@ -192,30 +199,6 @@
       border-radius: 5px; background: #0f172a; font-size: 11px;
       color: #94a3b8; margin: 0 2px;
     }
-
-    .dpad { 
-      position:fixed; bottom:16px; left:50%; transform:translateX(-50%); z-index:1;
-      display:none; flex-direction:column; align-items:center; 
-      background: rgba(2,6,23,0.85); backdrop-filter: blur(8px);
-      padding: 16px; border-radius: 16px;
-      border: 1px solid rgba(74,222,128,0.2);
-    }
-    @media (max-width:600px) { .dpad { display:flex; } }
-    .dpad-row { display:flex; gap:8px; }
-    .dpad-btn {
-      width: 56px; height: 56px; 
-      background: rgba(74,222,128,0.12); border: 2px solid rgba(74,222,128,0.3);
-      border-radius: 12px; color:#4ade80; font-size: 24px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s; -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation; user-select: none;
-    }
-    .dpad-btn:active { 
-      background: rgba(74,222,128,0.25); 
-      border-color: rgba(74,222,128,0.6);
-      box-shadow: 0 0 12px rgba(74,222,128,0.4);
-    }
-    .dpad-spacer { width: 56px; height: 56px; }
   </style>
 </head>
 <body>
@@ -252,15 +235,19 @@
   </div>
 
   <div class="controls">
-    <span><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> · mover</span>
-    <span><span class="key">↑</span><span class="key">←</span><span class="key">↓</span><span class="key">→</span> · mover</span>
+    <span style="display: none;" class="desktop-only"><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span> · mover</span>
+    <span style="display: none;" class="desktop-only"><span class="key">↑</span><span class="key">←</span><span class="key">↓</span><span class="key">→</span> · mover</span>
   </div>
 
-  <div class="dpad">
-    <div class="dpad-row"><div class="dpad-spacer"></div><button class="dpad-btn" id="btn-up">▲</button><div class="dpad-spacer"></div></div>
-    <div class="dpad-row" style="margin:6px 0"><button class="dpad-btn" id="btn-left">◀</button><div class="dpad-spacer"></div><button class="dpad-btn" id="btn-right">▶</button></div>
-    <div class="dpad-row"><div class="dpad-spacer"></div><button class="dpad-btn" id="btn-down">▼</button><div class="dpad-spacer"></div></div>
-  </div>
+  <div class="swipe-hint" id="swipe-hint">👈 Desliza para mover</div>
+
+  <style>
+    .desktop-only { display: none; }
+    @media (min-width: 601px) { .desktop-only { display: inline; } }
+    .swipe-hint { display: none; position: relative; z-index: 1; color: #64748b; font-size: clamp(10px, 2vw, 12px); margin-top: clamp(6px, 1.5vw, 10px); letter-spacing: 1px; animation: pulse 2s infinite; }
+    @media (max-width: 600px) { .swipe-hint { display: block; } }
+    @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+  </style>
 
 <script src="config.js"></script>
 <script>
@@ -672,17 +659,40 @@ document.addEventListener("keydown", e => {
   if (k==="r") initGame();
   if ([" ","arrowup","arrowdown","arrowleft","arrowright"].includes(k)) e.preventDefault();
 });
-document.getElementById("btn-up").addEventListener("click",    ()=>{ if(dir.y===0) nextDir={x:0,y:-1}; });
-document.getElementById("btn-up").addEventListener("touchstart", (e)=>{ e.preventDefault(); if(dir.y===0) nextDir={x:0,y:-1}; });
+// ── Swipe Gesture Controls ────────────────────────────────────────────────────
+const SWIPE_THRESHOLD = 35;
+let touchStartX = 0, touchStartY = 0;
+let swipeHint = document.getElementById("swipe-hint");
+let firstSwipeDetected = false;
 
-document.getElementById("btn-down").addEventListener("click",  ()=>{ if(dir.y===0) nextDir={x:0,y:1}; });
-document.getElementById("btn-down").addEventListener("touchstart", (e)=>{ e.preventDefault(); if(dir.y===0) nextDir={x:0,y:1}; });
+canvas.addEventListener("touchstart", (e) => {
+  const touch = e.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+}, false);
 
-document.getElementById("btn-left").addEventListener("click",  ()=>{ if(dir.x===0) nextDir={x:-1,y:0}; });
-document.getElementById("btn-left").addEventListener("touchstart", (e)=>{ e.preventDefault(); if(dir.x===0) nextDir={x:-1,y:0}; });
+canvas.addEventListener("touchend", (e) => {
+  const touch = e.changedTouches[0];
+  const deltaX = touch.clientX - touchStartX;
+  const deltaY = touch.clientY - touchStartY;
+  
+  // Hide swipe hint on first successful swipe
+  if (!firstSwipeDetected && (Math.abs(deltaX) > SWIPE_THRESHOLD || Math.abs(deltaY) > SWIPE_THRESHOLD)) {
+    firstSwipeDetected = true;
+    if (swipeHint) swipeHint.style.display = "none";
+  }
+  
+  // Detect swipe direction
+  if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
+    if (deltaX > 0 && dir.x === 0) nextDir = {x: 1, y: 0}; // Right
+    else if (deltaX < 0 && dir.x === 0) nextDir = {x: -1, y: 0}; // Left
+  }
+  if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
+    if (deltaY > 0 && dir.y === 0) nextDir = {x: 0, y: 1}; // Down
+    else if (deltaY < 0 && dir.y === 0) nextDir = {x: 0, y: -1}; // Up
+  }
+}, false);
 
-document.getElementById("btn-right").addEventListener("click", ()=>{ if(dir.x===0) nextDir={x:1,y:0}; });
-document.getElementById("btn-right").addEventListener("touchstart", (e)=>{ e.preventDefault(); if(dir.x===0) nextDir={x:1,y:0}; });
 document.getElementById("restart-btn").addEventListener("click", initGame);
 
 // ── Loop ──────────────────────────────────────────────────────────────────────
