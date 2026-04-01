@@ -323,10 +323,16 @@ let profesorToken = localStorage.getItem('profesor-token');
 const loginOverlay = document.getElementById('login-overlay');
 const mainContent = document.querySelector('.header');
 
+// Limpiar token inválido al cargar (por si acaso quedó uno expirado)
+// El servidor validará cada petición
+
 // Verificar si ya tiene token válido
 if (profesorToken) {
   loginOverlay.classList.remove('show');
+  // El token se verificará cuando intente hacer peticiones
 } else {
+  // Mostrar formulario de login
+  loginOverlay.classList.add('show');
   // Bloquear acceso hasta que se autentique
   document.querySelector('.grid').style.display = 'none';
 }
@@ -395,6 +401,17 @@ function cerrarSesion() {
 let alumnosData = [];
 let erroresTipoData = [];
 
+// Helper para manejar errores de autenticación
+async function handleAuthError(response) {
+  if (response.status === 401) {
+    cerrarSesion();
+    document.getElementById('login-error').textContent = '⚠ Sesión expirada. Ingresa nuevamente.';
+    document.getElementById('login-error').classList.add('show');
+    return true;
+  }
+  return false;
+}
+
 async function cargarTodo() {
   await Promise.all([cargarResumen(), cargarErroresTipo(), cargarHeatmap(), cargarOpsFallidas()]);
 }
@@ -404,6 +421,10 @@ async function cargarResumen() {
     const res  = await fetch(CONFIG.ENDPOINTS.profesor.resumen, {
       headers: getAuthHeaders()
     });
+    
+    // Verificar si la sesión expiró
+    if (await handleAuthError(res)) return;
+    
     alumnosData = await res.json();
 
     // KPIs
@@ -455,6 +476,9 @@ async function cargarErroresTipo() {
     const res = await fetch(CONFIG.ENDPOINTS.profesor.erroresGlobales, {
       headers: getAuthHeaders()
     });
+    
+    if (await handleAuthError(res)) return;
+    
     erroresTipoData = await res.json();
 
     const totalErr = erroresTipoData.reduce((s,e)=>s+e.total_errores,0);
@@ -483,6 +507,9 @@ async function cargarOpsFallidas() {
     const res  = await fetch(CONFIG.ENDPOINTS.profesor.operacionesErradas, {
       headers: getAuthHeaders()
     });
+    
+    if (await handleAuthError(res)) return;
+    
     const data = await res.json();
     const cont = document.getElementById('ops-fallidas');
     if (data.length===0) { cont.innerHTML='<div class="empty">Sin operaciones fallidas</div>'; return; }
@@ -503,6 +530,9 @@ async function cargarHeatmap() {
     const res  = await fetch(CONFIG.ENDPOINTS.profesor.erroresPorAlumno, {
       headers: getAuthHeaders()
     });
+    
+    if (await handleAuthError(res)) return;
+    
     const data = await res.json();
     const cont = document.getElementById('heatmap');
     if (data.length===0) { cont.innerHTML='<div class="empty">Sin datos aún</div>'; return; }
