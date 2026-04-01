@@ -655,9 +655,11 @@ document.getElementById('detalle-overlay').addEventListener('click', e => {
   if (e.target===e.currentTarget) cerrarDetalle();
 });
 
-// Cargar al iniciar y auto-refrescar cada 30s
-cargarTodo();
-setInterval(cargarTodo, 30000);
+// Cargar al iniciar solo si tiene token válido, y auto-refrescar cada 30s
+if (profesorToken) {
+  cargarTodo();
+  setInterval(cargarTodo, 30000);
+}
 </script>
 </body>
 </html>
