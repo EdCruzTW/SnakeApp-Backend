@@ -351,7 +351,11 @@ function initGame() {
   document.getElementById("overlay").classList.remove("show");
   updateHUD();
   newQuestion();
+  draw(); // Dibujar la serpiente inicial
 }
+
+// Inicializar el juego al cargar la página (sin que empiece a moverse)
+initGame();
 
 // ── HUD ───────────────────────────────────────────────────────────────────────
 function updateHUD() {
