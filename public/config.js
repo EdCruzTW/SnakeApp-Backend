@@ -14,6 +14,10 @@ const CONFIG = {
   // Endpoints de la API
   get ENDPOINTS() {
     return {
+      alumno: {
+        registrar: `${this.API_URL}/api/alumno/registrar`,
+        login: `${this.API_URL}/api/alumno/login`,
+      },
       buscarAlumno: `${this.API_URL}/api/buscar-alumno`,
       entrar: `${this.API_URL}/api/entrar`,
       partida: `${this.API_URL}/api/partida`,

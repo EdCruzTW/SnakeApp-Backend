@@ -35,9 +35,13 @@ db.pragma("journal_mode = WAL");
 // Inicializar tablas
 db.exec(`
   CREATE TABLE IF NOT EXISTS alumnos (
-    id       INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre   TEXT NOT NULL UNIQUE,
-    creado   TEXT DEFAULT (datetime('now','localtime'))
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre          TEXT NOT NULL,
+    pin             TEXT NOT NULL UNIQUE,
+    escuela         TEXT,
+    grupo           TEXT,
+    veces_jugadas   INTEGER DEFAULT 0,
+    creado          TEXT DEFAULT (datetime('now','localtime'))
   );
 
   CREATE TABLE IF NOT EXISTS partidas (
@@ -60,6 +64,26 @@ db.exec(`
 
 // ── Middlewares
 app.use(express.json());
+
+// ── Funciones helper para PIN ────────────────────────────────────────────────
+function generarPINUnico(longitud = 6) {
+  let pin;
+  let intento = 0;
+  const maxIntentos = 100;
+  
+  do {
+    pin = Math.floor(Math.random() * Math.pow(10, longitud))
+      .toString()
+      .padStart(longitud, '0');
+    intento++;
+    
+    if (intento > maxIntentos) {
+      throw new Error("No se pudo generar PIN único");
+    }
+  } while (db.prepare(`SELECT id FROM alumnos WHERE pin = ?`).get(pin));
+  
+  return pin;
+}
 
 // ── API: Autenticación del profesor
 app.post("/api/profesor/login", (req, res) => {
@@ -92,35 +116,109 @@ function verifyProfessorToken(req, res, next) {
   next();
 }
 
-// ── API: Buscar alumno
-app.post("/api/buscar-alumno", (req, res) => {
+// ── API: Registro de nuevo alumno (sin PIN aún)
+app.post("/api/alumno/registrar", (req, res) => {
   try {
-    const nombre = (req.body.nombre || "").trim();
-    if (!nombre) return res.status(400).json({ error: "Nombre requerido" });
-
-    const alumno = db.prepare(`SELECT * FROM alumnos WHERE nombre = ?`).get(nombre);
-    if (!alumno) return res.json({ found: false });
+    const { nombre, escuela, grupo } = req.body;
     
-    const stats = db.prepare(`
-      SELECT COUNT(*) as partidas, COALESCE(MAX(puntuacion),0) as mejor
-      FROM partidas WHERE alumno_id = ?
-    `).get(alumno.id);
+    if (!nombre || !nombre.trim()) {
+      return res.status(400).json({ error: "Nombre requerido" });
+    }
     
-    res.json({ found: true, alumno, stats });
+    const nombreLimpio = nombre.trim();
+    
+    // Verificar si ya existe alumno con este nombre
+    const existente = db.prepare(`SELECT id FROM alumnos WHERE nombre = ?`).get(nombreLimpio);
+    if (existente) {
+      return res.status(409).json({ error: "Este nombre ya está registrado" });
+    }
+    
+    // Generar PIN único
+    const pin = generarPINUnico(6);
+    
+    // Insertar alumno
+    const stmt = db.prepare(`
+      INSERT INTO alumnos (nombre, pin, escuela, grupo, veces_jugadas)
+      VALUES (?, ?, ?, ?, 0)
+    `);
+    const result = stmt.run(nombreLimpio, pin, escuela || null, grupo || null);
+    
+    res.json({
+      ok: true,
+      alumno: {
+        id: result.lastInsertRowid,
+        nombre: nombreLimpio,
+        pin: pin,
+        escuela: escuela || null,
+        grupo: grupo || null
+      }
+    });
   } catch(e) {
     res.status(500).json({ error: e.message });
   }
 });
 
-// ── API: Alumno entra
+// ── API: Login de alumno con nombre + PIN
+app.post("/api/alumno/login", (req, res) => {
+  try {
+    const { nombre, pin } = req.body;
+    
+    if (!nombre || !nombre.trim()) {
+      return res.status(400).json({ error: "Nombre requerido" });
+    }
+    if (!pin || !pin.trim()) {
+      return res.status(400).json({ error: "PIN requerido" });
+    }
+    
+    const nombreLimpio = nombre.trim();
+    const pinLimpio = pin.trim();
+    
+    // Buscar alumno por nombre y PIN
+    const alumno = db.prepare(`
+      SELECT id, nombre, escuela, grupo, veces_jugadas 
+      FROM alumnos 
+      WHERE nombre = ? AND pin = ?
+    `).get(nombreLimpio, pinLimpio);
+    
+    if (!alumno) {
+      return res.status(401).json({ error: "Nombre o PIN incorrectos" });
+    }
+    
+    // Incrementar contador de veces jugadas
+    db.prepare(`UPDATE alumnos SET veces_jugadas = veces_jugadas + 1 WHERE id = ?`).run(alumno.id);
+    
+    const stats = db.prepare(`
+      SELECT COUNT(*) as partidas, COALESCE(MAX(puntuacion), 0) as mejor
+      FROM partidas WHERE alumno_id = ?
+    `).get(alumno.id);
+    
+    res.json({
+      ok: true,
+      alumno: { id: alumno.id, nombre: alumno.nombre },
+      stats
+    });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── API: Alumno entra (DEPRECATED - mantener para compatibilidad)
 app.post("/api/entrar", (req, res) => {
   try {
     const nombre = (req.body.nombre || "").trim();
     if (!nombre) return res.status(400).json({ error: "Nombre requerido" });
 
-    db.prepare(`INSERT OR IGNORE INTO alumnos (nombre) VALUES (?)`).run(nombre);
+    // Buscar alumno existente
+    let alumno = db.prepare(`SELECT id FROM alumnos WHERE nombre = ?`).get(nombre);
     
-    const alumno = db.prepare(`SELECT * FROM alumnos WHERE nombre = ?`).get(nombre);
+    // Si no existe, crear con PIN aleatorio
+    if (!alumno) {
+      const pin = generarPINUnico(6);
+      const stmt = db.prepare(`INSERT INTO alumnos (nombre, pin) VALUES (?, ?)`);
+      const result = stmt.run(nombre, pin);
+      alumno = { id: result.lastInsertRowid, nombre, pin };
+    }
+    
     const stats = db.prepare(`
       SELECT COUNT(*) as partidas, COALESCE(MAX(puntuacion),0) as mejor
       FROM partidas WHERE alumno_id = ?

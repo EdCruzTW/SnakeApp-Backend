@@ -202,28 +202,71 @@
 </head>
 <body>
 
-<div class="card">
+<div class="card" id="pantalla-inicio">
   <span class="snake-icon">🐍</span>
   <h1>Snake Matemático</h1>
   <p class="tagline">¡Demuestra tus habilidades!</p>
 
-  <div class="input-wrap">
-    <input type="text" id="nombre" placeholder="Escribe tu nombre completo" maxlength="50" autocomplete="off" autocorrect="off" spellcheck="false">
+  <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+    <button class="btn-play" id="btn-registro" onclick="mostrarRegistro()" style="flex:1; background: #60a5fa;">CREAR CUENTA</button>
+    <button class="btn-play" id="btn-ingreso" onclick="mostrarIngreso()" style="flex:1; background: #fbbf24; color: #000;">INGRESAR</button>
   </div>
-
-  <div id="error-msg"></div>
-
-  <div id="bienvenida">
-    <div>¡Hola de nuevo, <span class="nombre" id="bienvenida-nombre"></span>!</div>
-    <div class="stats" id="bienvenida-stats"></div>
-  </div>
-
-  <button class="btn-play" id="btn-jugar" onclick="entrar()">¡JUGAR!</button>
 
   <div class="divider">ACCESO</div>
   <button class="btn-profesor" onclick="window.location='./profesor.html'">Panel del Profesor →</button>
 </div>
 
+<!-- Pantalla de Registro -->
+<div class="card" id="pantalla-registro" style="display: none;">
+  <span class="snake-icon">📝</span>
+  <h1>Crear Cuenta</h1>
+  <p class="tagline">Completa tus datos</p>
+
+  <div class="input-wrap">
+    <input type="text" id="reg-nombre" placeholder="Tu nombre completo" maxlength="50" autocomplete="off">
+  </div>
+
+  <div class="input-wrap">
+    <input type="text" id="reg-escuela" placeholder="Tu escuela (opcional)" maxlength="50" autocomplete="off">
+  </div>
+
+  <div class="input-wrap">
+    <input type="text" id="reg-grupo" placeholder="Tu grupo (ej: 6°A)" maxlength="20" autocomplete="off">
+  </div>
+
+  <div id="reg-error" style="color: #f87171; font-size: 12px; margin-bottom: 12px; min-height: 16px;"></div>
+
+  <div id="reg-pin-generado" style="display: none; margin-bottom: 20px; padding: 16px; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); border-radius: 12px;">
+    <div style="color: #64748b; font-size: 11px; letter-spacing: 1px; margin-bottom: 8px;">TU CÓDIGO DE ACCESO:</div>
+    <div id="reg-pin-valor" style="font-family: 'Orbitron', monospace; font-size: 28px; color: #4ade80; letter-spacing: 4px; font-weight: bold; text-align: center; margin-bottom: 8px;"></div>
+    <div style="color: #64748b; font-size: 10px; text-align: center;">⚠ ¡Guarda este código para ingresar!</div>
+  </div>
+
+  <button class="btn-play" id="btn-crear" onclick="crearCuenta()" style="margin-bottom: 12px;">CREAR CUENTA</button>
+  <button class="btn-play" onclick="mostrarInicio()" style="background: #475569;">← ATRÁS</button>
+</div>
+
+<!-- Pantalla de Ingreso -->
+<div class="card" id="pantalla-ingreso" style="display: none;">
+  <span class="snake-icon">🔓</span>
+  <h1>Ingresar</h1>
+  <p class="tagline">Accede a tu cuenta</p>
+
+  <div class="input-wrap">
+    <input type="text" id="ing-nombre" placeholder="Tu nombre" maxlength="50" autocomplete="off">
+  </div>
+
+  <div class="input-wrap">
+    <input type="text" id="ing-pin" placeholder="Tu código (6 dígitos)" maxlength="6" autocomplete="off" inputmode="numeric">
+  </div>
+
+  <div id="ing-error" style="color: #f87171; font-size: 12px; margin-bottom: 12px; min-height: 16px;"></div>
+
+  <button class="btn-play" id="btn-ingresar" onclick="ingresarCuenta()">INGRESAR</button>
+  <button class="btn-play" onclick="mostrarInicio()" style="background: #475569; margin-top: 12px;">← ATRÁS</button>
+</div>
+
+<script src="config.js"></script>
 <script>
   // Partículas flotantes
   for (let i = 0; i < 18; i++) {
@@ -241,79 +284,160 @@
     `;
     document.body.appendChild(p);
   }
-</script>
 
-<script src="config.js"></script>
-<script>
-  let alumnoId = null;
-  let debounceTimer = null;
-
-  const input = document.getElementById('nombre');
-
-  // Autocompletar mientras escribe
-  input.addEventListener('input', () => {
-    clearTimeout(debounceTimer);
-    document.getElementById('bienvenida').style.display = 'none';
-    document.getElementById('error-msg').textContent = '';
-    if (input.value.trim().length < 3) return;
-    debounceTimer = setTimeout(buscarAlumno, 500);
-  });
-
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') entrar();
-  });
-
-  async function buscarAlumno() {
-    const nombre = input.value.trim();
-    if (!nombre) return;
-    try {
-      const res = await fetch(CONFIG.ENDPOINTS.buscarAlumno, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre })
-      });
-      const data = await res.json();
-      if (data.found && data.stats.partidas > 0) {
-        alumnoId = data.alumno.id;
-        document.getElementById('bienvenida-nombre').textContent = data.alumno.nombre;
-        document.getElementById('bienvenida-stats').textContent =
-          `${data.stats.partidas} partida${data.stats.partidas !== 1 ? 's' : ''} jugada${data.stats.partidas !== 1 ? 's' : ''} · Mejor puntuación: ${data.stats.mejor}`;
-        document.getElementById('bienvenida').style.display = 'block';
-      }
-    } catch {}
+  // ── Navegación entre pantallas ────────────────────────────────────────────
+  function mostrarInicio() {
+    document.getElementById('pantalla-inicio').style.display = 'block';
+    document.getElementById('pantalla-registro').style.display = 'none';
+    document.getElementById('pantalla-ingreso').style.display = 'none';
   }
 
-  async function entrar() {
-    const nombre = input.value.trim();
-    if (!nombre) {
-      document.getElementById('error-msg').textContent = '⚠ Escribe tu nombre para continuar';
+  function mostrarRegistro() {
+    document.getElementById('pantalla-inicio').style.display = 'none';
+    document.getElementById('pantalla-registro').style.display = 'block';
+    document.getElementById('pantalla-ingreso').style.display = 'none';
+    document.getElementById('reg-error').textContent = '';
+    document.getElementById('reg-pin-generado').style.display = 'none';
+    document.getElementById('reg-nombre').value = '';
+    document.getElementById('reg-escuela').value = '';
+    document.getElementById('reg-grupo').value = '';
+  }
+
+  function mostrarIngreso() {
+    document.getElementById('pantalla-inicio').style.display = 'none';
+    document.getElementById('pantalla-registro').style.display = 'none';
+    document.getElementById('pantalla-ingreso').style.display = 'block';
+    document.getElementById('ing-error').textContent = '';
+    document.getElementById('ing-nombre').value = '';
+    document.getElementById('ing-pin').value = '';
+    document.getElementById('ing-nombre').focus();
+  }
+
+  // ── Evento Enter en inputs ────────────────────────────────────────────────
+  document.getElementById('ing-nombre').addEventListener('keypress', e => {
+    if (e.key === 'Enter') document.getElementById('ing-pin').focus();
+  });
+  document.getElementById('ing-pin').addEventListener('keypress', e => {
+    if (e.key === 'Enter') ingresarCuenta();
+  });
+
+  // ── Crear Cuenta ──────────────────────────────────────────────────────────
+  async function crearCuenta() {
+    const nombre = document.getElementById('reg-nombre').value.trim();
+    const escuela = document.getElementById('reg-escuela').value.trim();
+    const grupo = document.getElementById('reg-grupo').value.trim();
+    const errorDiv = document.getElementById('reg-error');
+
+    errorDiv.textContent = '';
+
+    if (!nombre || nombre.length < 2) {
+      errorDiv.textContent = '⚠ El nombre debe tener al menos 2 letras';
       return;
     }
-    if (nombre.length < 2) {
-      document.getElementById('error-msg').textContent = '⚠ El nombre es muy corto';
-      return;
-    }
-    const btn = document.getElementById('btn-jugar');
+
+    const btn = document.getElementById('btn-crear');
     btn.disabled = true;
-    btn.textContent = 'Cargando...';
+    btn.textContent = 'Creando...';
+
     try {
-      const res = await fetch(CONFIG.ENDPOINTS.entrar, {
+      const res = await fetch(CONFIG.ENDPOINTS.alumno.registrar, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre })
+        body: JSON.stringify({
+          nombre,
+          escuela: escuela || null,
+          grupo: grupo || null
+        })
       });
+
       const data = await res.json();
-      if (data.alumno) {
-        sessionStorage.setItem('alumno_id', data.alumno.id);
-        sessionStorage.setItem('alumno_nombre', data.alumno.nombre);
-        window.location = './juego.html';
+
+      if (!res.ok) {
+        if (res.status === 409) {
+          errorDiv.textContent = '⚠ Este nombre ya está registrado. Intenta con otro.';
+        } else {
+          errorDiv.textContent = data.error || '⚠ Error al crear la cuenta';
+        }
+        btn.disabled = false;
+        btn.textContent = 'CREAR CUENTA';
+        return;
       }
+
+      // Mostrar PIN generado
+      document.getElementById('reg-pin-valor').textContent = data.alumno.pin;
+      document.getElementById('reg-pin-generado').style.display = 'block';
+      document.getElementById('reg-nombre').disabled = true;
+      document.getElementById('reg-escuela').disabled = true;
+      document.getElementById('reg-grupo').disabled = true;
+      btn.textContent = '✓ CUENTA CREADA';
+      btn.disabled = true;
+
+      // Auto-llenar pantalla de ingreso
+      setTimeout(() => {
+        document.getElementById('ing-nombre').value = nombre;
+        document.getElementById('ing-pin').value = data.alumno.pin;
+        mostrarIngreso();
+      }, 2000);
+
     } catch (e) {
-      document.getElementById('error-msg').textContent = '⚠ Error de conexión. Intenta de nuevo.';
+      errorDiv.textContent = '⚠ Error de conexión. Intenta de nuevo.';
       btn.disabled = false;
-      btn.textContent = '¡JUGAR!';
+      btn.textContent = 'CREAR CUENTA';
     }
   }
+
+  // ── Ingresar Cuenta ───────────────────────────────────────────────────────
+  async function ingresarCuenta() {
+    const nombre = document.getElementById('ing-nombre').value.trim();
+    const pin = document.getElementById('ing-pin').value.trim();
+    const errorDiv = document.getElementById('ing-error');
+
+    errorDiv.textContent = '';
+
+    if (!nombre || nombre.length < 2) {
+      errorDiv.textContent = '⚠ Ingresa tu nombre';
+      return;
+    }
+
+    if (!pin || pin.length < 4) {
+      errorDiv.textContent = '⚠ Ingresa tu código de 6 dígitos';
+      return;
+    }
+
+    const btn = document.getElementById('btn-ingresar');
+    btn.disabled = true;
+    btn.textContent = 'Ingresando...';
+
+    try {
+      const res = await fetch(CONFIG.ENDPOINTS.alumno.login, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, pin })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        errorDiv.textContent = data.error || '⚠ Nombre o código incorrectos';
+        btn.disabled = false;
+        btn.textContent = 'INGRESAR';
+        return;
+      }
+
+      // Guardar sesión y redirigir
+      sessionStorage.setItem('alumno_id', data.alumno.id);
+      sessionStorage.setItem('alumno_nombre', data.alumno.nombre);
+      window.location = './juego.html';
+
+    } catch (e) {
+      errorDiv.textContent = '⚠ Error de conexión. Intenta de nuevo.';
+      btn.disabled = false;
+      btn.textContent = 'INGRESAR';
+    }
+  }
+
+  // Mostrar pantalla de inicio al cargar
+  mostrarInicio();
 </script>
 </body>
 </html>
