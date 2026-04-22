@@ -8,285 +8,317 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --green: #4ade80;
+      --blue: #60a5fa;
+      --amber: #fbbf24;
+      --red: #f87171;
+      --bg: #080c1a;
+      --surface: #0d1424;
+      --border: rgba(74,222,128,0.14);
+      --muted: #475569;
+      --text: #e2e8f0;
+    }
+
     body {
       min-height: 100vh;
-      background: #080c1a;
+      background: var(--bg);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       font-family: 'Space Mono', monospace;
-      color: #e2e8f0;
+      color: var(--text);
       overflow: hidden;
       position: relative;
     }
 
-    /* Animated grid background */
     body::before {
       content: '';
       position: fixed; inset: 0;
       background-image:
-        linear-gradient(rgba(99,140,255,0.07) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(99,140,255,0.07) 1px, transparent 1px);
+        linear-gradient(rgba(99,140,255,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99,140,255,0.05) 1px, transparent 1px);
       background-size: 40px 40px;
-      animation: gridScroll 20s linear infinite;
+      animation: gridScroll 25s linear infinite;
+      pointer-events: none;
     }
     @keyframes gridScroll { to { background-position: 40px 40px; } }
 
-    /* Floating particles */
-    .particle {
+    /* Corner accents */
+    body::after {
+      content: '';
       position: fixed;
-      border-radius: 50%;
-      animation: float linear infinite;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
       pointer-events: none;
-    }
-    @keyframes float {
-      0%   { transform: translateY(110vh) rotate(0deg); opacity: 0; }
-      10%  { opacity: 1; }
-      90%  { opacity: 1; }
-      100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
     }
 
     .card {
       position: relative;
       z-index: 1;
-      background: rgba(15, 23, 42, 0.85);
-      border: 1px solid rgba(74,222,128,0.2);
-      border-radius: 24px;
-      padding: 50px 48px 44px;
-      width: min(480px, 94vw);
-      box-shadow: 0 0 0 1px rgba(74,222,128,0.06), 0 30px 80px rgba(0,0,0,0.7);
-      backdrop-filter: blur(12px);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: clamp(36px, 6vw, 52px) clamp(28px, 5vw, 44px) clamp(32px, 5vw, 44px);
+      width: min(460px, 94vw);
+      box-shadow: 0 0 0 1px rgba(74,222,128,0.04), 0 32px 80px rgba(0,0,0,0.7);
+      backdrop-filter: blur(10px);
       text-align: center;
     }
 
-    .snake-icon {
-      font-size: 56px;
-      margin-bottom: 12px;
-      display: block;
-      animation: bounce 2s ease-in-out infinite;
-    }
-    @keyframes bounce {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-8px); }
+    .logo-mark {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #4ade80, #22c55e);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 18px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: #050916;
+      letter-spacing: 0;
     }
 
     h1 {
       font-family: 'Orbitron', sans-serif;
-      font-size: clamp(22px, 5vw, 30px);
+      font-size: clamp(20px, 5vw, 28px);
       font-weight: 900;
       letter-spacing: 3px;
-      background: linear-gradient(90deg, #4ade80, #86efac, #4ade80);
+      background: linear-gradient(90deg, #4ade80, #86efac);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      filter: drop-shadow(0 0 12px rgba(74,222,128,0.3));
       margin-bottom: 6px;
     }
 
     .tagline {
-      color: #64748b;
-      font-size: 11px;
+      color: var(--muted);
+      font-size: 10px;
       letter-spacing: 3px;
       text-transform: uppercase;
       margin-bottom: 36px;
     }
 
-    .input-wrap {
-      position: relative;
-      margin-bottom: 20px;
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
     }
 
-    input[type="text"] {
+    .btn {
+      flex: 1;
+      padding: 14px 10px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(10px, 2.5vw, 12px);
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-green {
+      background: var(--green);
+      color: #050916;
+    }
+    .btn-green:hover { background: #86efac; box-shadow: 0 0 20px rgba(74,222,128,0.35); }
+
+    .btn-amber {
+      background: var(--amber);
+      color: #050916;
+    }
+    .btn-amber:hover { background: #fde68a; box-shadow: 0 0 20px rgba(251,191,36,0.35); }
+
+    .btn-blue {
+      background: var(--blue);
+      color: #050916;
+    }
+    .btn-blue:hover { background: #93c5fd; box-shadow: 0 0 20px rgba(96,165,250,0.35); }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 0 0 18px;
+      color: #1e293b;
+      font-size: 9px;
+      letter-spacing: 3px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: #1e293b;
+    }
+
+    .btn-secondary {
       width: 100%;
-      padding: 18px 24px;
+      padding: 12px;
       font-family: 'Space Mono', monospace;
-      font-size: 18px;
-      background: rgba(255,255,255,0.04);
-      border: 2px solid rgba(74,222,128,0.2);
-      border-radius: 14px;
-      color: #e2e8f0;
+      font-size: 11px;
+      letter-spacing: 2px;
+      background: transparent;
+      border: 1px solid #1e293b;
+      border-radius: 9px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: rgba(96,165,250,0.04);
+    }
+
+    /* INPUTS */
+    .input-group {
+      margin-bottom: 14px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 14px 18px;
+      font-family: 'Space Mono', monospace;
+      font-size: 15px;
+      background: rgba(255,255,255,0.03);
+      border: 1.5px solid rgba(74,222,128,0.15);
+      border-radius: 10px;
+      color: var(--text);
       outline: none;
       text-align: center;
       letter-spacing: 1px;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
-    input[type="text"]::placeholder { color: #475569; }
-    input[type="text"]:focus {
-      border-color: #4ade80;
-      box-shadow: 0 0 0 3px rgba(74,222,128,0.1);
+    input::placeholder { color: #334155; }
+    input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(74,222,128,0.08);
     }
 
-    #error-msg {
-      color: #f87171;
-      font-size: 12px;
-      margin-top: -12px;
+    .error-msg {
+      color: var(--red);
+      font-size: 11px;
       margin-bottom: 12px;
-      min-height: 16px;
+      min-height: 14px;
       letter-spacing: 1px;
     }
 
-    .btn-play {
-      width: 100%;
-      padding: 18px;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      background: #4ade80;
-      color: #020617;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-      overflow: hidden;
-    }
-    .btn-play::after {
-      content: '';
-      position: absolute; inset: 0;
-      background: rgba(255,255,255,0);
-      transition: background 0.2s;
-    }
-    .btn-play:hover {
-      background: #86efac;
-      box-shadow: 0 0 30px rgba(74,222,128,0.4);
-      transform: translateY(-2px);
-    }
-    .btn-play:active { transform: translateY(0); }
-    .btn-play:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-    /* Bienvenida de regreso */
-    #bienvenida {
-      display: none;
-      margin-top: 20px;
-      padding: 14px 20px;
+    .pin-box {
+      margin-bottom: 18px;
+      padding: 16px 18px;
       background: rgba(74,222,128,0.06);
-      border: 1px solid rgba(74,222,128,0.15);
+      border: 1px solid rgba(74,222,128,0.2);
       border-radius: 12px;
-      font-size: 13px;
     }
-    #bienvenida .nombre { color: #4ade80; font-weight: 700; }
-    #bienvenida .stats  { color: #64748b; font-size: 11px; margin-top: 4px; }
+    .pin-box-label {
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .pin-value {
+      font-family: 'Orbitron', monospace;
+      font-size: 30px;
+      color: var(--green);
+      letter-spacing: 6px;
+      font-weight: bold;
+    }
+    .pin-warning {
+      color: var(--muted);
+      font-size: 9px;
+      text-align: center;
+      margin-top: 6px;
+      letter-spacing: 1px;
+    }
 
-    .divider {
-      display: flex; align-items: center; gap: 12px;
-      margin: 28px 0 20px;
-      color: #334155; font-size: 11px; letter-spacing: 2px;
-    }
-    .divider::before, .divider::after {
-      content: ''; flex: 1;
-      height: 1px; background: #1e293b;
-    }
-
-    .btn-profesor {
+    .btn-back {
       width: 100%;
-      padding: 12px;
-      font-family: 'Space Mono', monospace;
-      font-size: 12px;
+      padding: 11px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
       letter-spacing: 2px;
       background: transparent;
       border: 1px solid #1e293b;
-      border-radius: 10px;
-      color: #475569;
+      color: var(--muted);
+      border-radius: 9px;
       cursor: pointer;
       transition: all 0.2s;
+      margin-top: 8px;
+      text-transform: uppercase;
     }
-    .btn-profesor:hover {
-      border-color: #60a5fa;
-      color: #60a5fa;
-      background: rgba(96,165,250,0.05);
-    }
+    .btn-back:hover { border-color: var(--muted); color: var(--text); }
   </style>
 </head>
 <body>
 
+<!-- PANTALLA INICIO -->
 <div class="card" id="pantalla-inicio">
-  <span class="snake-icon">🐍</span>
-  <h1>Snake Matemático</h1>
-  <p class="tagline">¡Demuestra tus habilidades!</p>
+  <div class="logo-mark">S</div>
+  <h1>SNAKE MATEMÁTICO</h1>
+  <p class="tagline">Pon a prueba tus habilidades</p>
 
-  <div style="display: flex; gap: 12px; margin-bottom: 24px;">
-    <button class="btn-play" id="btn-registro" onclick="mostrarRegistro()" style="flex:1; background: #60a5fa;">CREAR CUENTA</button>
-    <button class="btn-play" id="btn-ingreso" onclick="mostrarIngreso()" style="flex:1; background: #fbbf24; color: #000;">INGRESAR</button>
+  <div class="btn-row">
+    <button class="btn btn-green" onclick="mostrarRegistro()">CREAR CUENTA</button>
+    <button class="btn btn-amber" onclick="mostrarIngreso()">INGRESAR</button>
   </div>
 
   <div class="divider">ACCESO</div>
-  <button class="btn-profesor" onclick="window.location='./profesor.html'">Panel del Profesor →</button>
+  <button class="btn-secondary" onclick="window.location='./profesor.html'">Panel del Profesor</button>
 </div>
 
-<!-- Pantalla de Registro -->
-<div class="card" id="pantalla-registro" style="display: none;">
-  <span class="snake-icon">📝</span>
-  <h1>Crear Cuenta</h1>
+<!-- PANTALLA REGISTRO -->
+<div class="card" id="pantalla-registro" style="display:none;">
+  <h1>CREAR CUENTA</h1>
   <p class="tagline">Completa tus datos</p>
 
-  <div class="input-wrap">
-    <input type="text" id="reg-nombre" placeholder="Tu nombre completo" maxlength="50" autocomplete="off">
+  <div class="input-group">
+    <input type="text" id="reg-nombre" placeholder="Nombre completo" maxlength="50" autocomplete="off">
+  </div>
+  <div class="input-group">
+    <input type="text" id="reg-escuela" placeholder="Escuela (opcional)" maxlength="50" autocomplete="off">
+  </div>
+  <div class="input-group">
+    <input type="text" id="reg-grupo" placeholder="Grupo, ej: 6A (opcional)" maxlength="20" autocomplete="off">
   </div>
 
-  <div class="input-wrap">
-    <input type="text" id="reg-escuela" placeholder="Tu escuela (opcional)" maxlength="50" autocomplete="off">
+  <div class="error-msg" id="reg-error"></div>
+
+  <div class="pin-box" id="reg-pin-generado" style="display:none;">
+    <div class="pin-box-label">Tu código de acceso</div>
+    <div class="pin-value" id="reg-pin-valor"></div>
+    <div class="pin-warning">Guarda este código. Lo necesitarás para ingresar.</div>
   </div>
 
-  <div class="input-wrap">
-    <input type="text" id="reg-grupo" placeholder="Tu grupo (ej: 6°A)" maxlength="20" autocomplete="off">
-  </div>
-
-  <div id="reg-error" style="color: #f87171; font-size: 12px; margin-bottom: 12px; min-height: 16px;"></div>
-
-  <div id="reg-pin-generado" style="display: none; margin-bottom: 20px; padding: 16px; background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); border-radius: 12px;">
-    <div style="color: #64748b; font-size: 11px; letter-spacing: 1px; margin-bottom: 8px;">TU CÓDIGO DE ACCESO:</div>
-    <div id="reg-pin-valor" style="font-family: 'Orbitron', monospace; font-size: 28px; color: #4ade80; letter-spacing: 4px; font-weight: bold; text-align: center; margin-bottom: 8px;"></div>
-    <div style="color: #64748b; font-size: 10px; text-align: center;">⚠ ¡Guarda este código! Lo necesitarás para ingresar.</div>
-  </div>
-
-  <button class="btn-play" id="btn-crear" onclick="crearCuenta()" style="margin-bottom: 12px;">CREAR CUENTA</button>
-  <button class="btn-play" id="btn-continuar-login" onclick="irALoginConPin()" style="display: none; margin-bottom: 12px; background: #4ade80;">CONTINUAR A INGRESO →</button>
-  <button class="btn-play" onclick="mostrarInicio()" style="background: #475569;">← ATRÁS</button>
+  <button class="btn btn-green" id="btn-crear" onclick="crearCuenta()" style="width:100%;margin-bottom:8px;">CREAR CUENTA</button>
+  <button class="btn btn-green" id="btn-continuar-login" onclick="irALoginConPin()" style="width:100%;display:none;margin-bottom:8px;">CONTINUAR A INGRESO</button>
+  <button class="btn-back" onclick="mostrarInicio()">Volver</button>
 </div>
 
-<!-- Pantalla de Ingreso -->
-<div class="card" id="pantalla-ingreso" style="display: none;">
-  <span class="snake-icon">🔓</span>
-  <h1>Ingresar</h1>
+<!-- PANTALLA INGRESO -->
+<div class="card" id="pantalla-ingreso" style="display:none;">
+  <h1>INGRESAR</h1>
   <p class="tagline">Accede a tu cuenta</p>
 
-  <div class="input-wrap">
+  <div class="input-group">
     <input type="text" id="ing-nombre" placeholder="Tu nombre" maxlength="50" autocomplete="off">
   </div>
-
-  <div class="input-wrap">
-    <input type="text" id="ing-pin" placeholder="Tu código (6 dígitos)" maxlength="6" autocomplete="off" inputmode="numeric">
+  <div class="input-group">
+    <input type="text" id="ing-pin" placeholder="Código de 6 dígitos" maxlength="6" autocomplete="off" inputmode="numeric">
   </div>
 
-  <div id="ing-error" style="color: #f87171; font-size: 12px; margin-bottom: 12px; min-height: 16px;"></div>
+  <div class="error-msg" id="ing-error"></div>
 
-  <button class="btn-play" id="btn-ingresar" onclick="ingresarCuenta()">INGRESAR</button>
-  <button class="btn-play" onclick="mostrarInicio()" style="background: #475569; margin-top: 12px;">← ATRÁS</button>
+  <button class="btn btn-amber" id="btn-ingresar" onclick="ingresarCuenta()" style="width:100%;margin-bottom:8px;">INGRESAR</button>
+  <button class="btn-back" onclick="mostrarInicio()">Volver</button>
 </div>
 
 <script src="config.js"></script>
 <script>
-  // Partículas flotantes
-  for (let i = 0; i < 18; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    const size = Math.random() * 6 + 3;
-    const colors = ['#4ade80','#22c55e','#60a5fa','#fbbf24'];
-    p.style.cssText = `
-      width:${size}px; height:${size}px;
-      left:${Math.random()*100}vw;
-      background:${colors[Math.floor(Math.random()*colors.length)]};
-      opacity:0.4;
-      animation-duration:${8 + Math.random()*12}s;
-      animation-delay:${Math.random()*10}s;
-    `;
-    document.body.appendChild(p);
-  }
-
-  // ── Navegación entre pantallas ────────────────────────────────────────────
   function mostrarInicio() {
     document.getElementById('pantalla-inicio').style.display = 'block';
     document.getElementById('pantalla-registro').style.display = 'none';
@@ -302,6 +334,11 @@
     document.getElementById('reg-nombre').value = '';
     document.getElementById('reg-escuela').value = '';
     document.getElementById('reg-grupo').value = '';
+    document.getElementById('btn-crear').style.display = 'block';
+    document.getElementById('btn-continuar-login').style.display = 'none';
+    document.getElementById('reg-nombre').disabled = false;
+    document.getElementById('reg-escuela').disabled = false;
+    document.getElementById('reg-grupo').disabled = false;
   }
 
   function mostrarIngreso() {
@@ -314,7 +351,6 @@
     document.getElementById('ing-nombre').focus();
   }
 
-  // ── Evento Enter en inputs ────────────────────────────────────────────────
   document.getElementById('ing-nombre').addEventListener('keypress', e => {
     if (e.key === 'Enter') document.getElementById('ing-pin').focus();
   });
@@ -322,17 +358,15 @@
     if (e.key === 'Enter') ingresarCuenta();
   });
 
-  // ── Crear Cuenta ──────────────────────────────────────────────────────────
   async function crearCuenta() {
-    const nombre = document.getElementById('reg-nombre').value.trim();
+    const nombre  = document.getElementById('reg-nombre').value.trim();
     const escuela = document.getElementById('reg-escuela').value.trim();
-    const grupo = document.getElementById('reg-grupo').value.trim();
+    const grupo   = document.getElementById('reg-grupo').value.trim();
     const errorDiv = document.getElementById('reg-error');
-
     errorDiv.textContent = '';
 
     if (!nombre || nombre.length < 2) {
-      errorDiv.textContent = '⚠ El nombre debe tener al menos 2 letras';
+      errorDiv.textContent = 'El nombre debe tener al menos 2 letras';
       return;
     }
 
@@ -344,27 +378,19 @@
       const res = await fetch(CONFIG.ENDPOINTS.alumno.registrar, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombre,
-          escuela: escuela || null,
-          grupo: grupo || null
-        })
+        body: JSON.stringify({ nombre, escuela: escuela || null, grupo: grupo || null })
       });
-
       const data = await res.json();
 
       if (!res.ok) {
-        if (res.status === 409) {
-          errorDiv.textContent = '⚠ Este nombre ya está registrado. Intenta con otro.';
-        } else {
-          errorDiv.textContent = data.error || '⚠ Error al crear la cuenta';
-        }
+        errorDiv.textContent = res.status === 409
+          ? 'Este nombre ya está registrado. Intenta con otro.'
+          : data.error || 'Error al crear la cuenta';
         btn.disabled = false;
         btn.textContent = 'CREAR CUENTA';
         return;
       }
 
-      // Mostrar PIN generado
       document.getElementById('reg-pin-valor').textContent = data.alumno.pin;
       document.getElementById('reg-pin-generado').style.display = 'block';
       document.getElementById('reg-nombre').disabled = true;
@@ -372,21 +398,14 @@
       document.getElementById('reg-grupo').disabled = true;
       document.getElementById('btn-crear').style.display = 'none';
       document.getElementById('btn-continuar-login').style.display = 'block';
-      
-      // Guardar datos para después
-      window.pinRegistrado = {
-        nombre: nombre,
-        pin: data.alumno.pin
-      };
-
+      window.pinRegistrado = { nombre, pin: data.alumno.pin };
     } catch (e) {
-      errorDiv.textContent = '⚠ Error de conexión. Intenta de nuevo.';
+      errorDiv.textContent = 'Error de conexión. Intenta de nuevo.';
       btn.disabled = false;
       btn.textContent = 'CREAR CUENTA';
     }
   }
 
-  // ── Ir a login con PIN pre-llenado ────────────────────────────────────────
   function irALoginConPin() {
     if (window.pinRegistrado) {
       document.getElementById('ing-nombre').value = window.pinRegistrado.nombre;
@@ -395,23 +414,14 @@
     mostrarIngreso();
   }
 
-  // ── Ingresar Cuenta ───────────────────────────────────────────────────────
   async function ingresarCuenta() {
-    const nombre = document.getElementById('ing-nombre').value.trim();
-    const pin = document.getElementById('ing-pin').value.trim();
+    const nombre   = document.getElementById('ing-nombre').value.trim();
+    const pin      = document.getElementById('ing-pin').value.trim();
     const errorDiv = document.getElementById('ing-error');
-
     errorDiv.textContent = '';
 
-    if (!nombre || nombre.length < 2) {
-      errorDiv.textContent = '⚠ Ingresa tu nombre';
-      return;
-    }
-
-    if (!pin || pin.length < 4) {
-      errorDiv.textContent = '⚠ Ingresa tu código de 6 dígitos';
-      return;
-    }
+    if (!nombre || nombre.length < 2) { errorDiv.textContent = 'Ingresa tu nombre'; return; }
+    if (!pin || pin.length < 4) { errorDiv.textContent = 'Ingresa tu código de 6 dígitos'; return; }
 
     const btn = document.getElementById('btn-ingresar');
     btn.disabled = true;
@@ -423,29 +433,25 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre, pin })
       });
-
       const data = await res.json();
 
       if (!res.ok) {
-        errorDiv.textContent = data.error || '⚠ Nombre o código incorrectos';
+        errorDiv.textContent = data.error || 'Nombre o código incorrectos';
         btn.disabled = false;
         btn.textContent = 'INGRESAR';
         return;
       }
 
-      // Guardar sesión y redirigir
       sessionStorage.setItem('alumno_id', data.alumno.id);
       sessionStorage.setItem('alumno_nombre', data.alumno.nombre);
       window.location = './juego.html';
-
     } catch (e) {
-      errorDiv.textContent = '⚠ Error de conexión. Intenta de nuevo.';
+      errorDiv.textContent = 'Error de conexión. Intenta de nuevo.';
       btn.disabled = false;
       btn.textContent = 'INGRESAR';
     }
   }
 
-  // Mostrar pantalla de inicio al cargar
   mostrarInicio();
 </script>
 </body>

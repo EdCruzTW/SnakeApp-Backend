@@ -9,251 +9,319 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #080c1a; --surface: #0f172a; --card: #111827;
-      --border: rgba(99,140,255,0.15);
+      --bg: #080c1a; --surface: #0d1424; --card: #0f1929;
+      --border: rgba(99,140,255,0.12);
       --green: #4ade80; --blue: #60a5fa; --amber: #fbbf24;
       --red: #f87171; --purple: #a78bfa;
-      --text: #e2e8f0; --muted: #64748b;
+      --text: #e2e8f0; --muted: #475569;
     }
 
     body {
-      background: var(--bg); color: var(--text);
+      background: var(--bg);
+      color: var(--text);
       font-family: 'Space Mono', monospace;
-      min-height: 100vh; padding: 16px 12px 48px;
+      min-height: 100vh;
+      padding: 16px 14px 48px;
     }
 
     body::before {
-      content:''; position:fixed; inset:0; pointer-events:none;
+      content: ''; position: fixed; inset: 0; pointer-events: none;
       background-image:
         linear-gradient(rgba(99,140,255,0.04) 1px, transparent 1px),
         linear-gradient(90deg, rgba(99,140,255,0.04) 1px, transparent 1px);
       background-size: 40px 40px;
     }
 
+    /* TOP BAR */
     .header {
       display: flex; justify-content: space-between; align-items: flex-start;
-      margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+      margin-bottom: 20px; flex-wrap: wrap; gap: 10px;
       position: relative; z-index: 1;
     }
 
     h1 {
-      font-family: 'Orbitron', sans-serif; font-size: clamp(16px, 4vw, 26px);
-      font-weight: 900; letter-spacing: 2px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(15px, 3.5vw, 22px);
+      font-weight: 900;
+      letter-spacing: 2px;
       background: linear-gradient(90deg, #60a5fa, #a78bfa);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    .subtitle-h { color: var(--muted); font-size: clamp(9px, 1.5vw, 11px); letter-spacing: 1px; margin-top: 3px; }
 
-    .btn-actualizar {
-      padding: clamp(8px, 2vw, 10px) clamp(14px, 3vw, 20px); font-family: 'Space Mono', monospace; font-size: clamp(9px, 1.5vw, 11px);
-      letter-spacing: 1px; background: transparent;
-      border: 1px solid var(--blue); color: var(--blue);
-      border-radius: 8px; cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    .subtitle-h {
+      color: var(--muted);
+      font-size: clamp(8px, 1.3vw, 10px);
+      letter-spacing: 1px;
+      margin-top: 3px;
+      text-transform: uppercase;
     }
-    .btn-actualizar:hover { background: rgba(96,165,250,0.1); }
 
-    /* KPI cards */
-    .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 10px; margin-bottom: 20px; position:relative;z-index:1; }
+    .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+    .btn-header {
+      padding: clamp(7px, 1.5vw, 9px) clamp(12px, 2.5vw, 18px);
+      font-family: 'Space Mono', monospace;
+      font-size: clamp(8px, 1.3vw, 10px);
+      letter-spacing: 1px;
+      background: transparent;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-refresh {
+      border: 1px solid var(--blue);
+      color: var(--blue);
+    }
+    .btn-refresh:hover { background: rgba(96,165,250,0.08); }
+
+    .btn-logout {
+      border: 1px solid var(--red);
+      color: var(--red);
+    }
+    .btn-logout:hover { background: rgba(248,113,113,0.08); }
+
+    /* KPIs */
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px,1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+      position: relative; z-index: 1;
+    }
+
     .kpi {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 14px 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
     }
-    .kpi-label { font-size: 8px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
-    .kpi-val { font-family: 'Orbitron', sans-serif; font-size: clamp(20px, 4vw, 28px); }
-    .kpi-val.green { color: var(--green); filter: drop-shadow(0 0 6px rgba(74,222,128,0.35)); }
-    .kpi-val.blue  { color: var(--blue);  filter: drop-shadow(0 0 6px rgba(96,165,250,0.35)); }
-    .kpi-val.amber { color: var(--amber); filter: drop-shadow(0 0 6px rgba(251,191,36,0.35)); }
-    .kpi-val.red   { color: var(--red);   filter: drop-shadow(0 0 6px rgba(248,113,113,0.35)); }
 
-    /* Grid principal */
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; position:relative;z-index:1; }
-    @media (max-width: 1200px) { .grid { grid-template-columns: 1fr; } }
-    @media (max-width: 600px) { .grid { gap: 12px; } }
+    .kpi-label {
+      font-size: 7px;
+      letter-spacing: 1px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .kpi-val {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(22px, 4.5vw, 30px);
+    }
+
+    .kpi-val.green { color: var(--green); }
+    .kpi-val.blue  { color: var(--blue); }
+    .kpi-val.amber { color: var(--amber); }
+    .kpi-val.red   { color: var(--red); }
+
+    /* GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      position: relative; z-index: 1;
+    }
+
+    @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+
     .grid-full { grid-column: 1 / -1; }
 
     .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; padding: clamp(14px, 3vw, 22px); overflow: hidden;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: clamp(14px, 2.5vw, 22px);
+      overflow: hidden;
     }
-    .card-title {
-      font-size: 9px; letter-spacing: 2px; color: var(--muted);
-      text-transform: uppercase; margin-bottom: 14px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .card-title span { font-size: 14px; }
 
-    /* Tabla de alumnos */
-    table { width: 100%; border-collapse: collapse; font-size: clamp(10px, 2vw, 13px); }
-    th {
-      text-align: left; padding: 8px 6px; font-size: 8px; letter-spacing: 1px;
-      color: var(--muted); text-transform: uppercase; border-bottom: 1px solid var(--border);
+    .card-title {
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 14px;
     }
-    td { padding: 8px 6px; border-bottom: 1px solid rgba(99,140,255,0.06); vertical-align: middle; }
+
+    /* TABLE */
+    table { width: 100%; border-collapse: collapse; font-size: clamp(10px, 1.8vw, 12px); }
+    th {
+      text-align: left; padding: 7px 6px;
+      font-size: 7px; letter-spacing: 1px;
+      color: var(--muted); text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    td { padding: 8px 6px; border-bottom: 1px solid rgba(99,140,255,0.05); vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(99,140,255,0.04); }
-    .rank { font-family:'Orbitron',sans-serif; font-size:11px; color:var(--muted); }
+    tr:hover td { background: rgba(99,140,255,0.03); }
+
+    .rank { font-family: 'Orbitron', sans-serif; font-size: 10px; color: var(--muted); }
     .rank-1 { color: #fbbf24; }
     .rank-2 { color: #94a3b8; }
     .rank-3 { color: #b45309; }
-    .nombre-alumno { font-weight:700; color: var(--text); font-size: clamp(10px, 2vw, 13px); }
+
+    .nombre-alumno { font-weight: 700; color: var(--text); }
+
     .badge {
-      display:inline-block; padding:2px 6px; border-radius:4px;
-      font-size:8px; letter-spacing:0.5px; white-space: nowrap;
+      display: inline-block; padding: 2px 7px;
+      border-radius: 4px; font-size: 8px; letter-spacing: 0.5px; white-space: nowrap;
     }
-    .badge-green { background:rgba(74,222,128,0.12); color:#4ade80; }
-    .badge-blue  { background:rgba(96,165,250,0.12); color:#60a5fa; }
-    .badge-amber { background:rgba(251,191,36,0.12);  color:#fbbf24; }
-    
-    @media (max-width: 600px) {
-      th, td { padding: 6px 4px; font-size: 10px; }
-      th { font-size: 7px; }
-      table { font-size: 10px; }
-      .badge { font-size: 7px; padding: 1px 4px; }
-    }
+    .badge-green { background: rgba(74,222,128,0.1); color: var(--green); }
+    .badge-blue  { background: rgba(96,165,250,0.1); color: var(--blue); }
 
-    /* Barras de error por tipo */
+    /* Error bars */
     .error-tipo-row { margin-bottom: 12px; }
-    .error-tipo-header { display:flex; justify-content:space-between; margin-bottom:4px; font-size: clamp(10px, 2vw, 12px); }
+    .error-tipo-header { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 11px; }
     .error-tipo-nombre { color: var(--text); }
-    .error-tipo-count  { color: var(--red); font-family:'Orbitron',sans-serif; font-size:10px; }
-    .bar-wrap { height: 8px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden; }
-    .bar { height:100%; border-radius:4px; background: linear-gradient(90deg, #f87171, #fca5a5); transition: width 1s ease; }
+    .error-tipo-count  { color: var(--red); font-family: 'Orbitron', sans-serif; font-size: 10px; }
+    .bar-wrap { height: 6px; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden; }
+    .bar { height: 100%; border-radius: 3px; background: var(--red); transition: width 1s ease; }
 
-    /* Heatmap alumno × tipo */
+    /* Heatmap */
     .heatmap-wrap { overflow-x: auto; }
-    .heatmap { border-collapse: collapse; min-width: 100%; font-size: clamp(9px, 2vw, 11px); }
-    .heatmap th, .heatmap td { padding: clamp(4px, 1vw, 6px) clamp(6px, 1vw, 10px); text-align:center; white-space:nowrap; }
-    .heatmap th { color: var(--muted); font-size:clamp(7px, 1.5vw, 9px); letter-spacing:0.5px; }
-    .heatmap td.alumno-cell { text-align:left; color: var(--text); font-size:clamp(10px, 2vw, 12px); font-weight:700; }
+    .heatmap { border-collapse: collapse; min-width: 100%; font-size: clamp(8px, 1.5vw, 10px); }
+    .heatmap th, .heatmap td { padding: 5px 8px; text-align: center; white-space: nowrap; }
+    .heatmap th { color: var(--muted); font-size: clamp(6px, 1.2vw, 8px); letter-spacing: 0.5px; }
+    .heatmap td.alumno-cell { text-align: left; color: var(--text); font-weight: 700; }
     .cell-val {
-      display:inline-block; width:clamp(24px, 5vw, 32px); height:clamp(20px, 4vw, 26px); border-radius:4px;
-      display:flex; align-items:center; justify-content:center;
-      font-size:clamp(8px, 1.5vw, 11px); font-family:'Orbitron',sans-serif;
+      display: inline-flex; width: clamp(22px, 4vw, 30px); height: clamp(18px, 3.5vw, 24px);
+      border-radius: 4px; align-items: center; justify-content: center;
+      font-size: clamp(7px, 1.3vw, 10px); font-family: 'Orbitron', sans-serif;
     }
 
-    /* Operaciones más fallidas */
-    .op-row { display:flex; align-items:center; justify-content:space-between;
-      padding: clamp(6px, 1vw, 9px) clamp(8px, 2vw, 12px); border-radius:8px; margin-bottom:6px;
-      background: rgba(248,113,113,0.05); border:1px solid rgba(248,113,113,0.1); flex-wrap: wrap; gap: 6px; }
-    .op-expr { font-family:'Orbitron',sans-serif; color:#fca5a5; font-size: clamp(11px, 2vw, 13px); }
-    .op-meta { color:var(--muted); font-size:clamp(8px, 1.5vw, 10px); margin-top:2px; width: 100%; }
-    .op-freq { color:var(--red); font-family:'Orbitron',sans-serif; font-size: clamp(12px, 2vw, 14px); white-space: nowrap; }
+    /* Failed ops */
+    .op-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 12px; border-radius: 8px; margin-bottom: 6px;
+      background: rgba(248,113,113,0.04); border: 1px solid rgba(248,113,113,0.1);
+      flex-wrap: wrap; gap: 4px;
+    }
+    .op-expr { font-family: 'Orbitron', sans-serif; color: #fca5a5; font-size: clamp(10px, 1.8vw, 12px); }
+    .op-meta { color: var(--muted); font-size: clamp(8px, 1.3vw, 9px); margin-top: 2px; width: 100%; }
+    .op-freq { color: var(--red); font-family: 'Orbitron', sans-serif; font-size: 13px; white-space: nowrap; }
 
-    /* Detalle por alumno */
+    /* Detail overlay */
     #detalle-overlay {
-      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7);
-      backdrop-filter:blur(6px); z-index:100; overflow-y:auto;
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+      z-index: 100; overflow-y: auto;
       padding: clamp(20px, 5vw, 40px);
     }
-    #detalle-overlay.show { display:flex; align-items:flex-start; justify-content:center; }
+    #detalle-overlay.show { display: flex; align-items: flex-start; justify-content: center; }
+
     .detalle-card {
-      background: #0f172a; border:1px solid var(--border);
-      border-radius:20px; padding: clamp(20px, 4vw, 32px); width:min(640px,100%);
-      position:relative;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; padding: clamp(18px, 3.5vw, 28px);
+      width: min(580px, 100%); position: relative;
     }
+
     .detalle-close {
-      position:absolute; top:16px; right:16px;
-      background:none; border:none; color:var(--muted); font-size:20px; cursor:pointer;
+      position: absolute; top: 14px; right: 14px;
+      background: none; border: none; color: var(--muted);
+      font-size: 18px; cursor: pointer;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 6px; transition: all 0.15s;
     }
-    .detalle-close:hover { color:var(--text); }
-    .detalle-nombre { font-family:'Orbitron',sans-serif; font-size: clamp(16px, 4vw, 20px); color:var(--blue); margin-bottom:6px; }
-    .detalle-stat { font-size: clamp(9px, 2vw, 11px); color:var(--muted); letter-spacing:1px; margin-bottom:16px; }
+    .detalle-close:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+
+    .detalle-nombre { font-family: 'Orbitron', sans-serif; font-size: clamp(15px, 3vw, 18px); color: var(--blue); margin-bottom: 4px; }
+    .detalle-stat { font-size: clamp(8px, 1.5vw, 10px); color: var(--muted); letter-spacing: 1px; margin-bottom: 16px; text-transform: uppercase; }
+
     .partida-row {
-      display:flex; align-items:center; justify-content:space-between;
-      padding:8px 12px; border-radius:8px; margin-bottom:6px;
-      background:rgba(255,255,255,0.03); border:1px solid var(--border);
-      font-size: clamp(10px, 2vw, 12px); cursor:pointer; transition:background 0.15s; flex-wrap: wrap;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 12px; border-radius: 8px; margin-bottom: 6px;
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+      font-size: clamp(9px, 1.5vw, 11px); cursor: pointer;
+      transition: background 0.15s; flex-wrap: wrap; gap: 4px;
     }
-    .partida-row:hover { background:rgba(99,140,255,0.07); }
-    .partida-fecha { color:var(--muted); font-size: clamp(8px, 1.5vw, 10px); }
-    .partida-score { font-family:'Orbitron',sans-serif; color:var(--green); }
-    .partida-errores { color:var(--red); font-size: clamp(8px, 1.5vw, 10px); }
+    .partida-row:hover { background: rgba(99,140,255,0.06); }
+    .partida-fecha { color: var(--muted); font-size: clamp(7px, 1.3vw, 9px); }
+    .partida-score { font-family: 'Orbitron', sans-serif; color: var(--green); }
+    .partida-errores { color: var(--red); font-size: clamp(7px, 1.3vw, 9px); }
 
-    .loading { text-align:center; color:var(--muted); padding:40px; letter-spacing:2px; font-size:12px; }
-    .empty   { text-align:center; color:var(--muted); padding:24px; font-size:12px; }
+    .loading { text-align: center; color: var(--muted); padding: 36px; letter-spacing: 2px; font-size: 11px; }
+    .empty   { text-align: center; color: var(--muted); padding: 22px; font-size: 11px; }
 
-    /* Media queries móvil */
-    @media (max-width: 640px) {
-      body { padding: 12px 8px 40px; }
-      .header { margin-bottom: 16px; }
-      .kpis { gap: 8px; margin-bottom: 16px; }
-      .kpi { padding: 12px 12px; }
-      .grid { gap: 10px; }
-      .card { padding: 12px 14px; }
-      .card-title { margin-bottom: 10px; font-size: 8px; }
-      .loading { padding: 20px 10px; font-size: 10px; }
-      .empty { padding: 16px 10px; font-size: 10px; }
-      
-      /* Ocultar columnas innecesarias en móvil */
+    /* Table action buttons */
+    .tbl-btn {
+      background: none; border-radius: 6px; padding: 3px 9px;
+      cursor: pointer; font-size: 10px; transition: all 0.15s; letter-spacing: 1px;
+    }
+    .tbl-btn-view { border: 1px solid #1e293b; color: var(--muted); }
+    .tbl-btn-view:hover { border-color: var(--blue); color: var(--blue); }
+    .tbl-btn-del  { border: 1px solid rgba(220,38,38,0.3); color: #dc2626; }
+    .tbl-btn-del:hover  { background: rgba(220,38,38,0.1); }
+
+    /* MOBILE */
+    @media (max-width: 600px) {
+      body { padding: 10px 8px 40px; }
       th:nth-child(4), td:nth-child(4),
       th:nth-child(7), td:nth-child(7),
-      th:nth-child(8), td:nth-child(8) {
-        display: none;
-      }
-      
+      th:nth-child(8), td:nth-child(8) { display: none; }
       .op-row { flex-direction: column; align-items: flex-start; }
-      .op-freq { width: 100%; text-align: right; }
-      
-      .detalle-card { padding: 16px 14px; }
-      .detalle-close { top: 12px; right: 12px; }
     }
 
-    /* Modal de login para profesor */
+    /* LOGIN MODAL */
     #login-overlay {
-      display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95);
-      backdrop-filter: blur(8px); z-index: 200; align-items: center; justify-content: center;
-      padding: 20px;
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.97); backdrop-filter: blur(8px);
+      z-index: 200; align-items: center; justify-content: center; padding: 20px;
     }
     #login-overlay.show { display: flex; }
+
     .login-modal {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 20px; padding: 40px 32px;
-      width: min(420px, 100%);
-      text-align: center;
+      border-radius: 18px; padding: 40px 32px;
+      width: min(400px, 100%); text-align: center;
     }
+
     .login-modal h2 {
-      font-family: 'Orbitron', sans-serif; font-size: 24px; color: var(--blue);
-      margin-bottom: 10px; letter-spacing: 2px;
+      font-family: 'Orbitron', sans-serif; font-size: 20px;
+      color: var(--blue); margin-bottom: 8px; letter-spacing: 2px;
     }
-    .login-modal p {
-      color: var(--muted); font-size: 12px; letter-spacing: 1px;
-      margin-bottom: 28px;
-    }
+
+    .login-modal p { color: var(--muted); font-size: 11px; letter-spacing: 1px; margin-bottom: 26px; }
+
     .login-input {
-      width: 100%; padding: 12px 16px; margin-bottom: 16px;
-      background: rgba(99, 140, 255, 0.05); border: 1px solid var(--border);
-      border-radius: 10px; color: var(--text); font-family: 'Space Mono', monospace;
-      font-size: 14px;
+      width: 100%; padding: 12px 16px; margin-bottom: 14px;
+      background: rgba(99,140,255,0.04); border: 1px solid var(--border);
+      border-radius: 9px; color: var(--text); font-family: 'Space Mono', monospace;
+      font-size: 14px; text-align: center; letter-spacing: 2px;
     }
     .login-input::placeholder { color: var(--muted); }
     .login-input:focus {
-      outline: none; border-color: var(--blue); background: rgba(99, 140, 255, 0.1);
+      outline: none; border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.08);
     }
+
     .login-btn {
-      width: 100%; padding: 12px; background: var(--blue); color: var(--bg);
-      border: none; border-radius: 10px; font-family: 'Orbitron', sans-serif;
-      font-size: 13px; letter-spacing: 2px; cursor: pointer; transition: all 0.2s;
+      width: 100%; padding: 12px;
+      background: var(--blue); color: #050916;
+      border: none; border-radius: 9px;
+      font-family: 'Orbitron', sans-serif; font-size: 12px;
+      letter-spacing: 2px; cursor: pointer; transition: all 0.2s;
       text-transform: uppercase; font-weight: bold;
     }
-    .login-btn:hover { background: #93c5fd; transform: translateY(-2px); }
-    .login-btn:active { transform: translateY(0); }
+    .login-btn:hover { background: #93c5fd; transform: translateY(-1px); }
+
     .login-error {
-      color: var(--red); font-size: 12px; margin-top: 12px;
-      text-align: left; padding: 10px 12px;
-      background: rgba(248, 113, 113, 0.1); border-radius: 8px;
-      display: none;
+      color: var(--red); font-size: 11px; margin-top: 12px;
+      padding: 9px 12px; background: rgba(248,113,113,0.08);
+      border-radius: 7px; display: none;
     }
     .login-error.show { display: block; }
   </style>
 </head>
 <body>
 
-<!-- Modal de login -->
+<!-- Login Modal -->
 <div id="login-overlay">
   <div class="login-modal">
-    <h2>🔐 Panel del Profesor</h2>
-    <p>Ingresa la contraseña para acceder</p>
-    <input type="password" class="login-input" id="login-password" placeholder="Contraseña" />
+    <h2>PANEL DEL PROFESOR</h2>
+    <p>Ingresa la contraseña para continuar</p>
+    <input type="password" class="login-input" id="login-password" placeholder="Contraseña">
     <button class="login-btn" onclick="verificarPassword()">Ingresar</button>
     <div class="login-error" id="login-error"></div>
   </div>
@@ -261,52 +329,47 @@
 
 <div class="header">
   <div>
-    <h1>Panel del Profesor</h1>
+    <h1>PANEL DEL PROFESOR</h1>
     <div class="subtitle-h">Snake Matemático · Análisis de aprendizaje</div>
   </div>
-  <div style="display: flex; gap: 10px;">
-    <button class="btn-actualizar" onclick="cargarTodo()">↻ Actualizar datos</button>
-    <button class="btn-actualizar" onclick="cerrarSesion()" style="border-color: #f87171; color: #f87171;">🚪 Salir</button>
+  <div class="header-actions">
+    <button class="btn-header btn-refresh" onclick="cargarTodo()">Actualizar</button>
+    <button class="btn-header btn-logout" onclick="cerrarSesion()">Salir</button>
   </div>
 </div>
 
-<!-- KPIs -->
 <div class="kpis">
-  <div class="kpi"><div class="kpi-label">Alumnos registrados</div><div class="kpi-val green" id="kpi-alumnos">—</div></div>
-  <div class="kpi"><div class="kpi-label">Partidas totales</div><div class="kpi-val blue" id="kpi-partidas">—</div></div>
+  <div class="kpi"><div class="kpi-label">Alumnos</div><div class="kpi-val green" id="kpi-alumnos">—</div></div>
+  <div class="kpi"><div class="kpi-label">Partidas</div><div class="kpi-val blue" id="kpi-partidas">—</div></div>
   <div class="kpi"><div class="kpi-label">Mejor puntuación</div><div class="kpi-val amber" id="kpi-mejor">—</div></div>
-  <div class="kpi"><div class="kpi-label">Total de errores</div><div class="kpi-val red" id="kpi-errores">—</div></div>
+  <div class="kpi"><div class="kpi-label">Total errores</div><div class="kpi-val red" id="kpi-errores">—</div></div>
 </div>
 
 <div class="grid">
 
-  <!-- Ranking de alumnos -->
   <div class="card grid-full">
-    <div class="card-title"><span>🏆</span> Ranking de alumnos</div>
+    <div class="card-title">Ranking de alumnos</div>
     <div id="tabla-alumnos"><div class="loading">Cargando...</div></div>
   </div>
 
-  <!-- Operaciones más fallidas -->
   <div class="card">
-    <div class="card-title"><span>❌</span> Operaciones más fallidas</div>
+    <div class="card-title">Operaciones más fallidas</div>
     <div id="ops-fallidas"><div class="loading">Cargando...</div></div>
   </div>
 
-  <!-- Errores por tipo de operación -->
   <div class="card">
-    <div class="card-title"><span>📊</span> Errores por tipo de operación</div>
+    <div class="card-title">Errores por tipo de operación</div>
     <div id="errores-tipo"><div class="loading">Cargando...</div></div>
   </div>
 
-  <!-- Heatmap alumno × tipo -->
   <div class="card grid-full">
-    <div class="card-title"><span>🗺</span> Mapa de dificultad · Alumno vs Tipo de operación</div>
+    <div class="card-title">Mapa de dificultad · Alumno vs Tipo de operación</div>
     <div class="heatmap-wrap" id="heatmap"><div class="loading">Cargando...</div></div>
   </div>
 
 </div>
 
-<!-- Detalle alumno overlay -->
+<!-- Detalle alumno -->
 <div id="detalle-overlay">
   <div class="detalle-card">
     <button class="detalle-close" onclick="cerrarDetalle()">✕</button>
@@ -318,75 +381,57 @@
 
 <script src="config.js"></script>
 <script>
-// ── Autenticación del profesor ─────────────────────────────────────────────────
 let profesorToken = localStorage.getItem('profesor-token');
 const loginOverlay = document.getElementById('login-overlay');
-const mainContent = document.querySelector('.header');
 
-// Limpiar token inválido al cargar (por si acaso quedó uno expirado)
-// El servidor validará cada petición
-
-// Verificar si ya tiene token válido
 if (profesorToken) {
   loginOverlay.classList.remove('show');
-  // El token se verificará cuando intente hacer peticiones
 } else {
-  // Mostrar formulario de login
   loginOverlay.classList.add('show');
-  // Bloquear acceso hasta que se autentique
   document.querySelector('.grid').style.display = 'none';
 }
 
 async function verificarPassword() {
   const password = document.getElementById('login-password').value;
   const errorDiv = document.getElementById('login-error');
-  
+
   if (!password) {
-    errorDiv.textContent = '⚠ Ingresa la contraseña';
+    errorDiv.textContent = 'Ingresa la contraseña';
     errorDiv.classList.add('show');
     return;
   }
-  
+
   try {
     const res = await fetch(CONFIG.ENDPOINTS.profesor.login || `${CONFIG.API_URL}/api/profesor/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password })
     });
-    
     const data = await res.json();
-    
+
     if (!res.ok) {
-      errorDiv.textContent = '❌ Contraseña incorrecta';
+      errorDiv.textContent = 'Contraseña incorrecta';
       errorDiv.classList.add('show');
       return;
     }
-    
-    // Guardar token y ocultar login
+
     localStorage.setItem('profesor-token', data.token);
     profesorToken = data.token;
     loginOverlay.classList.remove('show');
     document.querySelector('.grid').style.display = 'grid';
-    
-    // Cargar datos
     cargarTodo();
   } catch (e) {
-    errorDiv.textContent = '⚠ Error de conexión';
+    errorDiv.textContent = 'Error de conexión';
     errorDiv.classList.add('show');
   }
 }
 
-// Permitir Enter en el input de contraseña
-document.getElementById('login-password').addEventListener('keypress', (e) => {
+document.getElementById('login-password').addEventListener('keypress', e => {
   if (e.key === 'Enter') verificarPassword();
 });
 
-// ── Helper para agregar token a todas las requests ──────────────────────────
 function getAuthHeaders() {
-  return {
-    'Content-Type': 'application/json',
-    'X-Professor-Token': profesorToken
-  };
+  return { 'Content-Type': 'application/json', 'X-Professor-Token': profesorToken };
 }
 
 function cerrarSesion() {
@@ -399,13 +444,11 @@ function cerrarSesion() {
 }
 
 let alumnosData = [];
-let erroresTipoData = [];
 
-// Helper para manejar errores de autenticación
 async function handleAuthError(response) {
   if (response.status === 401) {
     cerrarSesion();
-    document.getElementById('login-error').textContent = '⚠ Sesión expirada. Ingresa nuevamente.';
+    document.getElementById('login-error').textContent = 'Sesión expirada. Ingresa nuevamente.';
     document.getElementById('login-error').classList.add('show');
     return true;
   }
@@ -418,23 +461,16 @@ async function cargarTodo() {
 
 async function cargarResumen() {
   try {
-    const res  = await fetch(CONFIG.ENDPOINTS.profesor.resumen, {
-      headers: getAuthHeaders()
-    });
-    
-    // Verificar si la sesión expiró
+    const res = await fetch(CONFIG.ENDPOINTS.profesor.resumen, { headers: getAuthHeaders() });
     if (await handleAuthError(res)) return;
-    
     alumnosData = await res.json();
 
-    // KPIs
     const totalPartidas = alumnosData.reduce((s,a)=>s+a.partidas_jugadas,0);
     const mejorPuntuacion = Math.max(0,...alumnosData.map(a=>a.mejor_puntuacion));
     document.getElementById('kpi-alumnos').textContent  = alumnosData.length;
     document.getElementById('kpi-partidas').textContent = totalPartidas;
     document.getElementById('kpi-mejor').textContent    = mejorPuntuacion;
 
-    // Tabla ranking
     const cont = document.getElementById('tabla-alumnos');
     if (alumnosData.length === 0) { cont.innerHTML = '<div class="empty">Sin alumnos aún</div>'; return; }
 
@@ -448,47 +484,41 @@ async function cargarResumen() {
         <tbody>
           ${sorted.map((a,i) => `
             <tr>
-              <td><span class="rank rank-${i+1}">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</span></td>
+              <td><span class="rank rank-${i+1}">${i+1}</span></td>
               <td><span class="nombre-alumno">${escHtml(a.nombre)}</span></td>
               <td>${a.partidas_jugadas}</td>
               <td><span class="badge badge-green">${a.mejor_puntuacion}</span></td>
               <td>${Math.round(a.promedio_puntuacion*10)/10}</td>
               <td><span class="badge badge-blue">Nv. ${a.nivel_max_alcanzado}</span></td>
-              <td><button onclick="verDetalle(${a.id},'${escHtml(a.nombre).replace(/'/g,"\\'")}',${a.partidas_jugadas},${a.mejor_puntuacion})"
-                style="background:none;border:1px solid #334155;border-radius:6px;padding:4px 10px;color:#64748b;cursor:pointer;font-size:11px;">
-                Ver →
+              <td><button class="tbl-btn tbl-btn-view"
+                onclick="verDetalle(${a.id},'${escHtml(a.nombre).replace(/'/g,"\\'")}',${a.partidas_jugadas},${a.mejor_puntuacion})">
+                Ver
               </button></td>
-              <td><button onclick="eliminarAlumno(${a.id},'${escHtml(a.nombre).replace(/'/g,"\\'")}',this)"
-                style="background:none;border:1px solid #dc2626;border-radius:6px;padding:4px 10px;color:#dc2626;cursor:pointer;font-size:11px;">
-                ✕
+              <td><button class="tbl-btn tbl-btn-del"
+                onclick="eliminarAlumno(${a.id},'${escHtml(a.nombre).replace(/'/g,"\\'")}',this)">
+                Eliminar
               </button></td>
             </tr>
           `).join('')}
         </tbody>
       </table>`;
-
-    // Total errores (se calcula en cargarErroresTipo)
   } catch(e) { console.error(e); }
 }
 
 async function cargarErroresTipo() {
   try {
-    const res = await fetch(CONFIG.ENDPOINTS.profesor.erroresGlobales, {
-      headers: getAuthHeaders()
-    });
-    
+    const res = await fetch(CONFIG.ENDPOINTS.profesor.erroresGlobales, { headers: getAuthHeaders() });
     if (await handleAuthError(res)) return;
-    
-    erroresTipoData = await res.json();
+    const data = await res.json();
 
-    const totalErr = erroresTipoData.reduce((s,e)=>s+e.total_errores,0);
+    const totalErr = data.reduce((s,e)=>s+e.total_errores,0);
     document.getElementById('kpi-errores').textContent = totalErr;
 
     const cont = document.getElementById('errores-tipo');
-    if (erroresTipoData.length===0) { cont.innerHTML='<div class="empty">Sin errores registrados</div>'; return; }
+    if (data.length===0) { cont.innerHTML='<div class="empty">Sin errores registrados</div>'; return; }
 
-    const max = Math.max(...erroresTipoData.map(e=>e.total_errores));
-    cont.innerHTML = erroresTipoData.map(e => `
+    const max = Math.max(...data.map(e=>e.total_errores));
+    cont.innerHTML = data.map(e => `
       <div class="error-tipo-row">
         <div class="error-tipo-header">
           <span class="error-tipo-nombre">${escHtml(e.tipo_op)}</span>
@@ -504,12 +534,8 @@ async function cargarErroresTipo() {
 
 async function cargarOpsFallidas() {
   try {
-    const res  = await fetch(CONFIG.ENDPOINTS.profesor.operacionesErradas, {
-      headers: getAuthHeaders()
-    });
-    
+    const res = await fetch(CONFIG.ENDPOINTS.profesor.operacionesErradas, { headers: getAuthHeaders() });
     if (await handleAuthError(res)) return;
-    
     const data = await res.json();
     const cont = document.getElementById('ops-fallidas');
     if (data.length===0) { cont.innerHTML='<div class="empty">Sin operaciones fallidas</div>'; return; }
@@ -517,7 +543,7 @@ async function cargarOpsFallidas() {
       <div class="op-row">
         <div>
           <div class="op-expr">${escHtml(op.operacion.replace(' = ?',''))}</div>
-          <div class="op-meta">Respuesta: ${op.respuesta_correcta} · ${escHtml(op.tipo_op)}</div>
+          <div class="op-meta">Respuesta correcta: ${op.respuesta_correcta} · ${escHtml(op.tipo_op)}</div>
         </div>
         <div class="op-freq">${op.frecuencia}×</div>
       </div>
@@ -527,17 +553,12 @@ async function cargarOpsFallidas() {
 
 async function cargarHeatmap() {
   try {
-    const res  = await fetch(CONFIG.ENDPOINTS.profesor.erroresPorAlumno, {
-      headers: getAuthHeaders()
-    });
-    
+    const res = await fetch(CONFIG.ENDPOINTS.profesor.erroresPorAlumno, { headers: getAuthHeaders() });
     if (await handleAuthError(res)) return;
-    
     const data = await res.json();
     const cont = document.getElementById('heatmap');
     if (data.length===0) { cont.innerHTML='<div class="empty">Sin datos aún</div>'; return; }
 
-    // Construir matriz
     const alumnos = [...new Set(data.map(d=>d.nombre))];
     const tipos   = [...new Set(data.map(d=>d.tipo_op))];
     const matrix  = {};
@@ -548,12 +569,10 @@ async function cargarHeatmap() {
     const maxVal = Math.max(1,...data.map(d=>d.errores));
 
     function heatColor(val) {
-      if (!val) return 'rgba(255,255,255,0.03)';
+      if (!val) return 'rgba(255,255,255,0.02)';
       const t = val/maxVal;
-      const r = Math.round(30 + t*218);
-      const g = Math.round(60 - t*50);
-      const b = Math.round(30 - t*20);
-      return `rgba(${r},${g},${b},${0.3+t*0.5})`;
+      const r = Math.round(30 + t*218), g = Math.round(60 - t*50), b = Math.round(30 - t*20);
+      return `rgba(${r},${g},${b},${0.28+t*0.5})`;
     }
 
     cont.innerHTML = `
@@ -581,7 +600,6 @@ async function cargarHeatmap() {
   } catch(e) { console.error(e); }
 }
 
-// ── Detalle por alumno ────────────────────────────────────────────────────────
 async function verDetalle(id, nombre, partidas, mejor) {
   document.getElementById('det-nombre').textContent = nombre;
   document.getElementById('det-stat').textContent = `${partidas} partidas · Mejor: ${mejor} puntos`;
@@ -609,9 +627,9 @@ async function verDetalle(id, nombre, partidas, mejor) {
 
 async function verErroresPartida(partidaId) {
   try {
-    const res   = await fetch(`${CONFIG.API_URL}/api/partida/${partidaId}/errores`);
-    const errs  = await res.json();
-    if (errs.length===0) { alert('Sin errores en esta partida ✅'); return; }
+    const res  = await fetch(`${CONFIG.API_URL}/api/partida/${partidaId}/errores`);
+    const errs = await res.json();
+    if (errs.length===0) { alert('Sin errores en esta partida'); return; }
     const texto = errs.map(e=>`• ${e.operacion}  →  pusiste ${e.respuesta_dada}, correcto: ${e.respuesta_correcta}  (${e.tipo_op})`).join('\n');
     alert(`Errores de esta partida:\n\n${texto}`);
   } catch(e) { console.error(e); }
@@ -622,27 +640,25 @@ function cerrarDetalle() {
 }
 
 async function eliminarAlumno(id, nombre, btnEl) {
-  if (!confirm(`⚠️ ¿Eliminar a "${nombre}" y todos sus datos?\n\nEsta acción NO se puede deshacer.`)) return;
-  
+  if (!confirm(`Eliminar a "${nombre}" y todos sus datos?\n\nEsta acción no se puede deshacer.`)) return;
+
   btnEl.disabled = true;
   btnEl.textContent = '...';
-  
+
   try {
     const res = await fetch(`${CONFIG.API_URL}/api/alumno/${id}`, { method: 'DELETE' });
     const data = await res.json();
-    
     if (res.ok) {
-      alert(`✅ "${nombre}" ha sido eliminado`);
       cargarTodo();
     } else {
-      alert(`❌ Error: ${data.error}`);
+      alert(`Error: ${data.error}`);
       btnEl.disabled = false;
-      btnEl.textContent = '✕';
+      btnEl.textContent = 'Eliminar';
     }
   } catch(e) {
-    alert(`❌ Error de conexión`);
+    alert('Error de conexión');
     btnEl.disabled = false;
-    btnEl.textContent = '✕';
+    btnEl.textContent = 'Eliminar';
   }
 }
 
@@ -650,12 +666,10 @@ function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// Cerrar overlay al hacer clic fuera
 document.getElementById('detalle-overlay').addEventListener('click', e => {
   if (e.target===e.currentTarget) cerrarDetalle();
 });
 
-// Cargar al iniciar solo si tiene token válido, y auto-refrescar cada 30s
 if (profesorToken) {
   cargarTodo();
   setInterval(cargarTodo, 30000);
