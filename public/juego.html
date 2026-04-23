@@ -610,14 +610,14 @@ function buildOps(level) {
     ops.push(() => { const b=rand(8)+2,c=rand(8)+1,a=rand(10)+c+1; return {q:`${a} − ${b*c} ÷ ${b}`,ans:a-c,tipo:'Jerarquía (−÷)'}; });
     ops.push(() => { const a=rand(8)+1,b=rand(6)+1,c=rand(8)+1; return {q:`${a} + ${b} × ${c}`,ans:a+b*c,tipo:'Jerarquía (+×)'}; });
   } else if (level === 5) {
-    ops.push(() => { const a=rand(8)+1,b=rand(8)+1,c=rand(8)+2; return {q:`(${a} + ${b}) × ${c}`,ans:(a+b)*c,tipo:'Paréntesis'}; });
-    ops.push(() => { const b=rand(6)+1,a=b+rand(8)+1,c=rand(6)+2; return {q:`(${a} − ${b}) × ${c}`,ans:(a-b)*c,tipo:'Paréntesis'}; });
-    ops.push(() => { const c=rand(8)+2,ans=rand(10)+1,b=rand(6)+1; return {q:`(${ans*c} + ${b*c}) ÷ ${c}`,ans:ans+b,tipo:'Paréntesis'}; });
+    ops.push(() => { const a=rand(8)+1,b=rand(8)+1,c=rand(8)+2; return {q:`(${a} + ${b}) × ${c}`,ans:(a+b)*c,tipo:'Orden jerarquico'}; });
+    ops.push(() => { const b=rand(6)+1,a=b+rand(8)+1,c=rand(6)+2; return {q:`(${a} − ${b}) × ${c}`,ans:(a-b)*c,tipo:'Orden jerarquico'}; });
+    ops.push(() => { const c=rand(8)+2,ans=rand(10)+1,b=rand(6)+1; return {q:`(${ans*c} + ${b*c}) ÷ ${c}`,ans:ans+b,tipo:'Orden jerarquico'}; });
   } else if (level === 6) {
     ops.push(() => { const a=rand(6)+1,b=rand(6)+1,c=rand(6)+2,d=rand(6)+1; return {q:`${a} × ${b} + ${c} × ${d}`,ans:a*b+c*d,tipo:'Doble multiplicación'}; });
     ops.push(() => { const a=rand(6)+1,b=rand(6)+1,c=rand(6)+2,d=rand(6)+1; const ans=a*b-c*d; if(!safe(ans))return null; return {q:`${a} × ${b} − ${c} × ${d}`,ans,tipo:'Doble multiplicación'}; });
   } else if (level >= 7) {
-    ops.push(() => { const a=rand(5)+1,b=rand(5)+1,c=rand(5)+2,d=rand(5)+1; return {q:`(${a} + ${b}) × (${c} − ${d})`,ans:(a+b)*(c-d),tipo:'Paréntesis dobles'}; });
+    ops.push(() => { const a=rand(5)+1,b=rand(5)+1,c=rand(5)+2,d=rand(5)+1; return {q:`(${a} + ${b}) × (${c} − ${d})`,ans:(a+b)*(c-d),tipo:'Orden jerarquico'}; });
     ops.push(() => { const a=rand(6)+2,b=rand(5)+1,c=rand(5)+2,d=rand(4)+1; return {q:`${a} × ${b} + (${c} − ${d})`,ans:a*b+(c-d),tipo:'Mixta avanzada'}; });
   }
   return ops.filter(Boolean);
