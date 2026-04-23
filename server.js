@@ -112,14 +112,11 @@ function normalizarTexto(valor = "") {
     .toLowerCase();
 }
 
-function capitalizarNombreCompleto(nombre = "") {
-  return nombre
+function textoEnMayusculas(valor = "") {
+  return String(valor)
     .trim()
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((parte) => parte.charAt(0).toUpperCase() + parte.slice(1))
-    .join(" ");
+    .replace(/\s+/g, " ")
+    .toUpperCase();
 }
 
 function csvEscape(valor) {
@@ -213,7 +210,9 @@ app.post("/api/alumno/registrar", (req, res) => {
       return res.status(400).json({ error: "Nombre requerido" });
     }
     
-    const nombreLimpio = capitalizarNombreCompleto(nombre);
+    const nombreLimpio = textoEnMayusculas(nombre);
+    const escuelaLimpia = escuela ? textoEnMayusculas(escuela) : null;
+    const grupoLimpio = grupo ? textoEnMayusculas(grupo) : null;
     const edadNumero = Number(edad);
     
     if (!Number.isInteger(edadNumero) || edadNumero < 0) {
@@ -229,7 +228,7 @@ app.post("/api/alumno/registrar", (req, res) => {
       INSERT INTO alumnos (nombre, usuario, pin, edad, escuela, grupo, veces_jugadas)
       VALUES (?, ?, ?, ?, ?, ?, 0)
     `);
-    const result = stmt.run(nombreLimpio, usuario, pin, edadNumero, escuela || null, grupo || null);
+    const result = stmt.run(nombreLimpio, usuario, pin, edadNumero, escuelaLimpia, grupoLimpio);
     
     res.json({
       ok: true,
@@ -239,8 +238,8 @@ app.post("/api/alumno/registrar", (req, res) => {
         usuario,
         pin: pin,
         edad: edadNumero,
-        escuela: escuela || null,
-        grupo: grupo || null
+        escuela: escuelaLimpia,
+        grupo: grupoLimpio
       }
     });
   } catch(e) {
@@ -295,7 +294,7 @@ app.post("/api/alumno/login", (req, res) => {
 // ── API: Alumno entra (DEPRECATED - mantener para compatibilidad)
 app.post("/api/entrar", (req, res) => {
   try {
-    const nombre = capitalizarNombreCompleto(req.body.nombre || "");
+    const nombre = textoEnMayusculas(req.body.nombre || "");
     if (!nombre) return res.status(400).json({ error: "Nombre requerido" });
 
     // Buscar alumno existente

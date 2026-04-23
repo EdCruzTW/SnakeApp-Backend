@@ -324,14 +324,11 @@
 
 <script src="config.js"></script>
 <script>
-  function capitalizarNombreCompleto(valor = '') {
-    return valor
-      .toLowerCase()
+  function textoEnMayusculas(valor = '') {
+    return String(valor)
       .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-      .map(parte => parte.charAt(0).toUpperCase() + parte.slice(1))
-      .join(' ');
+      .replace(/\s+/g, ' ')
+      .toUpperCase();
   }
 
   function mostrarInicio() {
@@ -375,21 +372,21 @@
     if (e.key === 'Enter') ingresarCuenta();
   });
 
-  document.getElementById('reg-nombre').addEventListener('blur', (e) => {
-    e.target.value = capitalizarNombreCompleto(e.target.value);
-  });
-
   document.getElementById('reg-nombre').addEventListener('input', (e) => {
-    if (e.target.value.length === 1) {
-      e.target.value = e.target.value.toUpperCase();
-    }
+    e.target.value = textoEnMayusculas(e.target.value);
+  });
+  document.getElementById('reg-escuela').addEventListener('input', (e) => {
+    e.target.value = textoEnMayusculas(e.target.value);
+  });
+  document.getElementById('reg-grupo').addEventListener('input', (e) => {
+    e.target.value = textoEnMayusculas(e.target.value);
   });
 
   async function crearCuenta() {
-    const nombre  = capitalizarNombreCompleto(document.getElementById('reg-nombre').value);
+    const nombre  = textoEnMayusculas(document.getElementById('reg-nombre').value);
     const edad    = document.getElementById('reg-edad').value.trim();
-    const escuela = document.getElementById('reg-escuela').value.trim();
-    const grupo   = document.getElementById('reg-grupo').value.trim();
+    const escuela = textoEnMayusculas(document.getElementById('reg-escuela').value);
+    const grupo   = textoEnMayusculas(document.getElementById('reg-grupo').value);
     const errorDiv = document.getElementById('reg-error');
     errorDiv.textContent = '';
 
