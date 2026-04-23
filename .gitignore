@@ -19,3 +19,4 @@ yarn-debug.log*
 *.swp
 *.swo
 db/
+backups/

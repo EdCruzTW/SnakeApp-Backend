@@ -7,8 +7,12 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ── Configuración de base de datos (persiste en Railway)
-const dbDir = path.join(__dirname, "db");
+// ── Configuración de base de datos (persistente con DB_PATH)
+const defaultDbPath = path.join(__dirname, "db", "snake.db");
+const DB_PATH = process.env.DB_PATH
+  ? path.resolve(process.env.DB_PATH)
+  : defaultDbPath;
+const dbDir = path.dirname(DB_PATH);
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
 }
@@ -29,8 +33,9 @@ app.use(cors({
 app.use(express.static(path.join(__dirname, "public")));
 
 // ── Base de datos
-const db = new Database(path.join(dbDir, "snake.db"));
+const db = new Database(DB_PATH);
 db.pragma("journal_mode = WAL");
+console.log("💾 SQLite DB path:", DB_PATH);
 
 // Inicializar tablas
 db.exec(`
