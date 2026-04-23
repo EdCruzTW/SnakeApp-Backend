@@ -277,7 +277,13 @@
   <p class="tagline">Completa tus datos</p>
 
   <div class="input-group">
-    <input type="text" id="reg-nombre" placeholder="Nombre completo" maxlength="50" autocomplete="off">
+    <input type="text" id="reg-nombre" placeholder="Nombre" maxlength="30" autocomplete="off">
+  </div>
+  <div class="input-group">
+    <input type="text" id="reg-apellido-paterno" placeholder="Apellido paterno" maxlength="30" autocomplete="off">
+  </div>
+  <div class="input-group">
+    <input type="text" id="reg-apellido-materno" placeholder="Apellido materno" maxlength="30" autocomplete="off">
   </div>
   <div class="input-group">
     <input type="text" id="reg-edad" placeholder="Edad" autocomplete="off" inputmode="numeric">
@@ -324,6 +330,10 @@
 
 <script src="config.js"></script>
 <script>
+  function textoEnMayusculasInput(valor = '') {
+    return String(valor).toUpperCase();
+  }
+
   function textoEnMayusculas(valor = '') {
     return String(valor)
       .trim()
@@ -344,12 +354,16 @@
     document.getElementById('reg-error').textContent = '';
     document.getElementById('reg-pin-generado').style.display = 'none';
     document.getElementById('reg-nombre').value = '';
+    document.getElementById('reg-apellido-paterno').value = '';
+    document.getElementById('reg-apellido-materno').value = '';
     document.getElementById('reg-edad').value = '';
     document.getElementById('reg-escuela').value = '';
     document.getElementById('reg-grupo').value = '';
     document.getElementById('btn-crear').style.display = 'block';
     document.getElementById('btn-continuar-login').style.display = 'none';
     document.getElementById('reg-nombre').disabled = false;
+    document.getElementById('reg-apellido-paterno').disabled = false;
+    document.getElementById('reg-apellido-materno').disabled = false;
     document.getElementById('reg-edad').disabled = false;
     document.getElementById('reg-escuela').disabled = false;
     document.getElementById('reg-grupo').disabled = false;
@@ -373,17 +387,25 @@
   });
 
   document.getElementById('reg-nombre').addEventListener('input', (e) => {
-    e.target.value = textoEnMayusculas(e.target.value);
+    e.target.value = textoEnMayusculasInput(e.target.value);
+  });
+  document.getElementById('reg-apellido-paterno').addEventListener('input', (e) => {
+    e.target.value = textoEnMayusculasInput(e.target.value);
+  });
+  document.getElementById('reg-apellido-materno').addEventListener('input', (e) => {
+    e.target.value = textoEnMayusculasInput(e.target.value);
   });
   document.getElementById('reg-escuela').addEventListener('input', (e) => {
-    e.target.value = textoEnMayusculas(e.target.value);
+    e.target.value = textoEnMayusculasInput(e.target.value);
   });
   document.getElementById('reg-grupo').addEventListener('input', (e) => {
-    e.target.value = textoEnMayusculas(e.target.value);
+    e.target.value = textoEnMayusculasInput(e.target.value);
   });
 
   async function crearCuenta() {
     const nombre  = textoEnMayusculas(document.getElementById('reg-nombre').value);
+    const apellidoPaterno = textoEnMayusculas(document.getElementById('reg-apellido-paterno').value);
+    const apellidoMaterno = textoEnMayusculas(document.getElementById('reg-apellido-materno').value);
     const edad    = document.getElementById('reg-edad').value.trim();
     const escuela = textoEnMayusculas(document.getElementById('reg-escuela').value);
     const grupo   = textoEnMayusculas(document.getElementById('reg-grupo').value);
@@ -391,9 +413,11 @@
     errorDiv.textContent = '';
 
     document.getElementById('reg-nombre').value = nombre;
+    document.getElementById('reg-apellido-paterno').value = apellidoPaterno;
+    document.getElementById('reg-apellido-materno').value = apellidoMaterno;
 
-    if (!nombre || nombre.length < 2) {
-      errorDiv.textContent = 'El nombre debe tener al menos 2 letras';
+    if (!nombre || !apellidoPaterno || !apellidoMaterno) {
+      errorDiv.textContent = 'Completa nombre, apellido paterno y apellido materno';
       return;
     }
     if (!/^\d+$/.test(edad)) {
@@ -414,7 +438,14 @@
       const res = await fetch(CONFIG.ENDPOINTS.alumno.registrar, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, edad: edadNum, escuela: escuela || null, grupo: grupo || null })
+        body: JSON.stringify({
+          nombre,
+          apellido_paterno: apellidoPaterno,
+          apellido_materno: apellidoMaterno,
+          edad: edadNum,
+          escuela: escuela || null,
+          grupo: grupo || null
+        })
       });
       const data = await res.json();
 
@@ -429,6 +460,8 @@
       document.getElementById('reg-pin-valor').textContent = data.alumno.pin;
       document.getElementById('reg-pin-generado').style.display = 'block';
       document.getElementById('reg-nombre').disabled = true;
+      document.getElementById('reg-apellido-paterno').disabled = true;
+      document.getElementById('reg-apellido-materno').disabled = true;
       document.getElementById('reg-edad').disabled = true;
       document.getElementById('reg-escuela').disabled = true;
       document.getElementById('reg-grupo').disabled = true;

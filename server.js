@@ -204,13 +204,24 @@ function verifyProfessorToken(req, res, next) {
 // ── API: Registro de nuevo alumno (sin PIN aún)
 app.post("/api/alumno/registrar", (req, res) => {
   try {
-    const { nombre, edad, escuela, grupo } = req.body;
-    
-    if (!nombre || !nombre.trim()) {
+    const { nombre, apellido_paterno, apellido_materno, edad, escuela, grupo } = req.body;
+
+    const nombreCampo = textoEnMayusculas(nombre || "");
+    const paternoCampo = textoEnMayusculas(apellido_paterno || "");
+    const maternoCampo = textoEnMayusculas(apellido_materno || "");
+
+    const nombreLimpio = [nombreCampo, paternoCampo, maternoCampo]
+      .filter(Boolean)
+      .join(" ");
+
+    if (!nombreLimpio) {
       return res.status(400).json({ error: "Nombre requerido" });
     }
-    
-    const nombreLimpio = textoEnMayusculas(nombre);
+
+    if (!nombreCampo || !paternoCampo || !maternoCampo) {
+      return res.status(400).json({ error: "Nombre y apellidos requeridos" });
+    }
+
     const escuelaLimpia = escuela ? textoEnMayusculas(escuela) : null;
     const grupoLimpio = grupo ? textoEnMayusculas(grupo) : null;
     const edadNumero = Number(edad);
