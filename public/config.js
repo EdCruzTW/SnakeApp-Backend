@@ -29,6 +29,7 @@ const CONFIG = {
         erroresGlobales: `${this.API_URL}/api/profesor/errores-globales`,
         erroresPorAlumno: `${this.API_URL}/api/profesor/errores-por-alumno`,
         operacionesErradas: `${this.API_URL}/api/profesor/operaciones-erradas`,
+        exportar: `${this.API_URL}/api/profesor/exportar`,
       }
     };
   }

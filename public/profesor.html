@@ -333,6 +333,7 @@
     <div class="subtitle-h">Snake Matemático · Análisis de aprendizaje</div>
   </div>
   <div class="header-actions">
+    <button class="btn-header btn-refresh" onclick="descargarExcel()">Exportar Excel</button>
     <button class="btn-header btn-refresh" onclick="cargarTodo()">Actualizar</button>
     <button class="btn-header btn-logout" onclick="cerrarSesion()">Salir</button>
   </div>
@@ -457,6 +458,32 @@ async function handleAuthError(response) {
 
 async function cargarTodo() {
   await Promise.all([cargarResumen(), cargarErroresTipo(), cargarHeatmap(), cargarOpsFallidas()]);
+}
+
+async function descargarExcel() {
+  try {
+    const res = await fetch(CONFIG.ENDPOINTS.profesor.exportar, {
+      headers: getAuthHeaders()
+    });
+
+    if (await handleAuthError(res)) return;
+    if (!res.ok) {
+      alert('No se pudo generar el archivo');
+      return;
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reporte-snake-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('Error al descargar el reporte');
+  }
 }
 
 async function cargarResumen() {

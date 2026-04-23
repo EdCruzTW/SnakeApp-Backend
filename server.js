@@ -112,6 +112,23 @@ function normalizarTexto(valor = "") {
     .toLowerCase();
 }
 
+function capitalizarNombreCompleto(nombre = "") {
+  return nombre
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((parte) => parte.charAt(0).toUpperCase() + parte.slice(1))
+    .join(" ");
+}
+
+function csvEscape(valor) {
+  if (valor === null || valor === undefined) return "";
+  const texto = String(valor).replace(/"/g, '""');
+  if (/[",\n;]/.test(texto)) return `"${texto}"`;
+  return texto;
+}
+
 function generarUsuarioBase(nombre) {
   const limpio = normalizarTexto(nombre);
   const partes = limpio.split(/\s+/).filter(Boolean);
@@ -196,11 +213,11 @@ app.post("/api/alumno/registrar", (req, res) => {
       return res.status(400).json({ error: "Nombre requerido" });
     }
     
-    const nombreLimpio = nombre.trim();
+    const nombreLimpio = capitalizarNombreCompleto(nombre);
     const edadNumero = Number(edad);
     
-    if (!Number.isInteger(edadNumero) || edadNumero < 4 || edadNumero > 18) {
-      return res.status(400).json({ error: "Edad inválida (4-18)" });
+    if (!Number.isInteger(edadNumero) || edadNumero < 0) {
+      return res.status(400).json({ error: "Edad inválida" });
     }
     
     // Generar PIN único
@@ -278,7 +295,7 @@ app.post("/api/alumno/login", (req, res) => {
 // ── API: Alumno entra (DEPRECATED - mantener para compatibilidad)
 app.post("/api/entrar", (req, res) => {
   try {
-    const nombre = (req.body.nombre || "").trim();
+    const nombre = capitalizarNombreCompleto(req.body.nombre || "");
     if (!nombre) return res.status(400).json({ error: "Nombre requerido" });
 
     // Buscar alumno existente
@@ -434,6 +451,72 @@ app.get("/api/profesor/operaciones-erradas", verifyProfessorToken, (req, res) =>
     
     res.json(data || []);
   } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/profesor/exportar", verifyProfessorToken, (req, res) => {
+  try {
+    const rows = db.prepare(`
+      SELECT
+        a.id AS alumno_id,
+        a.nombre,
+        a.usuario,
+        a.edad,
+        a.escuela,
+        a.grupo,
+        a.veces_jugadas,
+        p.id AS partida_id,
+        p.fecha,
+        p.puntuacion,
+        p.nivel_max,
+        COALESCE((SELECT COUNT(*) FROM errores e WHERE e.partida_id = p.id), 0) AS total_errores
+      FROM alumnos a
+      LEFT JOIN partidas p ON p.alumno_id = a.id
+      ORDER BY a.nombre ASC, p.fecha DESC
+    `).all();
+
+    const header = [
+      "alumno_id",
+      "nombre",
+      "usuario",
+      "edad",
+      "escuela",
+      "grupo",
+      "veces_jugadas",
+      "partida_id",
+      "fecha",
+      "puntuacion",
+      "nivel_max",
+      "total_errores"
+    ];
+
+    const lines = [header.join(";")];
+    for (const row of rows) {
+      const line = [
+        csvEscape(row.alumno_id),
+        csvEscape(row.nombre),
+        csvEscape(row.usuario),
+        csvEscape(row.edad),
+        csvEscape(row.escuela),
+        csvEscape(row.grupo),
+        csvEscape(row.veces_jugadas),
+        csvEscape(row.partida_id),
+        csvEscape(row.fecha),
+        csvEscape(row.puntuacion),
+        csvEscape(row.nivel_max),
+        csvEscape(row.total_errores)
+      ].join(";");
+      lines.push(line);
+    }
+
+    const csv = `\uFEFF${lines.join("\n")}`;
+    const fileName = `reporte-snake-${new Date().toISOString().slice(0, 10)}.csv`;
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+    res.send(csv);
+  } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });

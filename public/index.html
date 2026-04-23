@@ -280,7 +280,7 @@
     <input type="text" id="reg-nombre" placeholder="Nombre completo" maxlength="50" autocomplete="off">
   </div>
   <div class="input-group">
-    <input type="text" id="reg-edad" placeholder="Edad (4 a 18)" maxlength="2" autocomplete="off" inputmode="numeric">
+    <input type="text" id="reg-edad" placeholder="Edad" autocomplete="off" inputmode="numeric">
   </div>
   <div class="input-group">
     <input type="text" id="reg-escuela" placeholder="Escuela (opcional)" maxlength="50" autocomplete="off">
@@ -324,6 +324,16 @@
 
 <script src="config.js"></script>
 <script>
+  function capitalizarNombreCompleto(valor = '') {
+    return valor
+      .toLowerCase()
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map(parte => parte.charAt(0).toUpperCase() + parte.slice(1))
+      .join(' ');
+  }
+
   function mostrarInicio() {
     document.getElementById('pantalla-inicio').style.display = 'block';
     document.getElementById('pantalla-registro').style.display = 'none';
@@ -365,25 +375,37 @@
     if (e.key === 'Enter') ingresarCuenta();
   });
 
+  document.getElementById('reg-nombre').addEventListener('blur', (e) => {
+    e.target.value = capitalizarNombreCompleto(e.target.value);
+  });
+
+  document.getElementById('reg-nombre').addEventListener('input', (e) => {
+    if (e.target.value.length === 1) {
+      e.target.value = e.target.value.toUpperCase();
+    }
+  });
+
   async function crearCuenta() {
-    const nombre  = document.getElementById('reg-nombre').value.trim();
+    const nombre  = capitalizarNombreCompleto(document.getElementById('reg-nombre').value);
     const edad    = document.getElementById('reg-edad').value.trim();
     const escuela = document.getElementById('reg-escuela').value.trim();
     const grupo   = document.getElementById('reg-grupo').value.trim();
     const errorDiv = document.getElementById('reg-error');
     errorDiv.textContent = '';
 
+    document.getElementById('reg-nombre').value = nombre;
+
     if (!nombre || nombre.length < 2) {
       errorDiv.textContent = 'El nombre debe tener al menos 2 letras';
       return;
     }
-    if (!/^\d{1,2}$/.test(edad)) {
-      errorDiv.textContent = 'Ingresa una edad válida (4 a 18)';
+    if (!/^\d+$/.test(edad)) {
+      errorDiv.textContent = 'Ingresa una edad válida';
       return;
     }
     const edadNum = Number(edad);
-    if (edadNum < 4 || edadNum > 18) {
-      errorDiv.textContent = 'La edad debe estar entre 4 y 18';
+    if (edadNum < 0) {
+      errorDiv.textContent = 'La edad no puede ser negativa';
       return;
     }
 
