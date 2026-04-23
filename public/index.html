@@ -280,6 +280,9 @@
     <input type="text" id="reg-nombre" placeholder="Nombre completo" maxlength="50" autocomplete="off">
   </div>
   <div class="input-group">
+    <input type="text" id="reg-edad" placeholder="Edad (4 a 18)" maxlength="2" autocomplete="off" inputmode="numeric">
+  </div>
+  <div class="input-group">
     <input type="text" id="reg-escuela" placeholder="Escuela (opcional)" maxlength="50" autocomplete="off">
   </div>
   <div class="input-group">
@@ -289,9 +292,11 @@
   <div class="error-msg" id="reg-error"></div>
 
   <div class="pin-box" id="reg-pin-generado" style="display:none;">
+    <div class="pin-box-label">Tu usuario corto</div>
+    <div class="pin-value" id="reg-usuario-valor" style="font-size:22px;letter-spacing:3px;"></div>
     <div class="pin-box-label">Tu código de acceso</div>
     <div class="pin-value" id="reg-pin-valor"></div>
-    <div class="pin-warning">Guarda este código. Lo necesitarás para ingresar.</div>
+    <div class="pin-warning">Guarda usuario y código. Los necesitarás para ingresar.</div>
   </div>
 
   <button class="btn btn-green" id="btn-crear" onclick="crearCuenta()" style="width:100%;margin-bottom:8px;">CREAR CUENTA</button>
@@ -305,7 +310,7 @@
   <p class="tagline">Accede a tu cuenta</p>
 
   <div class="input-group">
-    <input type="text" id="ing-nombre" placeholder="Tu nombre" maxlength="50" autocomplete="off">
+    <input type="text" id="ing-usuario" placeholder="Tu usuario corto" maxlength="20" autocomplete="off">
   </div>
   <div class="input-group">
     <input type="text" id="ing-pin" placeholder="Código de 6 dígitos" maxlength="6" autocomplete="off" inputmode="numeric">
@@ -332,11 +337,13 @@
     document.getElementById('reg-error').textContent = '';
     document.getElementById('reg-pin-generado').style.display = 'none';
     document.getElementById('reg-nombre').value = '';
+    document.getElementById('reg-edad').value = '';
     document.getElementById('reg-escuela').value = '';
     document.getElementById('reg-grupo').value = '';
     document.getElementById('btn-crear').style.display = 'block';
     document.getElementById('btn-continuar-login').style.display = 'none';
     document.getElementById('reg-nombre').disabled = false;
+    document.getElementById('reg-edad').disabled = false;
     document.getElementById('reg-escuela').disabled = false;
     document.getElementById('reg-grupo').disabled = false;
   }
@@ -346,12 +353,12 @@
     document.getElementById('pantalla-registro').style.display = 'none';
     document.getElementById('pantalla-ingreso').style.display = 'block';
     document.getElementById('ing-error').textContent = '';
-    document.getElementById('ing-nombre').value = '';
+    document.getElementById('ing-usuario').value = '';
     document.getElementById('ing-pin').value = '';
-    document.getElementById('ing-nombre').focus();
+    document.getElementById('ing-usuario').focus();
   }
 
-  document.getElementById('ing-nombre').addEventListener('keypress', e => {
+  document.getElementById('ing-usuario').addEventListener('keypress', e => {
     if (e.key === 'Enter') document.getElementById('ing-pin').focus();
   });
   document.getElementById('ing-pin').addEventListener('keypress', e => {
@@ -360,6 +367,7 @@
 
   async function crearCuenta() {
     const nombre  = document.getElementById('reg-nombre').value.trim();
+    const edad    = document.getElementById('reg-edad').value.trim();
     const escuela = document.getElementById('reg-escuela').value.trim();
     const grupo   = document.getElementById('reg-grupo').value.trim();
     const errorDiv = document.getElementById('reg-error');
@@ -367,6 +375,15 @@
 
     if (!nombre || nombre.length < 2) {
       errorDiv.textContent = 'El nombre debe tener al menos 2 letras';
+      return;
+    }
+    if (!/^\d{1,2}$/.test(edad)) {
+      errorDiv.textContent = 'Ingresa una edad válida (4 a 18)';
+      return;
+    }
+    const edadNum = Number(edad);
+    if (edadNum < 4 || edadNum > 18) {
+      errorDiv.textContent = 'La edad debe estar entre 4 y 18';
       return;
     }
 
@@ -378,27 +395,27 @@
       const res = await fetch(CONFIG.ENDPOINTS.alumno.registrar, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, escuela: escuela || null, grupo: grupo || null })
+        body: JSON.stringify({ nombre, edad: edadNum, escuela: escuela || null, grupo: grupo || null })
       });
       const data = await res.json();
 
       if (!res.ok) {
-        errorDiv.textContent = res.status === 409
-          ? 'Este nombre ya está registrado. Intenta con otro.'
-          : data.error || 'Error al crear la cuenta';
+        errorDiv.textContent = data.error || 'Error al crear la cuenta';
         btn.disabled = false;
         btn.textContent = 'CREAR CUENTA';
         return;
       }
 
+      document.getElementById('reg-usuario-valor').textContent = data.alumno.usuario;
       document.getElementById('reg-pin-valor').textContent = data.alumno.pin;
       document.getElementById('reg-pin-generado').style.display = 'block';
       document.getElementById('reg-nombre').disabled = true;
+      document.getElementById('reg-edad').disabled = true;
       document.getElementById('reg-escuela').disabled = true;
       document.getElementById('reg-grupo').disabled = true;
       document.getElementById('btn-crear').style.display = 'none';
       document.getElementById('btn-continuar-login').style.display = 'block';
-      window.pinRegistrado = { nombre, pin: data.alumno.pin };
+      window.pinRegistrado = { usuario: data.alumno.usuario, pin: data.alumno.pin };
     } catch (e) {
       errorDiv.textContent = 'Error de conexión. Intenta de nuevo.';
       btn.disabled = false;
@@ -407,20 +424,20 @@
   }
 
   function irALoginConPin() {
+    mostrarIngreso();
     if (window.pinRegistrado) {
-      document.getElementById('ing-nombre').value = window.pinRegistrado.nombre;
+      document.getElementById('ing-usuario').value = window.pinRegistrado.usuario;
       document.getElementById('ing-pin').value = window.pinRegistrado.pin;
     }
-    mostrarIngreso();
   }
 
   async function ingresarCuenta() {
-    const nombre   = document.getElementById('ing-nombre').value.trim();
+    const usuario  = document.getElementById('ing-usuario').value.trim();
     const pin      = document.getElementById('ing-pin').value.trim();
     const errorDiv = document.getElementById('ing-error');
     errorDiv.textContent = '';
 
-    if (!nombre || nombre.length < 2) { errorDiv.textContent = 'Ingresa tu nombre'; return; }
+    if (!usuario || usuario.length < 3) { errorDiv.textContent = 'Ingresa tu usuario'; return; }
     if (!pin || pin.length < 4) { errorDiv.textContent = 'Ingresa tu código de 6 dígitos'; return; }
 
     const btn = document.getElementById('btn-ingresar');
@@ -431,12 +448,12 @@
       const res = await fetch(CONFIG.ENDPOINTS.alumno.login, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre, pin })
+        body: JSON.stringify({ usuario, pin })
       });
       const data = await res.json();
 
       if (!res.ok) {
-        errorDiv.textContent = data.error || 'Nombre o código incorrectos';
+        errorDiv.textContent = data.error || 'Usuario o código incorrectos';
         btn.disabled = false;
         btn.textContent = 'INGRESAR';
         return;

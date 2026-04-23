@@ -37,7 +37,9 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS alumnos (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     nombre          TEXT NOT NULL,
+    usuario         TEXT UNIQUE,
     pin             TEXT NOT NULL UNIQUE,
+    edad            INTEGER,
     escuela         TEXT,
     grupo           TEXT,
     veces_jugadas   INTEGER DEFAULT 0,
@@ -62,6 +64,17 @@ db.exec(`
   );
 `);
 
+const columnasAlumnos = db.prepare(`PRAGMA table_info(alumnos)`).all();
+const nombresColumnasAlumnos = columnasAlumnos.map(c => c.name);
+
+if (!nombresColumnasAlumnos.includes("usuario")) {
+  db.exec(`ALTER TABLE alumnos ADD COLUMN usuario TEXT`);
+}
+if (!nombresColumnasAlumnos.includes("edad")) {
+  db.exec(`ALTER TABLE alumnos ADD COLUMN edad INTEGER`);
+}
+db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_alumnos_usuario_unique ON alumnos(usuario)`);
+
 // ── Middlewares
 app.use(express.json());
 
@@ -84,6 +97,59 @@ function generarPINUnico(longitud = 6) {
   
   return pin;
 }
+
+function normalizarTexto(valor = "") {
+  return valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9\s]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function generarUsuarioBase(nombre) {
+  const limpio = normalizarTexto(nombre);
+  const partes = limpio.split(/\s+/).filter(Boolean);
+  if (partes.length === 0) return "alumno";
+
+  const primera = partes[0].slice(0, 3);
+  const segunda = partes[1] ? partes[1].slice(0, 2) : "";
+  const base = (primera + segunda).replace(/[^a-z0-9]/g, "");
+  return base.length >= 3 ? base : (limpio.replace(/\s+/g, "").slice(0, 6) || "alumno");
+}
+
+function generarUsuarioUnico(nombre) {
+  const base = generarUsuarioBase(nombre);
+  let intento = 1;
+  let candidato = base;
+
+  while (db.prepare(`SELECT id FROM alumnos WHERE usuario = ?`).get(candidato)) {
+    intento += 1;
+    candidato = `${base}${intento}`;
+    if (intento > 9999) {
+      throw new Error("No se pudo generar usuario único");
+    }
+  }
+
+  return candidato;
+}
+
+function completarUsuariosFaltantes() {
+  const alumnosSinUsuario = db.prepare(`SELECT id, nombre FROM alumnos WHERE usuario IS NULL OR usuario = ''`).all();
+  if (alumnosSinUsuario.length === 0) return;
+
+  const updateUsuario = db.prepare(`UPDATE alumnos SET usuario = ? WHERE id = ?`);
+  const tx = db.transaction((alumnos) => {
+    for (const alumno of alumnos) {
+      const usuario = generarUsuarioUnico(alumno.nombre || "alumno");
+      updateUsuario.run(usuario, alumno.id);
+    }
+  });
+
+  tx(alumnosSinUsuario);
+}
+
+completarUsuariosFaltantes();
 
 // ── API: Autenticación del profesor
 app.post("/api/profesor/login", (req, res) => {
@@ -119,36 +185,38 @@ function verifyProfessorToken(req, res, next) {
 // ── API: Registro de nuevo alumno (sin PIN aún)
 app.post("/api/alumno/registrar", (req, res) => {
   try {
-    const { nombre, escuela, grupo } = req.body;
+    const { nombre, edad, escuela, grupo } = req.body;
     
     if (!nombre || !nombre.trim()) {
       return res.status(400).json({ error: "Nombre requerido" });
     }
     
     const nombreLimpio = nombre.trim();
+    const edadNumero = Number(edad);
     
-    // Verificar si ya existe alumno con este nombre
-    const existente = db.prepare(`SELECT id FROM alumnos WHERE nombre = ?`).get(nombreLimpio);
-    if (existente) {
-      return res.status(409).json({ error: "Este nombre ya está registrado" });
+    if (!Number.isInteger(edadNumero) || edadNumero < 4 || edadNumero > 18) {
+      return res.status(400).json({ error: "Edad inválida (4-18)" });
     }
     
     // Generar PIN único
     const pin = generarPINUnico(6);
+    const usuario = generarUsuarioUnico(nombreLimpio);
     
     // Insertar alumno
     const stmt = db.prepare(`
-      INSERT INTO alumnos (nombre, pin, escuela, grupo, veces_jugadas)
-      VALUES (?, ?, ?, ?, 0)
+      INSERT INTO alumnos (nombre, usuario, pin, edad, escuela, grupo, veces_jugadas)
+      VALUES (?, ?, ?, ?, ?, ?, 0)
     `);
-    const result = stmt.run(nombreLimpio, pin, escuela || null, grupo || null);
+    const result = stmt.run(nombreLimpio, usuario, pin, edadNumero, escuela || null, grupo || null);
     
     res.json({
       ok: true,
       alumno: {
         id: result.lastInsertRowid,
         nombre: nombreLimpio,
+        usuario,
         pin: pin,
+        edad: edadNumero,
         escuela: escuela || null,
         grupo: grupo || null
       }
@@ -161,27 +229,27 @@ app.post("/api/alumno/registrar", (req, res) => {
 // ── API: Login de alumno con nombre + PIN
 app.post("/api/alumno/login", (req, res) => {
   try {
-    const { nombre, pin } = req.body;
+    const { usuario, pin } = req.body;
     
-    if (!nombre || !nombre.trim()) {
-      return res.status(400).json({ error: "Nombre requerido" });
+    if (!usuario || !usuario.trim()) {
+      return res.status(400).json({ error: "Usuario requerido" });
     }
     if (!pin || !pin.trim()) {
       return res.status(400).json({ error: "PIN requerido" });
     }
     
-    const nombreLimpio = nombre.trim();
+    const usuarioLimpio = usuario.trim().toLowerCase();
     const pinLimpio = pin.trim();
     
-    // Buscar alumno por nombre y PIN
+    // Buscar alumno por usuario y PIN
     const alumno = db.prepare(`
-      SELECT id, nombre, escuela, grupo, veces_jugadas 
+      SELECT id, nombre, usuario, escuela, grupo, veces_jugadas 
       FROM alumnos 
-      WHERE nombre = ? AND pin = ?
-    `).get(nombreLimpio, pinLimpio);
+      WHERE usuario = ? AND pin = ?
+    `).get(usuarioLimpio, pinLimpio);
     
     if (!alumno) {
-      return res.status(401).json({ error: "Nombre o PIN incorrectos" });
+      return res.status(401).json({ error: "Usuario o PIN incorrectos" });
     }
     
     // Incrementar contador de veces jugadas
@@ -194,7 +262,7 @@ app.post("/api/alumno/login", (req, res) => {
     
     res.json({
       ok: true,
-      alumno: { id: alumno.id, nombre: alumno.nombre },
+      alumno: { id: alumno.id, nombre: alumno.nombre, usuario: alumno.usuario },
       stats
     });
   } catch(e) {
@@ -214,9 +282,10 @@ app.post("/api/entrar", (req, res) => {
     // Si no existe, crear con PIN aleatorio
     if (!alumno) {
       const pin = generarPINUnico(6);
-      const stmt = db.prepare(`INSERT INTO alumnos (nombre, pin) VALUES (?, ?)`);
-      const result = stmt.run(nombre, pin);
-      alumno = { id: result.lastInsertRowid, nombre, pin };
+      const usuario = generarUsuarioUnico(nombre);
+      const stmt = db.prepare(`INSERT INTO alumnos (nombre, usuario, pin) VALUES (?, ?, ?)`);
+      const result = stmt.run(nombre, usuario, pin);
+      alumno = { id: result.lastInsertRowid, nombre, usuario, pin };
     }
     
     const stats = db.prepare(`
