@@ -500,12 +500,14 @@ let erroresPartida = [];
 let nivelMax = 1;
 let gameStarted = false;
 let previousSnake = [];
+let directionQueued = false;
 
 function initGame() {
   snake         = [{ x:10, y:10 }, { x:9, y:10 }, { x:8, y:10 }];
   previousSnake = snake.map(segment => ({ ...segment }));
   dir           = { x:1, y:0 };
   nextDir       = { x:1, y:0 };
+  directionQueued = false;
   answers       = [];
   gameOver      = false;
   score         = 0;
@@ -665,6 +667,7 @@ function update() {
   if (gameOver) return;
   previousSnake = snake.map(segment => ({ ...segment }));
   dir = { ...nextDir };
+  directionQueued = false;
   const head = { x:snake[0].x+dir.x, y:snake[0].y+dir.y };
 
   if (head.x<0||head.y<0||head.x>=CELLS||head.y>=CELLS) { triggerDeath(); return; }
@@ -934,9 +937,10 @@ document.addEventListener("keydown", e => {
 });
 
 function intentarCambiarDireccion(x, y) {
-  const baseDir = nextDir || dir;
-  if ((x !== 0 && baseDir.x !== 0) || (y !== 0 && baseDir.y !== 0)) return false;
+  if (directionQueued) return false;
+  if ((x !== 0 && dir.x !== 0) || (y !== 0 && dir.y !== 0)) return false;
   nextDir = { x, y };
+  directionQueued = true;
   return true;
 }
 
