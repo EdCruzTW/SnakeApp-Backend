@@ -710,6 +710,15 @@ function lerp(start, end, alpha) {
   return start + (end - start) * alpha;
 }
 
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(value, max));
+}
+
+function normalizeVector(x, y) {
+  const length = Math.hypot(x, y) || 1;
+  return { x: x / length, y: y / length };
+}
+
 function getInterpolatedSnake(alpha) {
   const safeAlpha = Math.max(0, Math.min(alpha, 1));
   const fallbackPrevious = previousSnake.length ? previousSnake : snake;
@@ -721,6 +730,17 @@ function getInterpolatedSnake(alpha) {
       y: lerp(prevSegment.y, segment.y, safeAlpha)
     };
   });
+}
+
+function drawSnakeSegment(cx, cy, radiusX, radiusY, fillStyle, glowColor, glowBlur) {
+  ctx.save();
+  ctx.shadowColor = glowColor;
+  ctx.shadowBlur = glowBlur;
+  ctx.fillStyle = fillStyle;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, radiusX, radiusY, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
 }
 
 function triggerDeath() {
@@ -820,35 +840,64 @@ function draw(alpha = 1) {
   // Snake
   const renderSnake = getInterpolatedSnake(alpha);
   renderSnake.forEach((s,i) => {
-    const t = i/renderSnake.length;
-    const r = Math.round(34+(2-34)*t), g = Math.round(222+(197-222)*t), b = Math.round(128+(94-128)*t);
-    ctx.shadowColor = i===0 ? "#4ade80" : "#22c55e";
-    ctx.shadowBlur  = i===0 ? 16 : 7;
-    ctx.fillStyle   = i===0 ? "#4ade80" : `rgb(${r},${g},${b})`;
-    const pad = i===0 ? 1.6 : 2.2;
-    roundRect(ctx, s.x*SIZE+pad, s.y*SIZE+pad, SIZE-pad*2, SIZE-pad*2, i===0 ? 8 : 6);
-    ctx.fill();
+    const t = i / renderSnake.length;
+    const centerX = s.x * SIZE + SIZE / 2;
+    const centerY = s.y * SIZE + SIZE / 2;
+    const prev = renderSnake[Math.max(0, i - 1)] || s;
+    const next = renderSnake[Math.min(renderSnake.length - 1, i + 1)] || s;
+    const axis = normalizeVector(prev.x - next.x, prev.y - next.y);
+    const stretch = i === 0 ? 1.2 : clamp(1.08 - t * 0.18, 0.9, 1.08);
+    const radiusBase = i === 0 ? SIZE * 0.34 : SIZE * clamp(0.31 - t * 0.045, 0.2, 0.31);
+    const radiusX = Math.abs(axis.x) > Math.abs(axis.y) ? radiusBase * stretch : radiusBase;
+    const radiusY = Math.abs(axis.y) > Math.abs(axis.x) ? radiusBase * stretch : radiusBase;
+    const r = Math.round(74 + (18 - 74) * t);
+    const g = Math.round(248 + (166 - 248) * t);
+    const b = Math.round(140 + (86 - 140) * t);
+    const fill = i === 0 ? "#7bf1a8" : `rgb(${r},${g},${b})`;
+    const glow = i === 0 ? "rgba(123,241,168,0.55)" : "rgba(34,197,94,0.28)";
 
     if (i < renderSnake.length - 1) {
-      const next = renderSnake[i + 1];
-      const midX = ((s.x + next.x) / 2) * SIZE;
-      const midY = ((s.y + next.y) / 2) * SIZE;
-      ctx.fillStyle = i===0 ? "#3ddc84" : `rgb(${r},${g},${b})`;
-      roundRect(ctx, midX + pad, midY + pad, SIZE - pad*2, SIZE - pad*2, 6);
-      ctx.fill();
+      const nextSegment = renderSnake[i + 1];
+      const midX = ((s.x + nextSegment.x) / 2) * SIZE + SIZE / 2;
+      const midY = ((s.y + nextSegment.y) / 2) * SIZE + SIZE / 2;
+      const connectorRadius = radiusBase * (i === 0 ? 0.9 : 0.82);
+      drawSnakeSegment(midX, midY, connectorRadius, connectorRadius, fill, glow, i === 0 ? 12 : 5);
     }
 
-    if (i===0) {
-      ctx.shadowBlur = 0;
+    drawSnakeSegment(centerX, centerY, radiusX, radiusY, fill, glow, i === 0 ? 18 : 7);
+
+    ctx.save();
+    ctx.globalAlpha = i === 0 ? 0.24 : 0.12;
+    ctx.fillStyle = "#ecfdf5";
+    ctx.beginPath();
+    ctx.ellipse(centerX - radiusX * 0.22, centerY - radiusY * 0.28, radiusBase * 0.34, radiusBase * 0.2, -0.45, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+
+    if (i === 0) {
+      const look = normalizeVector(dir.x || axis.x, dir.y || axis.y);
+      const eyeOffsetX = look.x * 4.5;
+      const eyeOffsetY = look.y * 4.5;
+      const sideX = -look.y * 5.5;
+      const sideY = look.x * 5.5;
+
       ctx.fillStyle = "#020617";
-      [[0.3,0.3],[0.7,0.3]].forEach(([ox,oy]) => {
+      [
+        { x: centerX + sideX + eyeOffsetX, y: centerY + sideY + eyeOffsetY },
+        { x: centerX - sideX + eyeOffsetX, y: centerY - sideY + eyeOffsetY }
+      ].forEach((eye) => {
         ctx.beginPath();
-        ctx.arc(s.x*SIZE+SIZE*ox+dir.x*4, s.y*SIZE+SIZE*oy+dir.y*4, 3.5, 0, Math.PI*2);
+        ctx.arc(eye.x, eye.y, 3.8, 0, Math.PI * 2);
         ctx.fill();
+
+        ctx.fillStyle = "#f8fafc";
+        ctx.beginPath();
+        ctx.arc(eye.x + 1.1, eye.y - 1.1, 1.1, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#020617";
       });
     }
   });
-  ctx.shadowBlur = 0;
 
   // Answer chips
   answers.forEach(a => {
