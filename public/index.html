@@ -533,6 +533,7 @@
   <h1>CREAR CUENTA</h1>
   <p class="tagline">Completa tus datos</p>
 
+  <div id="registro-formulario">
   <div class="input-group">
     <input type="text" id="reg-nombre" placeholder="Nombre" maxlength="30" autocomplete="off">
   </div>
@@ -553,17 +554,6 @@
   </div>
 
   <div class="error-msg" id="reg-error"></div>
-
-  <div class="pin-box" id="reg-pin-generado" style="display:none;">
-    <div class="pin-box-label">Tu usuario corto</div>
-    <div class="pin-value" id="reg-usuario-valor" style="font-size:22px;letter-spacing:3px;"></div>
-    <div class="pin-box-label">Tu código de acceso</div>
-    <div class="pin-value" id="reg-pin-valor"></div>
-    <div class="pin-warning">Guarda usuario y código. Los necesitarás para ingresar.</div>
-  </div>
-
-  <div class="screen-tip" id="screen-tip">
-    <strong>Toma captura de esta pantalla</strong> o guarda el comprobante en PDF. Así no se te olvidan tu usuario y tu código.
   </div>
 
   <div class="credential-card" id="credencial-alumno">
@@ -591,7 +581,7 @@
         </div>
 
         <div class="credential-extra" id="credencial-detalles"></div>
-        <div class="credential-note">Necesitaras este usuario y codigo para volver a entrar. Guardalo o toma una foto.</div>
+        <div class="credential-note">Descarga este comprobante o toma captura de pantalla. Necesitaras este usuario y codigo para volver a entrar.</div>
       </div>
 
       <div class="credential-qr">
@@ -602,14 +592,11 @@
   </div>
 
   <div class="credential-actions" id="credential-actions">
-    <button class="credential-mini-btn" type="button" onclick="copiarCredencial()">Copiar datos</button>
-    <button class="credential-mini-btn" type="button" onclick="copiarEnlaceIngreso()">Copiar enlace</button>
     <button class="credential-mini-btn" type="button" onclick="descargarComprobante()">Descargar comprobante</button>
-    <button class="credential-mini-btn" type="button" onclick="window.print()">Imprimir credencial</button>
+    <button class="credential-mini-btn" type="button" onclick="irALoginConPin()">Comenzar a jugar</button>
   </div>
 
   <button class="btn btn-green" id="btn-crear" onclick="crearCuenta()" style="width:100%;margin-bottom:8px;">CREAR CUENTA</button>
-  <button class="btn btn-green" id="btn-continuar-login" onclick="irALoginConPin()" style="width:100%;display:none;margin-bottom:8px;">CONTINUAR A INGRESO</button>
   <button class="btn-back" onclick="mostrarInicio()">Volver</button>
 </div>
 
@@ -656,18 +643,6 @@
     return window.location.origin + window.location.pathname;
   }
 
-  function construirTextoCredencial(datos) {
-    return [
-      'SNAKE MATEMATICO',
-      `Alumno: ${datos.nombre}`,
-      `Usuario corto: ${datos.usuario}`,
-      `Codigo de acceso: ${datos.pin}`,
-      datos.escuela ? `Escuela: ${datos.escuela}` : '',
-      datos.grupo ? `Grupo: ${datos.grupo}` : '',
-      `Enlace: ${obtenerUrlIngreso()}`
-    ].filter(Boolean).join('\n');
-  }
-
   function guardarUltimoAcceso(datos) {
     localStorage.setItem(CREDENCIAL_STORAGE_KEY, JSON.stringify(datos));
   }
@@ -690,8 +665,6 @@
   }
 
   function llenarCredencial(datos) {
-    document.getElementById('reg-usuario-valor').textContent = datos.usuario;
-    document.getElementById('reg-pin-valor').textContent = formatoPin(datos.pin);
     document.getElementById('credencial-nombre').textContent = datos.nombre;
     document.getElementById('credencial-usuario').textContent = datos.usuario;
     document.getElementById('credencial-pin').textContent = formatoPin(datos.pin);
@@ -706,28 +679,11 @@
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(obtenerUrlIngreso())}`;
     document.getElementById('credencial-qr').src = qrUrl;
 
-    document.getElementById('reg-pin-generado').style.display = 'block';
-    document.getElementById('screen-tip').style.display = 'block';
+    document.getElementById('registro-formulario').style.display = 'none';
+    document.getElementById('btn-crear').style.display = 'none';
     document.getElementById('credencial-alumno').style.display = 'block';
     document.getElementById('credential-actions').style.display = 'grid';
-  }
-
-  async function copiarTexto(texto, mensajeExito) {
-    try {
-      await navigator.clipboard.writeText(texto);
-      document.getElementById('reg-error').textContent = mensajeExito;
-    } catch (error) {
-      document.getElementById('reg-error').textContent = 'No se pudo copiar automaticamente. Intenta de nuevo.';
-    }
-  }
-
-  function copiarCredencial() {
-    if (!window.pinRegistrado) return;
-    copiarTexto(construirTextoCredencial(window.pinRegistrado), 'Datos copiados. Pegalos donde quieras guardarlos.');
-  }
-
-  function copiarEnlaceIngreso() {
-    copiarTexto(obtenerUrlIngreso(), 'Enlace copiado. Puedes compartirlo o guardarlo.');
+    document.querySelector('#credencial-alumno').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function descargarComprobante() {
@@ -746,8 +702,7 @@
     document.getElementById('pantalla-registro').style.display = 'block';
     document.getElementById('pantalla-ingreso').style.display = 'none';
     document.getElementById('reg-error').textContent = '';
-    document.getElementById('reg-pin-generado').style.display = 'none';
-    document.getElementById('screen-tip').style.display = 'none';
+    document.getElementById('registro-formulario').style.display = 'block';
     document.getElementById('credencial-alumno').style.display = 'none';
     document.getElementById('credential-actions').style.display = 'none';
     document.getElementById('reg-nombre').value = '';
@@ -757,7 +712,6 @@
     document.getElementById('reg-escuela').value = '';
     document.getElementById('reg-grupo').value = '';
     document.getElementById('btn-crear').style.display = 'block';
-    document.getElementById('btn-continuar-login').style.display = 'none';
     document.getElementById('reg-nombre').disabled = false;
     document.getElementById('reg-apellido-paterno').disabled = false;
     document.getElementById('reg-apellido-materno').disabled = false;
@@ -860,8 +814,6 @@
       document.getElementById('reg-edad').disabled = true;
       document.getElementById('reg-escuela').disabled = true;
       document.getElementById('reg-grupo').disabled = true;
-      document.getElementById('btn-crear').style.display = 'none';
-      document.getElementById('btn-continuar-login').style.display = 'block';
       window.pinRegistrado = {
         nombre: data.alumno.nombre,
         usuario: data.alumno.usuario,
