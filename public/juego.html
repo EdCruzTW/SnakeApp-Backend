@@ -558,10 +558,12 @@ function drawParticles() {
 
 function rand(n) { return Math.floor(Math.random()*n); }
 
-function safePosition() {
+function safePosition(edgePadding = 1) {
   let pos, tries = 0;
+  const min = Math.max(0, edgePadding);
+  const span = Math.max(1, CELLS - (min * 2));
   do {
-    pos = { x:rand(CELLS), y:rand(CELLS) };
+    pos = { x:min + rand(span), y:min + rand(span) };
     tries++;
     if (tries > 200) break;
   } while (snake.some(s=>s.x===pos.x&&s.y===pos.y) || answers.some(a=>a.x===pos.x&&a.y===pos.y));
@@ -654,7 +656,7 @@ function newQuestion() {
 
   for (let i=0; i<4; i++) {
     const value = (i===correctIndex) ? correctAnswer : makeDistractor(correctAnswer, used, spread);
-    const pos = safePosition();
+    const pos = safePosition(1);
     answers.push({ x:pos.x, y:pos.y, value, pulse:0 });
   }
 }
@@ -695,7 +697,7 @@ function update() {
         updateHUD();
         if (lives<=0) { snake.pop(); showGameOver(); return; }
         answers = answers.filter(x=>x!==a);
-        const pos = safePosition();
+        const pos = safePosition(1);
         answers.push({ x:pos.x, y:pos.y, value:a.value, pulse:0 });
       }
       break;
@@ -923,33 +925,67 @@ function draw(alpha = 1) {
 
 document.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
-  if (["w","arrowup"].includes(k)    && dir.y===0) nextDir={x:0,y:-1};
-  if (["s","arrowdown"].includes(k)  && dir.y===0) nextDir={x:0,y:1};
-  if (["a","arrowleft"].includes(k)  && dir.x===0) nextDir={x:-1,y:0};
-  if (["d","arrowright"].includes(k) && dir.x===0) nextDir={x:1,y:0};
+  if (["w","arrowup"].includes(k))    intentarCambiarDireccion(0, -1);
+  if (["s","arrowdown"].includes(k))  intentarCambiarDireccion(0, 1);
+  if (["a","arrowleft"].includes(k))  intentarCambiarDireccion(-1, 0);
+  if (["d","arrowright"].includes(k)) intentarCambiarDireccion(1, 0);
   if (k==="r") initGame();
   if ([" ","arrowup","arrowdown","arrowleft","arrowright"].includes(k)) e.preventDefault();
 });
 
-const SWIPE_THRESHOLD = 30;
+function intentarCambiarDireccion(x, y) {
+  const baseDir = nextDir || dir;
+  if ((x !== 0 && baseDir.x !== 0) || (y !== 0 && baseDir.y !== 0)) return false;
+  nextDir = { x, y };
+  return true;
+}
+
+const SWIPE_THRESHOLD = 16;
 let touchStartX = 0, touchStartY = 0;
+let swipeLocked = false;
+
+function manejarSwipe(clientX, clientY) {
+  const dx = clientX - touchStartX;
+  const dy = clientY - touchStartY;
+
+  if (Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD) return false;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    return dx > 0
+      ? intentarCambiarDireccion(1, 0)
+      : intentarCambiarDireccion(-1, 0);
+  }
+
+  return dy > 0
+    ? intentarCambiarDireccion(0, 1)
+    : intentarCambiarDireccion(0, -1);
+}
 
 canvas.addEventListener("touchstart", e => {
   touchStartX = e.touches[0].clientX;
   touchStartY = e.touches[0].clientY;
-}, false);
+  swipeLocked = false;
+}, { passive: true });
+
+canvas.addEventListener("touchmove", e => {
+  if (swipeLocked) return;
+  const touch = e.touches[0];
+  if (!touch) return;
+
+  if (manejarSwipe(touch.clientX, touch.clientY)) {
+    swipeLocked = true;
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+  }
+}, { passive: true });
 
 canvas.addEventListener("touchend", e => {
-  const dx = e.changedTouches[0].clientX - touchStartX;
-  const dy = e.changedTouches[0].clientY - touchStartY;
-  if (Math.abs(dx) > Math.abs(dy)) {
-    if (dx > SWIPE_THRESHOLD  && dir.x===0) nextDir={x:1,y:0};
-    if (dx < -SWIPE_THRESHOLD && dir.x===0) nextDir={x:-1,y:0};
-  } else {
-    if (dy > SWIPE_THRESHOLD  && dir.y===0) nextDir={x:0,y:1};
-    if (dy < -SWIPE_THRESHOLD && dir.y===0) nextDir={x:0,y:-1};
+  const touch = e.changedTouches[0];
+  if (touch && !swipeLocked) {
+    manejarSwipe(touch.clientX, touch.clientY);
   }
-}, false);
+  swipeLocked = false;
+}, { passive: true });
 
 document.getElementById("restart-btn").addEventListener("click", startGame);
 document.getElementById("btn-start").addEventListener("click", startGame);
