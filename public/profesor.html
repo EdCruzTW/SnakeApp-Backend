@@ -82,6 +82,12 @@
     }
     .btn-logout:hover { background: rgba(248,113,113,0.08); }
 
+    .btn-password {
+      border: 1px solid var(--amber);
+      color: var(--amber);
+    }
+    .btn-password:hover { background: rgba(251,191,36,0.08); }
+
     /* KPIs */
     .kpis {
       display: grid;
@@ -163,6 +169,35 @@
       color: var(--muted);
       font-size: 10px;
       letter-spacing: 1px;
+    }
+
+    .tools-row {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tool-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .tool-copy {
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .tool-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     /* GRID */
@@ -548,6 +583,10 @@
       border-radius: 7px; display: none;
     }
     .login-error.show { display: block; }
+
+    @media (max-width: 900px) {
+      .tools-row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -570,6 +609,8 @@
   </div>
   <div class="header-actions">
     <button class="btn-header btn-refresh" onclick="descargarExcel()">Exportar Excel</button>
+    <button class="btn-header btn-refresh" onclick="descargarBackupJson()">Backup JSON</button>
+    <button class="btn-header btn-password" onclick="togglePasswordTool()">Contraseña</button>
     <button class="btn-header btn-refresh" onclick="cargarTodo()">Actualizar</button>
     <button class="btn-header btn-logout" onclick="cerrarSesion()">Salir</button>
   </div>
@@ -608,6 +649,33 @@
     </div>
   </div>
   <div class="filters-meta" id="filters-meta">Mostrando todos los alumnos.</div>
+</div>
+
+<div class="tools-row">
+  <div class="tool-card">
+    <div class="card-title">Respaldo y recuperación</div>
+    <div class="tool-copy">Descarga un respaldo completo de alumnos, partidas y errores para conservar la información del juego fuera de Railway.</div>
+    <div class="tool-actions">
+      <button class="btn-header btn-refresh" onclick="descargarExcel()">Descargar CSV</button>
+      <button class="btn-header btn-refresh" onclick="descargarBackupJson()">Descargar JSON</button>
+    </div>
+  </div>
+  <div class="tool-card" id="password-tool" style="display:none;">
+    <div class="card-title">Cambiar contraseña del profesor</div>
+    <div class="edit-grid">
+      <div class="filter-field">
+        <label for="password-actual">Actual</label>
+        <input class="filter-input" id="password-actual" type="password">
+      </div>
+      <div class="filter-field">
+        <label for="password-nueva">Nueva</label>
+        <input class="filter-input" id="password-nueva" type="password">
+      </div>
+    </div>
+    <div class="edit-actions">
+      <button class="btn-header btn-save" onclick="cambiarPasswordProfesor()">Guardar contraseña</button>
+    </div>
+  </div>
 </div>
 
 <div class="grid">
@@ -826,6 +894,70 @@ async function descargarExcel() {
     window.URL.revokeObjectURL(url);
   } catch (e) {
     alert('Error al descargar el reporte');
+  }
+}
+
+async function descargarBackupJson() {
+  try {
+    const res = await fetch(CONFIG.ENDPOINTS.profesor.backupJson, {
+      headers: getAuthHeaders()
+    });
+
+    if (await handleAuthError(res)) return;
+    if (!res.ok) {
+      alert('No se pudo generar el respaldo');
+      return;
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup-snake-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (e) {
+    alert('Error al descargar el respaldo');
+  }
+}
+
+function togglePasswordTool() {
+  const tool = document.getElementById('password-tool');
+  tool.style.display = tool.style.display === 'none' ? 'block' : 'none';
+}
+
+async function cambiarPasswordProfesor() {
+  const actual = document.getElementById('password-actual').value;
+  const nueva = document.getElementById('password-nueva').value;
+  if (!actual || !nueva) {
+    alert('Ingresa la contraseña actual y la nueva');
+    return;
+  }
+
+  try {
+    const res = await fetch(CONFIG.ENDPOINTS.profesor.password, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        current_password: actual,
+        new_password: nueva
+      })
+    });
+    const data = await res.json();
+    if (await handleAuthError(res)) return;
+    if (!res.ok) {
+      alert(data.error || 'No se pudo cambiar la contraseña');
+      return;
+    }
+
+    document.getElementById('password-actual').value = '';
+    document.getElementById('password-nueva').value = '';
+    alert('Contraseña actualizada correctamente');
+    document.getElementById('password-tool').style.display = 'none';
+  } catch (e) {
+    alert('Error al cambiar la contraseña');
   }
 }
 

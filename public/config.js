@@ -26,11 +26,13 @@ const CONFIG = {
       errores: (id) => `${this.API_URL}/api/partida/${id}/errores`,
       profesor: {
         login: `${this.API_URL}/api/profesor/login`,
+        password: `${this.API_URL}/api/profesor/password`,
         resumen: `${this.API_URL}/api/profesor/resumen`,
         erroresGlobales: `${this.API_URL}/api/profesor/errores-globales`,
         erroresPorAlumno: `${this.API_URL}/api/profesor/errores-por-alumno`,
         operacionesErradas: `${this.API_URL}/api/profesor/operaciones-erradas`,
         exportar: `${this.API_URL}/api/profesor/exportar`,
+        backupJson: `${this.API_URL}/api/profesor/backup-json`,
       }
       ,
       alumnoActualizar: (id) => `${this.API_URL}/api/alumno/${id}`

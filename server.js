@@ -25,7 +25,7 @@ if (!fs.existsSync(dbDir)) {
 }
 
 // ── Configuración de contraseña del profesor
-const PROFESOR_PASSWORD = process.env.PROFESOR_PASSWORD || "profesor123";
+const DEFAULT_PROFESOR_PASSWORD = process.env.PROFESOR_PASSWORD || "profesor123";
 const PROFESSOR_TOKENS = new Map();
 
 // ── CORS Configuration
@@ -77,6 +77,11 @@ db.exec(`
     respuesta_correcta INTEGER NOT NULL,
     tipo_op    TEXT NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS app_settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
 `);
 
 const columnasAlumnos = db.prepare(`PRAGMA table_info(alumnos)`).all();
@@ -89,6 +94,10 @@ if (!nombresColumnasAlumnos.includes("edad")) {
   db.exec(`ALTER TABLE alumnos ADD COLUMN edad INTEGER`);
 }
 db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_alumnos_usuario_unique ON alumnos(usuario)`);
+db.prepare(`
+  INSERT OR IGNORE INTO app_settings (key, value)
+  VALUES ('profesor_password', ?)
+`).run(DEFAULT_PROFESOR_PASSWORD);
 
 // ── Middlewares
 app.use(express.json());
@@ -127,6 +136,19 @@ function textoEnMayusculas(valor = "") {
     .trim()
     .replace(/\s+/g, " ")
     .toUpperCase();
+}
+
+function getProfesorPassword() {
+  const row = db.prepare(`SELECT value FROM app_settings WHERE key = 'profesor_password'`).get();
+  return row?.value || DEFAULT_PROFESOR_PASSWORD;
+}
+
+function setProfesorPassword(password) {
+  db.prepare(`
+    INSERT INTO app_settings (key, value)
+    VALUES ('profesor_password', ?)
+    ON CONFLICT(key) DO UPDATE SET value = excluded.value
+  `).run(password);
 }
 
 function csvEscape(valor) {
@@ -185,7 +207,7 @@ app.post("/api/profesor/login", (req, res) => {
   const { password } = req.body;
   if (!password) return res.status(400).json({ error: "Contraseña requerida" });
   
-  if (password !== PROFESOR_PASSWORD) {
+  if (password !== getProfesorPassword()) {
     return res.status(401).json({ error: "Contraseña incorrecta" });
   }
   
@@ -193,6 +215,26 @@ app.post("/api/profesor/login", (req, res) => {
   PROFESSOR_TOKENS.set(token, Date.now() + (24 * 60 * 60 * 1000));
   
   res.json({ ok: true, token });
+});
+
+app.post("/api/profesor/password", verifyProfessorToken, (req, res) => {
+  try {
+    const { current_password, new_password } = req.body || {};
+    if (!current_password || !new_password) {
+      return res.status(400).json({ error: "Contraseña actual y nueva requeridas" });
+    }
+    if (current_password !== getProfesorPassword()) {
+      return res.status(401).json({ error: "La contraseña actual no coincide" });
+    }
+    if (String(new_password).trim().length < 6) {
+      return res.status(400).json({ error: "La nueva contraseña debe tener al menos 6 caracteres" });
+    }
+
+    setProfesorPassword(String(new_password).trim());
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // ── Verificar token del profesor
@@ -660,6 +702,40 @@ app.get("/api/profesor/exportar", verifyProfessorToken, (req, res) => {
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
     res.send(csv);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/profesor/backup-json", verifyProfessorToken, (req, res) => {
+  try {
+    const alumnos = db.prepare(`
+      SELECT id, nombre, usuario, pin, edad, escuela, grupo, veces_jugadas, creado
+      FROM alumnos
+      ORDER BY nombre ASC
+    `).all();
+    const partidas = db.prepare(`
+      SELECT id, alumno_id, puntuacion, nivel_max, fecha
+      FROM partidas
+      ORDER BY fecha DESC
+    `).all();
+    const errores = db.prepare(`
+      SELECT id, partida_id, operacion, respuesta_dada, respuesta_correcta, tipo_op
+      FROM errores
+      ORDER BY id ASC
+    `).all();
+
+    const payload = {
+      exported_at: new Date().toISOString(),
+      alumnos,
+      partidas,
+      errores
+    };
+
+    const fileName = `backup-snake-${new Date().toISOString().slice(0, 10)}.json`;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+    res.send(JSON.stringify(payload, null, 2));
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
