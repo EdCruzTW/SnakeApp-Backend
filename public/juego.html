@@ -846,28 +846,28 @@ function draw(alpha = 1) {
     const prev = renderSnake[Math.max(0, i - 1)] || s;
     const next = renderSnake[Math.min(renderSnake.length - 1, i + 1)] || s;
     const axis = normalizeVector(prev.x - next.x, prev.y - next.y);
-    const stretch = i === 0 ? 1.2 : clamp(1.08 - t * 0.18, 0.9, 1.08);
-    const radiusBase = i === 0 ? SIZE * 0.34 : SIZE * clamp(0.31 - t * 0.045, 0.2, 0.31);
+    const stretch = i === 0 ? 1.14 : clamp(1.04 - t * 0.14, 0.92, 1.04);
+    const radiusBase = i === 0 ? SIZE * 0.325 : SIZE * clamp(0.295 - t * 0.038, 0.215, 0.295);
     const radiusX = Math.abs(axis.x) > Math.abs(axis.y) ? radiusBase * stretch : radiusBase;
     const radiusY = Math.abs(axis.y) > Math.abs(axis.x) ? radiusBase * stretch : radiusBase;
-    const r = Math.round(74 + (18 - 74) * t);
-    const g = Math.round(248 + (166 - 248) * t);
-    const b = Math.round(140 + (86 - 140) * t);
-    const fill = i === 0 ? "#7bf1a8" : `rgb(${r},${g},${b})`;
-    const glow = i === 0 ? "rgba(123,241,168,0.55)" : "rgba(34,197,94,0.28)";
+    const r = Math.round(88 + (34 - 88) * t);
+    const g = Math.round(226 + (156 - 226) * t);
+    const b = Math.round(132 + (92 - 132) * t);
+    const fill = i === 0 ? "#63df93" : `rgb(${r},${g},${b})`;
+    const glow = i === 0 ? "rgba(99,223,147,0.26)" : "rgba(34,197,94,0.14)";
 
     if (i < renderSnake.length - 1) {
       const nextSegment = renderSnake[i + 1];
       const midX = ((s.x + nextSegment.x) / 2) * SIZE + SIZE / 2;
       const midY = ((s.y + nextSegment.y) / 2) * SIZE + SIZE / 2;
-      const connectorRadius = radiusBase * (i === 0 ? 0.9 : 0.82);
-      drawSnakeSegment(midX, midY, connectorRadius, connectorRadius, fill, glow, i === 0 ? 12 : 5);
+      const connectorRadius = radiusBase * (i === 0 ? 0.78 : 0.72);
+      drawSnakeSegment(midX, midY, connectorRadius, connectorRadius, fill, glow, i === 0 ? 5 : 2);
     }
 
-    drawSnakeSegment(centerX, centerY, radiusX, radiusY, fill, glow, i === 0 ? 18 : 7);
+    drawSnakeSegment(centerX, centerY, radiusX, radiusY, fill, glow, i === 0 ? 8 : 3);
 
     ctx.save();
-    ctx.globalAlpha = i === 0 ? 0.24 : 0.12;
+    ctx.globalAlpha = i === 0 ? 0.16 : 0.08;
     ctx.fillStyle = "#ecfdf5";
     ctx.beginPath();
     ctx.ellipse(centerX - radiusX * 0.22, centerY - radiusY * 0.28, radiusBase * 0.34, radiusBase * 0.2, -0.45, 0, Math.PI * 2);
@@ -887,12 +887,12 @@ function draw(alpha = 1) {
         { x: centerX - sideX + eyeOffsetX, y: centerY - sideY + eyeOffsetY }
       ].forEach((eye) => {
         ctx.beginPath();
-        ctx.arc(eye.x, eye.y, 3.8, 0, Math.PI * 2);
+        ctx.arc(eye.x, eye.y, 3.3, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.fillStyle = "#f8fafc";
         ctx.beginPath();
-        ctx.arc(eye.x + 1.1, eye.y - 1.1, 1.1, 0, Math.PI * 2);
+        ctx.arc(eye.x + 0.9, eye.y - 0.9, 0.95, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = "#020617";
       });
