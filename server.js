@@ -641,6 +641,106 @@ app.get("/api/profesor/operaciones-erradas", verifyProfessorToken, (req, res) =>
   }
 });
 
+app.get("/api/profesor/precision-por-operacion", verifyProfessorToken, (req, res) => {
+  try {
+    const errores = db.prepare(`
+      SELECT tipo_op, COUNT(*) as total_errores
+      FROM errores
+      GROUP BY tipo_op
+    `).all();
+
+    const partidas = db.prepare(`
+      SELECT nivel_max, COUNT(*) as total_partidas
+      FROM partidas
+      GROUP BY nivel_max
+    `).all();
+
+    const intentosEstimados = {
+      'Suma': 0,
+      'Resta': 0,
+      'Multiplicación': 0,
+      'División': 0,
+      'Jerarquía (+×)': 0,
+      'Jerarquía (−×)': 0,
+      'Jerarquía (+÷)': 0,
+      'Jerarquía (−÷)': 0,
+      'Orden jerarquico': 0,
+      'Doble multiplicación': 0,
+      'Mixta avanzada': 0
+    };
+
+    partidas.forEach(p => {
+      const factor = Math.max(1, p.total_partidas);
+      if (p.nivel_max >= 1) { intentosEstimados['Suma'] += factor * 3; intentosEstimados['Resta'] += factor * 3; }
+      if (p.nivel_max >= 2) { intentosEstimados['Multiplicación'] += factor * 3; }
+      if (p.nivel_max >= 3) { intentosEstimados['División'] += factor * 2; }
+      if (p.nivel_max >= 4) { intentosEstimados['Jerarquía (+×)'] += factor * 2; intentosEstimados['Jerarquía (−×)'] += factor; }
+      if (p.nivel_max >= 5) { intentosEstimados['Jerarquía (+÷)'] += factor; intentosEstimados['Jerarquía (−÷)'] += factor; }
+      if (p.nivel_max >= 6) { intentosEstimados['Orden jerarquico'] += factor * 2; }
+      if (p.nivel_max >= 7) { intentosEstimados['Doble multiplicación'] += factor; intentosEstimados['Mixta avanzada'] += factor; }
+    });
+
+    const data = Object.entries(intentosEstimados)
+      .map(([tipo_op, intentos]) => {
+        const err = errores.find(e => e.tipo_op === tipo_op)?.total_errores || 0;
+        const intentosBase = Math.max(intentos, err);
+        const precision = intentosBase > 0 ? Math.max(0, ((intentosBase - err) / intentosBase) * 100) : 100;
+        return {
+          tipo_op,
+          intentos_estimados: intentosBase,
+          errores: err,
+          precision: Math.round(precision * 10) / 10
+        };
+      })
+      .filter(item => item.intentos_estimados > 0)
+      .sort((a, b) => a.precision - b.precision);
+
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.get("/api/profesor/evolucion", verifyProfessorToken, (req, res) => {
+  try {
+    const partidasPorDia = db.prepare(`
+      SELECT
+        substr(fecha, 1, 10) as fecha,
+        COUNT(*) as partidas,
+        ROUND(AVG(puntuacion), 1) as promedio_puntuacion,
+        MAX(puntuacion) as mejor_puntuacion,
+        ROUND(AVG(nivel_max), 1) as promedio_nivel
+      FROM partidas
+      GROUP BY substr(fecha, 1, 10)
+      ORDER BY fecha ASC
+      LIMIT 14
+    `).all();
+
+    const erroresPorDia = db.prepare(`
+      SELECT
+        substr(p.fecha, 1, 10) as fecha,
+        COUNT(e.id) as errores
+      FROM partidas p
+      LEFT JOIN errores e ON e.partida_id = p.id
+      GROUP BY substr(p.fecha, 1, 10)
+      ORDER BY fecha ASC
+      LIMIT 14
+    `).all();
+
+    const mapaErrores = {};
+    erroresPorDia.forEach(row => { mapaErrores[row.fecha] = row.errores; });
+
+    const data = partidasPorDia.map(row => ({
+      ...row,
+      errores: mapaErrores[row.fecha] || 0
+    }));
+
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get("/api/profesor/exportar", verifyProfessorToken, (req, res) => {
   try {
     const rows = db.prepare(`

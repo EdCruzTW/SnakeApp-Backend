@@ -262,6 +262,93 @@
       letter-spacing: 1px;
     }
 
+    .metric-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 1fr) minmax(0, 1.4fr) auto;
+      gap: 10px;
+      align-items: center;
+      font-size: 11px;
+    }
+
+    .metric-label {
+      color: var(--text);
+    }
+
+    .metric-track {
+      height: 8px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .metric-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.8s ease;
+      background: linear-gradient(90deg, #f87171, #fbbf24);
+    }
+
+    .metric-value {
+      color: var(--amber);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .timeline-chart {
+      display: flex;
+      align-items: end;
+      gap: 8px;
+      min-height: 180px;
+      padding-top: 12px;
+    }
+
+    .timeline-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .timeline-bars {
+      width: 100%;
+      min-height: 120px;
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .timeline-bar {
+      width: 14px;
+      border-radius: 8px 8px 2px 2px;
+      min-height: 8px;
+    }
+
+    .timeline-bar.score {
+      background: linear-gradient(180deg, #60a5fa, #2563eb);
+    }
+
+    .timeline-bar.errors {
+      background: linear-gradient(180deg, #f87171, #dc2626);
+    }
+
+    .timeline-label {
+      color: var(--muted);
+      font-size: 8px;
+      text-align: center;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
     /* TABLE */
     table { width: 100%; border-collapse: collapse; font-size: clamp(10px, 1.8vw, 12px); }
     th {
@@ -698,6 +785,16 @@
   </div>
 
   <div class="card">
+    <div class="card-title">Precisión por operación</div>
+    <div id="precision-operacion"><div class="loading">Cargando...</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Evolución en el tiempo</div>
+    <div id="evolucion-tiempo"><div class="loading">Cargando...</div></div>
+  </div>
+
+  <div class="card">
     <div class="card-title">Operaciones más fallidas</div>
     <div id="ops-fallidas"><div class="loading">Cargando...</div></div>
   </div>
@@ -788,6 +885,8 @@ let alumnosFiltrados = [];
 let erroresTipoData = [];
 let heatmapData = [];
 let opsFallidasData = [];
+let precisionData = [];
+let evolucionData = [];
 let alumnoActual = null;
 
 function setPanelVisible(visible) {
@@ -868,7 +967,7 @@ async function handleAuthError(response) {
 }
 
 async function cargarTodo() {
-  await Promise.all([cargarResumen(), cargarErroresTipo(), cargarHeatmap(), cargarOpsFallidas()]);
+  await Promise.all([cargarResumen(), cargarErroresTipo(), cargarHeatmap(), cargarOpsFallidas(), cargarPrecisionOperacion(), cargarEvolucion()]);
 }
 
 async function descargarExcel() {
@@ -1051,6 +1150,30 @@ async function cargarHeatmap() {
   }
 }
 
+async function cargarPrecisionOperacion() {
+  try {
+    const res = await fetch(CONFIG.ENDPOINTS.profesor.precisionPorOperacion, { headers: getAuthHeaders() });
+    if (await handleAuthError(res)) return;
+    precisionData = await res.json();
+    renderPrecisionOperacion();
+    renderResumenPedagogico();
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function cargarEvolucion() {
+  try {
+    const res = await fetch(CONFIG.ENDPOINTS.profesor.evolucion, { headers: getAuthHeaders() });
+    if (await handleAuthError(res)) return;
+    evolucionData = await res.json();
+    renderEvolucion();
+    renderResumenPedagogico();
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 function poblarFiltros() {
   const escuelas = [...new Set(alumnosData.map(a => a.escuela).filter(Boolean))].sort();
   const grupos = [...new Set(alumnosData.map(a => a.grupo).filter(Boolean))].sort();
@@ -1146,10 +1269,12 @@ function renderResumenPedagogico() {
     }, {});
   const grupoDestacado = Object.entries(grupoTop).sort((a, b) => b[1] - a[1])[0];
   const tipoFrecuente = erroresTipoData[0];
+  const precisionCritica = precisionData[0];
   const inactivos = alumnosFiltrados.filter(a => !a.partidas_jugadas).length;
   const mayorDificultad = alumnosFiltrados
     .map(a => ({ nombre: a.nombre, errores: erroresPorAlumno[a.nombre] || 0 }))
     .sort((a, b) => b.errores - a.errores)[0];
+  const ultimoDia = evolucionData[evolucionData.length - 1];
 
   cont.innerHTML = `
     <div class="summary-item">
@@ -1166,7 +1291,11 @@ function renderResumenPedagogico() {
     </div>
     <div class="summary-item">
       <div class="summary-item-label">Alerta pedagógica</div>
-      <div class="summary-item-value">${mayorDificultad && mayorDificultad.errores > 0 ? `<strong>${escHtml(mayorDificultad.nombre)}</strong><br>${mayorDificultad.errores} errores detectados` : `${inactivos} alumno(s) sin partidas aún`}</div>
+      <div class="summary-item-value">${precisionCritica ? `<strong>${escHtml(precisionCritica.tipo_op)}</strong><br>Precisión estimada de ${precisionCritica.precision}%` : (mayorDificultad && mayorDificultad.errores > 0 ? `<strong>${escHtml(mayorDificultad.nombre)}</strong><br>${mayorDificultad.errores} errores detectados` : `${inactivos} alumno(s) sin partidas aún`)}</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-item-label">Tendencia reciente</div>
+      <div class="summary-item-value">${ultimoDia ? `<strong>${ultimoDia.promedio_puntuacion ?? 0}</strong><br>Promedio del día con ${ultimoDia.errores} errores registrados` : 'Aún no hay evolución suficiente'}</div>
     </div>
   `;
 }
@@ -1249,6 +1378,53 @@ function renderHeatmap() {
         `).join('')}
       </tbody>
     </table>`;
+}
+
+function renderPrecisionOperacion() {
+  const cont = document.getElementById('precision-operacion');
+  if (!precisionData.length) {
+    cont.innerHTML = '<div class="empty">Sin datos suficientes de precisión</div>';
+    return;
+  }
+
+  cont.innerHTML = `
+    <div class="metric-list">
+      ${precisionData.map(item => `
+        <div class="metric-row">
+          <div class="metric-label">${escHtml(item.tipo_op)}</div>
+          <div class="metric-track">
+            <div class="metric-fill" style="width:${item.precision}%"></div>
+          </div>
+          <div class="metric-value">${item.precision}%</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderEvolucion() {
+  const cont = document.getElementById('evolucion-tiempo');
+  if (!evolucionData.length) {
+    cont.innerHTML = '<div class="empty">Sin evolución registrada todavía</div>';
+    return;
+  }
+
+  const maxScore = Math.max(1, ...evolucionData.map(item => item.promedio_puntuacion || 0));
+  const maxErrors = Math.max(1, ...evolucionData.map(item => item.errores || 0));
+
+  cont.innerHTML = `
+    <div class="timeline-chart">
+      ${evolucionData.map(item => `
+        <div class="timeline-col">
+          <div class="timeline-bars">
+            <div class="timeline-bar score" style="height:${Math.max(8, ((item.promedio_puntuacion || 0) / maxScore) * 110)}px" title="Promedio: ${item.promedio_puntuacion || 0}"></div>
+            <div class="timeline-bar errors" style="height:${Math.max(8, ((item.errores || 0) / maxErrors) * 110)}px" title="Errores: ${item.errores || 0}"></div>
+          </div>
+          <div class="timeline-label">${escHtml((item.fecha || '').slice(5))}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
 }
 
 async function verDetalle(id, focusCred = false) {

@@ -31,6 +31,8 @@ const CONFIG = {
         erroresGlobales: `${this.API_URL}/api/profesor/errores-globales`,
         erroresPorAlumno: `${this.API_URL}/api/profesor/errores-por-alumno`,
         operacionesErradas: `${this.API_URL}/api/profesor/operaciones-erradas`,
+        precisionPorOperacion: `${this.API_URL}/api/profesor/precision-por-operacion`,
+        evolucion: `${this.API_URL}/api/profesor/evolucion`,
         exportar: `${this.API_URL}/api/profesor/exportar`,
         backupJson: `${this.API_URL}/api/profesor/backup-json`,
       }
