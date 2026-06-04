@@ -7,11 +7,18 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ── Configuración de base de datos (persistente con DB_PATH)
+// ── Configuración de base de datos
+// Prioridad:
+// 1. DB_PATH definido manualmente
+// 2. Volumen persistente de Railway
+// 3. Ruta local por defecto
 const defaultDbPath = path.join(__dirname, "db", "snake.db");
+const railwayVolumeMountPath = process.env.RAILWAY_VOLUME_MOUNT_PATH;
 const DB_PATH = process.env.DB_PATH
   ? path.resolve(process.env.DB_PATH)
-  : defaultDbPath;
+  : railwayVolumeMountPath
+    ? path.join(railwayVolumeMountPath, "snake.db")
+    : defaultDbPath;
 const dbDir = path.dirname(DB_PATH);
 if (!fs.existsSync(dbDir)) {
   fs.mkdirSync(dbDir, { recursive: true });
@@ -36,6 +43,9 @@ app.use(express.static(path.join(__dirname, "public")));
 const db = new Database(DB_PATH);
 db.pragma("journal_mode = WAL");
 console.log("💾 SQLite DB path:", DB_PATH);
+if (railwayVolumeMountPath) {
+  console.log("🚂 Railway volume mount path detectado:", railwayVolumeMountPath);
+}
 
 // Inicializar tablas
 db.exec(`
@@ -390,6 +400,59 @@ app.get("/api/partida/:id/errores", (req, res) => {
     
     res.json(errores || []);
   } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── API: Ranking público para vista del juego
+app.get("/api/ranking", (req, res) => {
+  try {
+    const alumnoId = Number(req.query.alumno_id) || null;
+
+    const ranking = db.prepare(`
+      SELECT
+        a.id,
+        a.nombre,
+        a.usuario,
+        COALESCE(MAX(p.puntuacion), 0) AS mejor_puntuacion,
+        COUNT(p.id) AS partidas_jugadas
+      FROM alumnos a
+      LEFT JOIN partidas p ON p.alumno_id = a.id
+      GROUP BY a.id
+      HAVING COUNT(p.id) > 0
+      ORDER BY mejor_puntuacion DESC, partidas_jugadas ASC, a.nombre ASC
+      LIMIT 10
+    `).all();
+
+    let posicionActual = null;
+    if (alumnoId) {
+      const posicion = db.prepare(`
+        WITH ranking AS (
+          SELECT
+            a.id,
+            COALESCE(MAX(p.puntuacion), 0) AS mejor_puntuacion,
+            COUNT(p.id) AS partidas_jugadas,
+            ROW_NUMBER() OVER (
+              ORDER BY COALESCE(MAX(p.puntuacion), 0) DESC, COUNT(p.id) ASC, a.nombre ASC
+            ) AS posicion
+          FROM alumnos a
+          LEFT JOIN partidas p ON p.alumno_id = a.id
+          GROUP BY a.id
+          HAVING COUNT(p.id) > 0
+        )
+        SELECT posicion, mejor_puntuacion, partidas_jugadas
+        FROM ranking
+        WHERE id = ?
+      `).get(alumnoId);
+
+      posicionActual = posicion || null;
+    }
+
+    res.json({
+      top: ranking,
+      current: posicionActual
+    });
+  } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });

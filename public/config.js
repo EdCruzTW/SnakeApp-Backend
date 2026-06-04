@@ -21,6 +21,7 @@ const CONFIG = {
       buscarAlumno: `${this.API_URL}/api/buscar-alumno`,
       entrar: `${this.API_URL}/api/entrar`,
       partida: `${this.API_URL}/api/partida`,
+      ranking: `${this.API_URL}/api/ranking`,
       historial: (id) => `${this.API_URL}/api/alumno/${id}/historial`,
       errores: (id) => `${this.API_URL}/api/partida/${id}/errores`,
       profesor: {

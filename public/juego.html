@@ -166,6 +166,16 @@
 
     @media (max-width: 1200px) { .mobile-hint { display: block; } }
 
+    .game-shell {
+      position: relative;
+      z-index: 1;
+      display: block;
+    }
+
+    .desktop-ranking {
+      display: none;
+    }
+
     /* ── CANVAS ── */
     .canvas-wrap {
       position: relative; z-index: 1;
@@ -186,6 +196,152 @@
 
     @media (max-width: 600px) {
       #game { max-width: calc(100vw - 16px); }
+    }
+
+    @media (min-width: 1201px) {
+      .game-shell {
+        width: min(1320px, 100%);
+        display: grid;
+        grid-template-columns: minmax(0, 840px) 320px;
+        gap: 18px;
+        align-items: start;
+        justify-content: center;
+      }
+
+      .desktop-ranking {
+        display: block;
+        background: linear-gradient(180deg, rgba(13,20,36,0.98), rgba(8,12,26,0.94));
+        border: 1px solid rgba(74,222,128,0.12);
+        border-radius: 18px;
+        padding: 18px 16px 14px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.32);
+        min-height: 100%;
+      }
+
+      .desktop-ranking-header {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: flex-start;
+        margin-bottom: 14px;
+      }
+
+      .desktop-ranking-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 13px;
+        letter-spacing: 2px;
+        color: var(--green);
+      }
+
+      .desktop-ranking-subtitle {
+        color: var(--muted);
+        font-size: 9px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+
+      .desktop-ranking-position {
+        text-align: right;
+      }
+
+      .desktop-ranking-position .label {
+        color: var(--muted);
+        font-size: 8px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+      }
+
+      .desktop-ranking-position .value {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 18px;
+        color: #f8fafc;
+        margin-top: 4px;
+      }
+
+      .desktop-ranking-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .ranking-row {
+        display: grid;
+        grid-template-columns: 32px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        padding: 10px 10px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.025);
+        border: 1px solid rgba(148,163,184,0.08);
+      }
+
+      .ranking-row.current {
+        border-color: rgba(74,222,128,0.3);
+        background: rgba(74,222,128,0.08);
+      }
+
+      .ranking-place {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(96,165,250,0.1);
+        color: #bfdbfe;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 12px;
+      }
+
+      .ranking-row:nth-child(1) .ranking-place {
+        background: rgba(251,191,36,0.16);
+        color: #fde68a;
+      }
+
+      .ranking-row:nth-child(2) .ranking-place {
+        background: rgba(226,232,240,0.12);
+        color: #e2e8f0;
+      }
+
+      .ranking-row:nth-child(3) .ranking-place {
+        background: rgba(251,146,60,0.14);
+        color: #fdba74;
+      }
+
+      .ranking-player {
+        min-width: 0;
+      }
+
+      .ranking-name {
+        font-size: 11px;
+        color: #f8fafc;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .ranking-meta {
+        margin-top: 3px;
+        font-size: 8px;
+        color: var(--muted);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .ranking-score {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 16px;
+        color: var(--amber);
+        white-space: nowrap;
+      }
+
+      .ranking-empty {
+        padding: 18px 10px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 11px;
+      }
     }
 
     /* ── OVERLAY START ── */
@@ -442,26 +598,45 @@
   <div id="level-label">NIVEL 1</div>
   <div class="mobile-hint">Desliza con el dedo para mover la serpiente</div>
 
-  <div class="canvas-wrap">
-    <canvas id="game" width="840" height="840"></canvas>
+  <div class="game-shell">
+    <div class="canvas-wrap">
+      <canvas id="game" width="840" height="840"></canvas>
 
-    <div id="overlay-start">
-      <div class="start-title">LISTO</div>
-      <div class="start-message">Presiona el botón cuando estés preparado para comenzar</div>
-      <button class="btn-primary" id="btn-start">INICIAR JUEGO</button>
+      <div id="overlay-start">
+        <div class="start-title">LISTO</div>
+        <div class="start-message">Presiona el botón cuando estés preparado para comenzar</div>
+        <button class="btn-primary" id="btn-start">INICIAR JUEGO</button>
+      </div>
+
+      <div id="overlay">
+        <div class="overlay-title">GAME OVER</div>
+        <div class="overlay-puntos" id="overlay-puntos">0 puntos</div>
+
+        <div class="section-label">Operaciones con errores</div>
+        <div class="resumen-tipos" id="resumen-tipos"></div>
+        <div class="errores-grid" id="errores-lista"></div>
+
+        <button class="btn-outline" id="restart-btn">JUGAR DE NUEVO</button>
+        <button class="btn-text" onclick="window.location='./index.html'">Salir</button>
+      </div>
     </div>
 
-    <div id="overlay">
-      <div class="overlay-title">GAME OVER</div>
-      <div class="overlay-puntos" id="overlay-puntos">0 puntos</div>
+    <aside class="desktop-ranking" aria-label="Tabla de posiciones">
+      <div class="desktop-ranking-header">
+        <div>
+          <div class="desktop-ranking-title">TABLA DE POSICIONES</div>
+          <div class="desktop-ranking-subtitle">Mejores puntajes del juego</div>
+        </div>
+        <div class="desktop-ranking-position">
+          <div class="label">Tu posición</div>
+          <div class="value" id="ranking-posicion">--</div>
+        </div>
+      </div>
 
-      <div class="section-label">Operaciones con errores</div>
-      <div class="resumen-tipos" id="resumen-tipos"></div>
-      <div class="errores-grid" id="errores-lista"></div>
-
-      <button class="btn-outline" id="restart-btn">JUGAR DE NUEVO</button>
-      <button class="btn-text" onclick="window.location='./index.html'">Salir</button>
-    </div>
+      <div class="desktop-ranking-list" id="ranking-lista">
+        <div class="ranking-empty">Cargando ranking...</div>
+      </div>
+    </aside>
   </div>
 
   <div class="controls">
@@ -502,6 +677,46 @@ let gameStarted = false;
 let previousSnake = [];
 let directionQueued = false;
 
+async function cargarRanking() {
+  try {
+    const res = await fetch(`${CONFIG.ENDPOINTS.ranking}?alumno_id=${ALUMNO_ID}`);
+    const data = await res.json();
+    if (!res.ok) return;
+
+    const posicionEl = document.getElementById("ranking-posicion");
+    const listaEl = document.getElementById("ranking-lista");
+
+    posicionEl.textContent = data.current?.posicion ? `#${data.current.posicion}` : "--";
+
+    if (!Array.isArray(data.top) || data.top.length === 0) {
+      listaEl.innerHTML = '<div class="ranking-empty">Todavía no hay partidas registradas.</div>';
+      return;
+    }
+
+    listaEl.innerHTML = data.top.map((item, index) => `
+      <div class="ranking-row${item.id === ALUMNO_ID ? ' current' : ''}">
+        <div class="ranking-place">${index + 1}</div>
+        <div class="ranking-player">
+          <div class="ranking-name">${escHtml(item.nombre)}</div>
+          <div class="ranking-meta">@${escHtml(item.usuario)} · ${item.partidas_jugadas} partida${item.partidas_jugadas === 1 ? '' : 's'}</div>
+        </div>
+        <div class="ranking-score">${item.mejor_puntuacion}</div>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.warn("No se pudo cargar el ranking", error);
+  }
+}
+
+function escHtml(texto = "") {
+  return String(texto)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function initGame() {
   snake         = [{ x:10, y:10 }, { x:9, y:10 }, { x:8, y:10 }];
   previousSnake = snake.map(segment => ({ ...segment }));
@@ -524,6 +739,7 @@ function initGame() {
 }
 
 initGame();
+cargarRanking();
 
 function updateHUD() {
   document.getElementById("score-val").textContent = score;
@@ -777,6 +993,7 @@ async function showGameOver() {
         errores: erroresPartida
       })
     });
+    cargarRanking();
   } catch(e) { console.warn('No se pudo guardar la partida', e); }
 
   document.getElementById("overlay-puntos").textContent = `${score} punto${score!==1?'s':''}`;
