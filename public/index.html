@@ -236,6 +236,236 @@
       letter-spacing: 1px;
     }
 
+    .credential-card {
+      display: none;
+      margin: 18px 0;
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(96,165,250,0.28);
+      background:
+        radial-gradient(circle at top right, rgba(96,165,250,0.16), transparent 34%),
+        linear-gradient(180deg, rgba(15,23,42,0.96), rgba(8,12,26,0.98));
+      text-align: left;
+      box-shadow: 0 18px 46px rgba(0, 0, 0, 0.32);
+    }
+
+    .credential-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .credential-brand {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: var(--green);
+    }
+
+    .credential-caption {
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 1px;
+    }
+
+    .credential-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 108px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .credential-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      color: #f8fafc;
+      letter-spacing: 1px;
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
+
+    .credential-meta {
+      display: grid;
+      gap: 10px;
+    }
+
+    .credential-item-label {
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .credential-item-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 18px;
+      color: var(--text);
+      letter-spacing: 2px;
+      word-break: break-word;
+    }
+
+    .credential-item-value.pin {
+      color: var(--amber);
+    }
+
+    .credential-extra {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(148,163,184,0.14);
+      color: #cbd5e1;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .credential-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px dashed rgba(74,222,128,0.22);
+      background: rgba(74,222,128,0.05);
+      color: #dcfce7;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .credential-actions {
+      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .credential-mini-btn {
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(96,165,250,0.26);
+      background: rgba(96,165,250,0.08);
+      color: #dbeafe;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .credential-mini-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(96,165,250,0.45);
+      background: rgba(96,165,250,0.14);
+    }
+
+    .credential-qr {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .credential-qr img {
+      width: 108px;
+      height: 108px;
+      border-radius: 12px;
+      background: white;
+      padding: 8px;
+    }
+
+    .credential-qr span {
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .screen-tip {
+      display: none;
+      margin-bottom: 12px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(251,191,36,0.2);
+      background: rgba(251,191,36,0.08);
+      color: #fde68a;
+      font-size: 11px;
+      line-height: 1.5;
+      text-align: left;
+    }
+
+    .screen-tip strong {
+      color: #fef3c7;
+    }
+
+    @media (max-width: 520px) {
+      .credential-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .credential-qr {
+        align-items: flex-start;
+      }
+
+      .credential-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media print {
+      body {
+        background: white;
+        color: #0f172a;
+        overflow: visible;
+      }
+
+      body::before,
+      body::after,
+      #pantalla-inicio,
+      #pantalla-ingreso,
+      .btn,
+      .btn-back,
+      .credential-actions,
+      .screen-tip,
+      .tagline,
+      .error-msg,
+      .input-group,
+      .pin-box {
+        display: none !important;
+      }
+
+      #pantalla-registro {
+        display: block !important;
+        width: 100%;
+        max-width: none;
+        padding: 0;
+        border: none;
+        box-shadow: none;
+        background: white;
+      }
+
+      #credencial-alumno {
+        display: block !important;
+        border: 1px solid #cbd5e1;
+        box-shadow: none;
+        background: white;
+        color: #0f172a;
+      }
+
+      .credential-brand,
+      .credential-item-value.pin,
+      .credential-name {
+        color: #0f172a !important;
+      }
+
+      .credential-caption,
+      .credential-item-label,
+      .credential-qr span,
+      .credential-extra,
+      .credential-note {
+        color: #475569 !important;
+      }
+    }
+
     .btn-back {
       width: 100%;
       padding: 11px;
@@ -305,6 +535,52 @@
     <div class="pin-warning">Guarda usuario y código. Los necesitarás para ingresar.</div>
   </div>
 
+  <div class="screen-tip" id="screen-tip">
+    <strong>Toma captura de esta pantalla</strong> o guarda el comprobante en PDF. Así no se te olvidan tu usuario y tu código.
+  </div>
+
+  <div class="credential-card" id="credencial-alumno">
+    <div class="credential-header">
+      <div>
+        <div class="credential-brand">SNAKE MATEMATICO</div>
+        <div class="credential-caption">Comprobante de acceso</div>
+      </div>
+      <div class="credential-caption" id="credencial-fecha"></div>
+    </div>
+
+    <div class="credential-grid">
+      <div>
+        <div class="credential-name" id="credencial-nombre"></div>
+
+        <div class="credential-meta">
+          <div>
+            <div class="credential-item-label">Usuario corto</div>
+            <div class="credential-item-value" id="credencial-usuario"></div>
+          </div>
+          <div>
+            <div class="credential-item-label">Codigo de acceso</div>
+            <div class="credential-item-value pin" id="credencial-pin"></div>
+          </div>
+        </div>
+
+        <div class="credential-extra" id="credencial-detalles"></div>
+        <div class="credential-note">Necesitaras este usuario y codigo para volver a entrar. Guardalo o toma una foto.</div>
+      </div>
+
+      <div class="credential-qr">
+        <img id="credencial-qr" alt="QR para abrir la app">
+        <span>Escanea para abrir la pagina rapidamente</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="credential-actions" id="credential-actions">
+    <button class="credential-mini-btn" type="button" onclick="copiarCredencial()">Copiar datos</button>
+    <button class="credential-mini-btn" type="button" onclick="copiarEnlaceIngreso()">Copiar enlace</button>
+    <button class="credential-mini-btn" type="button" onclick="descargarComprobante()">Descargar comprobante</button>
+    <button class="credential-mini-btn" type="button" onclick="window.print()">Imprimir credencial</button>
+  </div>
+
   <button class="btn btn-green" id="btn-crear" onclick="crearCuenta()" style="width:100%;margin-bottom:8px;">CREAR CUENTA</button>
   <button class="btn btn-green" id="btn-continuar-login" onclick="irALoginConPin()" style="width:100%;display:none;margin-bottom:8px;">CONTINUAR A INGRESO</button>
   <button class="btn-back" onclick="mostrarInicio()">Volver</button>
@@ -330,6 +606,8 @@
 
 <script src="config.js"></script>
 <script>
+  const CREDENCIAL_STORAGE_KEY = 'snake-ultimo-acceso';
+
   function textoEnMayusculasInput(valor = '') {
     return String(valor).toUpperCase();
   }
@@ -339,6 +617,95 @@
       .trim()
       .replace(/\s+/g, ' ')
       .toUpperCase();
+  }
+
+  function formatoPin(pin = '') {
+    const limpio = String(pin).replace(/\D/g, '').slice(0, 6);
+    if (limpio.length <= 3) return limpio;
+    return `${limpio.slice(0, 3)}-${limpio.slice(3)}`;
+  }
+
+  function obtenerUrlIngreso() {
+    return window.location.origin + window.location.pathname;
+  }
+
+  function construirTextoCredencial(datos) {
+    return [
+      'SNAKE MATEMATICO',
+      `Alumno: ${datos.nombre}`,
+      `Usuario corto: ${datos.usuario}`,
+      `Codigo de acceso: ${datos.pin}`,
+      datos.escuela ? `Escuela: ${datos.escuela}` : '',
+      datos.grupo ? `Grupo: ${datos.grupo}` : '',
+      `Enlace: ${obtenerUrlIngreso()}`
+    ].filter(Boolean).join('\n');
+  }
+
+  function guardarUltimoAcceso(datos) {
+    localStorage.setItem(CREDENCIAL_STORAGE_KEY, JSON.stringify(datos));
+  }
+
+  function recuperarUltimoAcceso() {
+    try {
+      const valor = localStorage.getItem(CREDENCIAL_STORAGE_KEY);
+      return valor ? JSON.parse(valor) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function poblarIngresoConUltimoAcceso() {
+    const ultimoAcceso = recuperarUltimoAcceso();
+    if (!ultimoAcceso) return;
+
+    document.getElementById('ing-usuario').value = ultimoAcceso.usuario || '';
+    document.getElementById('ing-pin').value = ultimoAcceso.pin || '';
+  }
+
+  function llenarCredencial(datos) {
+    document.getElementById('reg-usuario-valor').textContent = datos.usuario;
+    document.getElementById('reg-pin-valor').textContent = formatoPin(datos.pin);
+    document.getElementById('credencial-nombre').textContent = datos.nombre;
+    document.getElementById('credencial-usuario').textContent = datos.usuario;
+    document.getElementById('credencial-pin').textContent = formatoPin(datos.pin);
+    document.getElementById('credencial-fecha').textContent = new Date().toLocaleDateString('es-MX');
+
+    const detalles = [
+      datos.escuela ? `Escuela: ${datos.escuela}` : null,
+      datos.grupo ? `Grupo: ${datos.grupo}` : null
+    ].filter(Boolean);
+    document.getElementById('credencial-detalles').textContent = detalles.join(' • ') || 'Acceso personal del alumno';
+
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(obtenerUrlIngreso())}`;
+    document.getElementById('credencial-qr').src = qrUrl;
+
+    document.getElementById('reg-pin-generado').style.display = 'block';
+    document.getElementById('screen-tip').style.display = 'block';
+    document.getElementById('credencial-alumno').style.display = 'block';
+    document.getElementById('credential-actions').style.display = 'grid';
+  }
+
+  async function copiarTexto(texto, mensajeExito) {
+    try {
+      await navigator.clipboard.writeText(texto);
+      document.getElementById('reg-error').textContent = mensajeExito;
+    } catch (error) {
+      document.getElementById('reg-error').textContent = 'No se pudo copiar automaticamente. Intenta de nuevo.';
+    }
+  }
+
+  function copiarCredencial() {
+    if (!window.pinRegistrado) return;
+    copiarTexto(construirTextoCredencial(window.pinRegistrado), 'Datos copiados. Pegalos donde quieras guardarlos.');
+  }
+
+  function copiarEnlaceIngreso() {
+    copiarTexto(obtenerUrlIngreso(), 'Enlace copiado. Puedes compartirlo o guardarlo.');
+  }
+
+  function descargarComprobante() {
+    document.getElementById('reg-error').textContent = 'Se abrira la ventana de impresion para guardar el comprobante como PDF.';
+    window.print();
   }
 
   function mostrarInicio() {
@@ -353,6 +720,9 @@
     document.getElementById('pantalla-ingreso').style.display = 'none';
     document.getElementById('reg-error').textContent = '';
     document.getElementById('reg-pin-generado').style.display = 'none';
+    document.getElementById('screen-tip').style.display = 'none';
+    document.getElementById('credencial-alumno').style.display = 'none';
+    document.getElementById('credential-actions').style.display = 'none';
     document.getElementById('reg-nombre').value = '';
     document.getElementById('reg-apellido-paterno').value = '';
     document.getElementById('reg-apellido-materno').value = '';
@@ -376,6 +746,7 @@
     document.getElementById('ing-error').textContent = '';
     document.getElementById('ing-usuario').value = '';
     document.getElementById('ing-pin').value = '';
+    poblarIngresoConUltimoAcceso();
     document.getElementById('ing-usuario').focus();
   }
 
@@ -456,9 +827,6 @@
         return;
       }
 
-      document.getElementById('reg-usuario-valor').textContent = data.alumno.usuario;
-      document.getElementById('reg-pin-valor').textContent = data.alumno.pin;
-      document.getElementById('reg-pin-generado').style.display = 'block';
       document.getElementById('reg-nombre').disabled = true;
       document.getElementById('reg-apellido-paterno').disabled = true;
       document.getElementById('reg-apellido-materno').disabled = true;
@@ -467,7 +835,15 @@
       document.getElementById('reg-grupo').disabled = true;
       document.getElementById('btn-crear').style.display = 'none';
       document.getElementById('btn-continuar-login').style.display = 'block';
-      window.pinRegistrado = { usuario: data.alumno.usuario, pin: data.alumno.pin };
+      window.pinRegistrado = {
+        nombre: data.alumno.nombre,
+        usuario: data.alumno.usuario,
+        pin: data.alumno.pin,
+        escuela: data.alumno.escuela || '',
+        grupo: data.alumno.grupo || ''
+      };
+      guardarUltimoAcceso(window.pinRegistrado);
+      llenarCredencial(window.pinRegistrado);
     } catch (e) {
       errorDiv.textContent = 'Error de conexión. Intenta de nuevo.';
       btn.disabled = false;
@@ -511,6 +887,11 @@
         return;
       }
 
+      guardarUltimoAcceso({
+        nombre: data.alumno.nombre,
+        usuario,
+        pin
+      });
       sessionStorage.setItem('alumno_id', data.alumno.id);
       sessionStorage.setItem('alumno_nombre', data.alumno.nombre);
       window.location = './juego.html';
