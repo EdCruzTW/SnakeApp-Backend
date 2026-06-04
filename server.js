@@ -461,11 +461,12 @@ app.get("/api/ranking", (req, res) => {
 app.get("/api/profesor/resumen", verifyProfessorToken, (req, res) => {
   try {
     const alumnos = db.prepare(`
-      SELECT a.id, a.nombre, a.creado,
+      SELECT a.id, a.nombre, a.usuario, a.pin, a.edad, a.escuela, a.grupo, a.creado, a.veces_jugadas,
         COUNT(p.id) as partidas_jugadas,
         COALESCE(MAX(p.puntuacion), 0) as mejor_puntuacion,
         COALESCE(AVG(p.puntuacion), 0) as promedio_puntuacion,
-        COALESCE(MAX(p.nivel_max), 1) as nivel_max_alcanzado
+        COALESCE(MAX(p.nivel_max), 1) as nivel_max_alcanzado,
+        MAX(p.fecha) as ultima_partida
       FROM alumnos a
       LEFT JOIN partidas p ON p.alumno_id = a.id
       GROUP BY a.id
@@ -474,6 +475,76 @@ app.get("/api/profesor/resumen", verifyProfessorToken, (req, res) => {
     
     res.json(alumnos || []);
   } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.patch("/api/alumno/:id", verifyProfessorToken, (req, res) => {
+  try {
+    const alumnoId = Number(req.params.id);
+    if (!alumnoId) return res.status(400).json({ error: "Alumno inválido" });
+
+    const alumnoActual = db.prepare(`
+      SELECT id, nombre, usuario, pin, edad, escuela, grupo
+      FROM alumnos
+      WHERE id = ?
+    `).get(alumnoId);
+
+    if (!alumnoActual) {
+      return res.status(404).json({ error: "Alumno no encontrado" });
+    }
+
+    const {
+      nombre,
+      edad,
+      escuela,
+      grupo,
+      regenerar_pin
+    } = req.body || {};
+
+    const nombreNormalizado = nombre !== undefined
+      ? textoEnMayusculas(nombre)
+      : alumnoActual.nombre;
+    const escuelaNormalizada = escuela !== undefined
+      ? (escuela ? textoEnMayusculas(escuela) : null)
+      : alumnoActual.escuela;
+    const grupoNormalizado = grupo !== undefined
+      ? (grupo ? textoEnMayusculas(grupo) : null)
+      : alumnoActual.grupo;
+    const edadNormalizada = edad !== undefined && edad !== null && edad !== ""
+      ? Number(edad)
+      : null;
+
+    if (!nombreNormalizado) {
+      return res.status(400).json({ error: "Nombre requerido" });
+    }
+    if (edad !== undefined && edad !== null && edad !== "" && (!Number.isInteger(edadNormalizada) || edadNormalizada < 0)) {
+      return res.status(400).json({ error: "Edad inválida" });
+    }
+
+    const pinActualizado = regenerar_pin ? generarPINUnico(6) : alumnoActual.pin;
+
+    db.prepare(`
+      UPDATE alumnos
+      SET nombre = ?, pin = ?, edad = ?, escuela = ?, grupo = ?
+      WHERE id = ?
+    `).run(
+      nombreNormalizado,
+      pinActualizado,
+      edadNormalizada,
+      escuelaNormalizada,
+      grupoNormalizado,
+      alumnoId
+    );
+
+    const actualizado = db.prepare(`
+      SELECT id, nombre, usuario, pin, edad, escuela, grupo, veces_jugadas
+      FROM alumnos
+      WHERE id = ?
+    `).get(alumnoId);
+
+    res.json({ ok: true, alumno: actualizado });
+  } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });
@@ -595,7 +666,7 @@ app.get("/api/profesor/exportar", verifyProfessorToken, (req, res) => {
 });
 
 // ── API: Eliminar alumno
-app.delete("/api/alumno/:id", (req, res) => {
+app.delete("/api/alumno/:id", verifyProfessorToken, (req, res) => {
   try {
     const alumnoId = req.params.id;
     

@@ -116,6 +116,55 @@
     .kpi-val.amber { color: var(--amber); }
     .kpi-val.red   { color: var(--red); }
 
+    .filters-card {
+      position: relative; z-index: 1;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
+    .filters-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .filter-field label {
+      display: block;
+      font-size: 8px;
+      letter-spacing: 1px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .filter-input, .filter-select {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(99,140,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--text);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+    }
+
+    .filter-input:focus, .filter-select:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(96,165,250,0.08);
+    }
+
+    .filters-meta {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 1px;
+    }
+
     /* GRID */
     .grid {
       display: grid;
@@ -142,6 +191,40 @@
       color: var(--muted);
       text-transform: uppercase;
       margin-bottom: 14px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .summary-item {
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(99,140,255,0.08);
+    }
+
+    .summary-item-label {
+      color: var(--muted);
+      font-size: 8px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .summary-item-value {
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .summary-item-value strong {
+      color: var(--amber);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      letter-spacing: 1px;
     }
 
     /* TABLE */
@@ -254,12 +337,165 @@
     .tbl-btn-del  { border: 1px solid rgba(220,38,38,0.3); color: #dc2626; }
     .tbl-btn-del:hover  { background: rgba(220,38,38,0.1); }
 
+    .tbl-btn-access { border: 1px solid rgba(74,222,128,0.25); color: var(--green); }
+    .tbl-btn-access:hover { background: rgba(74,222,128,0.08); }
+
+    .tbl-btn-edit { border: 1px solid rgba(251,191,36,0.25); color: var(--amber); }
+    .tbl-btn-edit:hover { background: rgba(251,191,36,0.08); }
+
+    .cred-card {
+      margin-bottom: 16px;
+      padding: 14px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(13,20,36,0.95), rgba(15,25,41,0.95));
+      border: 1px solid rgba(74,222,128,0.18);
+    }
+
+    .cred-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      align-items: flex-start;
+    }
+
+    .cred-title {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--green);
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    .cred-sub {
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: 1px;
+      margin-top: 3px;
+      text-transform: uppercase;
+    }
+
+    .cred-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .cred-item {
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(148,163,184,0.08);
+    }
+
+    .cred-label {
+      color: var(--muted);
+      font-size: 8px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .cred-value {
+      font-family: 'Orbitron', sans-serif;
+      color: #f8fafc;
+      font-size: 18px;
+      letter-spacing: 2px;
+      word-break: break-word;
+    }
+
+    .cred-note {
+      color: #cbd5e1;
+      font-size: 10px;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+
+    .cred-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mini-btn {
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(96,165,250,0.08);
+      border: 1px solid rgba(96,165,250,0.18);
+      color: var(--blue);
+      cursor: pointer;
+      font-size: 10px;
+      letter-spacing: 1px;
+    }
+
+    .mini-btn:hover { background: rgba(96,165,250,0.14); }
+
+    .detalle-section-title {
+      color: var(--muted);
+      font-size: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin: 16px 0 10px;
+    }
+
+    .detail-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .detail-kpi {
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(148,163,184,0.08);
+    }
+
+    .detail-kpi-label {
+      color: var(--muted);
+      font-size: 7px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .detail-kpi-value {
+      font-family: 'Orbitron', sans-serif;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .edit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .edit-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-save {
+      border: 1px solid var(--green);
+      color: var(--green);
+      background: transparent;
+    }
+
+    .btn-save:hover { background: rgba(74,222,128,0.08); }
+
     /* MOBILE */
     @media (max-width: 600px) {
       body { padding: 10px 8px 40px; }
+      .filters-row, .summary-grid, .cred-grid, .edit-grid, .detail-kpis { grid-template-columns: 1fr; }
       th:nth-child(4), td:nth-child(4),
       th:nth-child(7), td:nth-child(7),
-      th:nth-child(8), td:nth-child(8) { display: none; }
+      th:nth-child(8), td:nth-child(8),
+      th:nth-child(9), td:nth-child(9),
+      th:nth-child(10), td:nth-child(10) { display: none; }
       .op-row { flex-direction: column; align-items: flex-start; }
     }
 
@@ -346,11 +582,51 @@
   <div class="kpi"><div class="kpi-label">Total errores</div><div class="kpi-val red" id="kpi-errores">—</div></div>
 </div>
 
+<div class="filters-card">
+  <div class="card-title">Filtros y búsqueda</div>
+  <div class="filters-row">
+    <div class="filter-field">
+      <label for="filtro-busqueda">Buscar alumno</label>
+      <input class="filter-input" id="filtro-busqueda" type="text" placeholder="Nombre, usuario o PIN">
+    </div>
+    <div class="filter-field">
+      <label for="filtro-escuela">Escuela</label>
+      <select class="filter-select" id="filtro-escuela"></select>
+    </div>
+    <div class="filter-field">
+      <label for="filtro-grupo">Grupo</label>
+      <select class="filter-select" id="filtro-grupo"></select>
+    </div>
+    <div class="filter-field">
+      <label for="filtro-orden">Ordenar por</label>
+      <select class="filter-select" id="filtro-orden">
+        <option value="mejor">Mejor puntuación</option>
+        <option value="partidas">Más partidas</option>
+        <option value="promedio">Promedio</option>
+        <option value="nombre">Nombre</option>
+      </select>
+    </div>
+  </div>
+  <div class="filters-meta" id="filters-meta">Mostrando todos los alumnos.</div>
+</div>
+
 <div class="grid">
 
   <div class="card grid-full">
     <div class="card-title">Ranking de alumnos</div>
     <div id="tabla-alumnos"><div class="loading">Cargando...</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Resumen pedagógico</div>
+    <div class="summary-grid" id="summary-grid">
+      <div class="loading">Cargando...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Alumnos que requieren atención</div>
+    <div id="alertas-alumnos"><div class="loading">Cargando...</div></div>
   </div>
 
   <div class="card">
@@ -376,6 +652,60 @@
     <button class="detalle-close" onclick="cerrarDetalle()">✕</button>
     <div class="detalle-nombre" id="det-nombre">—</div>
     <div class="detalle-stat" id="det-stat">—</div>
+    <div class="cred-card">
+      <div class="cred-head">
+        <div>
+          <div class="cred-title">Acceso del alumno</div>
+          <div class="cred-sub">Recuperación rápida de credenciales</div>
+        </div>
+      </div>
+      <div class="cred-grid">
+        <div class="cred-item">
+          <div class="cred-label">Usuario corto</div>
+          <div class="cred-value" id="det-usuario">—</div>
+        </div>
+        <div class="cred-item">
+          <div class="cred-label">PIN</div>
+          <div class="cred-value" id="det-pin">—</div>
+        </div>
+      </div>
+      <div class="cred-note">Puedes compartir, reimprimir o regenerar el acceso del alumno desde aquí si lo perdió.</div>
+      <div class="cred-actions">
+        <button class="mini-btn" onclick="copiarCredencialesActuales()">Copiar acceso</button>
+        <button class="mini-btn" onclick="imprimirCredencialActual()">Imprimir acceso</button>
+        <button class="mini-btn" onclick="regenerarPinActual()">Regenerar PIN</button>
+      </div>
+    </div>
+    <div class="detalle-section-title">Resumen del alumno</div>
+    <div class="detail-kpis">
+      <div class="detail-kpi"><div class="detail-kpi-label">Mejor</div><div class="detail-kpi-value" id="det-kpi-mejor">—</div></div>
+      <div class="detail-kpi"><div class="detail-kpi-label">Promedio</div><div class="detail-kpi-value" id="det-kpi-promedio">—</div></div>
+      <div class="detail-kpi"><div class="detail-kpi-label">Partidas</div><div class="detail-kpi-value" id="det-kpi-partidas">—</div></div>
+      <div class="detail-kpi"><div class="detail-kpi-label">Nivel máx</div><div class="detail-kpi-value" id="det-kpi-nivel">—</div></div>
+    </div>
+    <div class="detalle-section-title">Editar datos</div>
+    <div class="edit-grid">
+      <div class="filter-field">
+        <label for="edit-nombre">Nombre completo</label>
+        <input class="filter-input" id="edit-nombre" type="text">
+      </div>
+      <div class="filter-field">
+        <label for="edit-edad">Edad</label>
+        <input class="filter-input" id="edit-edad" type="text" inputmode="numeric">
+      </div>
+      <div class="filter-field">
+        <label for="edit-escuela">Escuela</label>
+        <input class="filter-input" id="edit-escuela" type="text">
+      </div>
+      <div class="filter-field">
+        <label for="edit-grupo">Grupo</label>
+        <input class="filter-input" id="edit-grupo" type="text">
+      </div>
+    </div>
+    <div class="edit-actions">
+      <button class="btn-header btn-save" onclick="guardarAlumnoActual()">Guardar cambios</button>
+    </div>
+    <div class="detalle-section-title">Historial de partidas</div>
     <div id="det-partidas"></div>
   </div>
 </div>
@@ -384,12 +714,27 @@
 <script>
 let profesorToken = localStorage.getItem('profesor-token');
 const loginOverlay = document.getElementById('login-overlay');
+const panelSections = [document.querySelector('.kpis'), document.querySelector('.filters-card'), document.querySelector('.grid')];
+let alumnosData = [];
+let alumnosFiltrados = [];
+let erroresTipoData = [];
+let heatmapData = [];
+let opsFallidasData = [];
+let alumnoActual = null;
+
+function setPanelVisible(visible) {
+  panelSections.forEach(section => {
+    if (!section) return;
+    section.style.display = visible ? '' : 'none';
+  });
+}
 
 if (profesorToken) {
   loginOverlay.classList.remove('show');
+  setPanelVisible(true);
 } else {
   loginOverlay.classList.add('show');
-  document.querySelector('.grid').style.display = 'none';
+  setPanelVisible(false);
 }
 
 async function verificarPassword() {
@@ -419,7 +764,7 @@ async function verificarPassword() {
     localStorage.setItem('profesor-token', data.token);
     profesorToken = data.token;
     loginOverlay.classList.remove('show');
-    document.querySelector('.grid').style.display = 'grid';
+    setPanelVisible(true);
     cargarTodo();
   } catch (e) {
     errorDiv.textContent = 'Error de conexión';
@@ -439,12 +784,10 @@ function cerrarSesion() {
   localStorage.removeItem('profesor-token');
   profesorToken = null;
   loginOverlay.classList.add('show');
-  document.querySelector('.grid').style.display = 'none';
+  setPanelVisible(false);
   document.getElementById('login-password').value = '';
   document.getElementById('login-error').classList.remove('show');
 }
-
-let alumnosData = [];
 
 async function handleAuthError(response) {
   if (response.status === 401) {
@@ -492,178 +835,434 @@ async function cargarResumen() {
     if (await handleAuthError(res)) return;
     alumnosData = await res.json();
 
-    const totalPartidas = alumnosData.reduce((s,a)=>s+a.partidas_jugadas,0);
-    const mejorPuntuacion = Math.max(0,...alumnosData.map(a=>a.mejor_puntuacion));
-    document.getElementById('kpi-alumnos').textContent  = alumnosData.length;
+    const totalPartidas = alumnosData.reduce((s, a) => s + a.partidas_jugadas, 0);
+    const mejorPuntuacion = Math.max(0, ...alumnosData.map(a => a.mejor_puntuacion));
+    document.getElementById('kpi-alumnos').textContent = alumnosData.length;
     document.getElementById('kpi-partidas').textContent = totalPartidas;
-    document.getElementById('kpi-mejor').textContent    = mejorPuntuacion;
+    document.getElementById('kpi-mejor').textContent = mejorPuntuacion;
 
-    const cont = document.getElementById('tabla-alumnos');
-    if (alumnosData.length === 0) { cont.innerHTML = '<div class="empty">Sin alumnos aún</div>'; return; }
-
-    const sorted = [...alumnosData].sort((a,b)=>b.mejor_puntuacion-a.mejor_puntuacion);
-    cont.innerHTML = `
-      <table>
-        <thead><tr>
-          <th>#</th><th>Nombre</th><th>Partidas</th>
-          <th>Mejor</th><th>Promedio</th><th>Nivel máx</th><th></th><th></th>
-        </tr></thead>
-        <tbody>
-          ${sorted.map((a,i) => `
-            <tr>
-              <td><span class="rank rank-${i+1}">${i+1}</span></td>
-              <td><span class="nombre-alumno">${escHtml(a.nombre)}</span></td>
-              <td>${a.partidas_jugadas}</td>
-              <td><span class="badge badge-green">${a.mejor_puntuacion}</span></td>
-              <td>${Math.round(a.promedio_puntuacion*10)/10}</td>
-              <td><span class="badge badge-blue">Nv. ${a.nivel_max_alcanzado}</span></td>
-              <td><button class="tbl-btn tbl-btn-view"
-                onclick="verDetalle(${a.id},'${escHtml(a.nombre).replace(/'/g,"\\'")}',${a.partidas_jugadas},${a.mejor_puntuacion})">
-                Ver
-              </button></td>
-              <td><button class="tbl-btn tbl-btn-del"
-                onclick="eliminarAlumno(${a.id},'${escHtml(a.nombre).replace(/'/g,"\\'")}',this)">
-                Eliminar
-              </button></td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>`;
-  } catch(e) { console.error(e); }
+    poblarFiltros();
+    aplicarFiltrosYRender();
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 async function cargarErroresTipo() {
   try {
     const res = await fetch(CONFIG.ENDPOINTS.profesor.erroresGlobales, { headers: getAuthHeaders() });
     if (await handleAuthError(res)) return;
-    const data = await res.json();
+    erroresTipoData = await res.json();
 
-    const totalErr = data.reduce((s,e)=>s+e.total_errores,0);
+    const totalErr = erroresTipoData.reduce((s, e) => s + e.total_errores, 0);
     document.getElementById('kpi-errores').textContent = totalErr;
 
     const cont = document.getElementById('errores-tipo');
-    if (data.length===0) { cont.innerHTML='<div class="empty">Sin errores registrados</div>'; return; }
+    if (erroresTipoData.length === 0) {
+      cont.innerHTML = '<div class="empty">Sin errores registrados</div>';
+      renderResumenPedagogico();
+      return;
+    }
 
-    const max = Math.max(...data.map(e=>e.total_errores));
-    cont.innerHTML = data.map(e => `
+    const max = Math.max(...erroresTipoData.map(e => e.total_errores));
+    cont.innerHTML = erroresTipoData.map(e => `
       <div class="error-tipo-row">
         <div class="error-tipo-header">
           <span class="error-tipo-nombre">${escHtml(e.tipo_op)}</span>
           <span class="error-tipo-count">${e.total_errores}</span>
         </div>
         <div class="bar-wrap">
-          <div class="bar" style="width:${(e.total_errores/max*100)}%"></div>
+          <div class="bar" style="width:${(e.total_errores / max * 100)}%"></div>
         </div>
       </div>
     `).join('');
-  } catch(e) { console.error(e); }
+    renderResumenPedagogico();
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 async function cargarOpsFallidas() {
   try {
     const res = await fetch(CONFIG.ENDPOINTS.profesor.operacionesErradas, { headers: getAuthHeaders() });
     if (await handleAuthError(res)) return;
-    const data = await res.json();
+    opsFallidasData = await res.json();
     const cont = document.getElementById('ops-fallidas');
-    if (data.length===0) { cont.innerHTML='<div class="empty">Sin operaciones fallidas</div>'; return; }
-    cont.innerHTML = data.slice(0,10).map(op => `
+    if (opsFallidasData.length === 0) {
+      cont.innerHTML = '<div class="empty">Sin operaciones fallidas</div>';
+      return;
+    }
+    cont.innerHTML = opsFallidasData.slice(0, 10).map(op => `
       <div class="op-row">
         <div>
-          <div class="op-expr">${escHtml(op.operacion.replace(' = ?',''))}</div>
+          <div class="op-expr">${escHtml(op.operacion.replace(' = ?', ''))}</div>
           <div class="op-meta">Respuesta correcta: ${op.respuesta_correcta} · ${escHtml(op.tipo_op)}</div>
         </div>
         <div class="op-freq">${op.frecuencia}×</div>
       </div>
     `).join('');
-  } catch(e) { console.error(e); }
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 async function cargarHeatmap() {
   try {
     const res = await fetch(CONFIG.ENDPOINTS.profesor.erroresPorAlumno, { headers: getAuthHeaders() });
     if (await handleAuthError(res)) return;
-    const data = await res.json();
-    const cont = document.getElementById('heatmap');
-    if (data.length===0) { cont.innerHTML='<div class="empty">Sin datos aún</div>'; return; }
-
-    const alumnos = [...new Set(data.map(d=>d.nombre))];
-    const tipos   = [...new Set(data.map(d=>d.tipo_op))];
-    const matrix  = {};
-    data.forEach(d => {
-      if (!matrix[d.nombre]) matrix[d.nombre]={};
-      matrix[d.nombre][d.tipo_op]=d.errores;
-    });
-    const maxVal = Math.max(1,...data.map(d=>d.errores));
-
-    function heatColor(val) {
-      if (!val) return 'rgba(255,255,255,0.02)';
-      const t = val/maxVal;
-      const r = Math.round(30 + t*218), g = Math.round(60 - t*50), b = Math.round(30 - t*20);
-      return `rgba(${r},${g},${b},${0.28+t*0.5})`;
-    }
-
-    cont.innerHTML = `
-      <table class="heatmap">
-        <thead><tr>
-          <th style="text-align:left">Alumno</th>
-          ${tipos.map(t=>`<th>${escHtml(t)}</th>`).join('')}
-        </tr></thead>
-        <tbody>
-          ${alumnos.map(nombre=>`
-            <tr>
-              <td class="alumno-cell">${escHtml(nombre)}</td>
-              ${tipos.map(tipo=>{
-                const val=(matrix[nombre]||{})[tipo]||0;
-                return `<td>
-                  <div class="cell-val" style="background:${heatColor(val)};color:${val?'#fca5a5':'#334155'}">
-                    ${val||'·'}
-                  </div>
-                </td>`;
-              }).join('')}
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>`;
-  } catch(e) { console.error(e); }
+    heatmapData = await res.json();
+    renderHeatmap();
+    renderAlertas();
+    renderResumenPedagogico();
+  } catch (e) {
+    console.error(e);
+  }
 }
 
-async function verDetalle(id, nombre, partidas, mejor) {
-  document.getElementById('det-nombre').textContent = nombre;
-  document.getElementById('det-stat').textContent = `${partidas} partidas · Mejor: ${mejor} puntos`;
+function poblarFiltros() {
+  const escuelas = [...new Set(alumnosData.map(a => a.escuela).filter(Boolean))].sort();
+  const grupos = [...new Set(alumnosData.map(a => a.grupo).filter(Boolean))].sort();
+
+  document.getElementById('filtro-escuela').innerHTML = `<option value="">Todas</option>${escuelas.map(v => `<option value="${escAttr(v)}">${escHtml(v)}</option>`).join('')}`;
+  document.getElementById('filtro-grupo').innerHTML = `<option value="">Todos</option>${grupos.map(v => `<option value="${escAttr(v)}">${escHtml(v)}</option>`).join('')}`;
+}
+
+function obtenerErroresPorAlumno() {
+  const mapa = {};
+  heatmapData.forEach(item => {
+    mapa[item.nombre] = (mapa[item.nombre] || 0) + item.errores;
+  });
+  return mapa;
+}
+
+function aplicarFiltrosYRender() {
+  const q = document.getElementById('filtro-busqueda').value.trim().toLowerCase();
+  const escuela = document.getElementById('filtro-escuela').value;
+  const grupo = document.getElementById('filtro-grupo').value;
+  const orden = document.getElementById('filtro-orden').value;
+
+  alumnosFiltrados = alumnosData.filter(a => {
+    const matchQ = !q || [a.nombre, a.usuario, a.pin, a.escuela, a.grupo].filter(Boolean).some(v => String(v).toLowerCase().includes(q));
+    const matchEscuela = !escuela || a.escuela === escuela;
+    const matchGrupo = !grupo || a.grupo === grupo;
+    return matchQ && matchEscuela && matchGrupo;
+  });
+
+  const sorters = {
+    mejor: (a, b) => b.mejor_puntuacion - a.mejor_puntuacion || a.nombre.localeCompare(b.nombre),
+    partidas: (a, b) => b.partidas_jugadas - a.partidas_jugadas || b.mejor_puntuacion - a.mejor_puntuacion,
+    promedio: (a, b) => b.promedio_puntuacion - a.promedio_puntuacion || b.mejor_puntuacion - a.mejor_puntuacion,
+    nombre: (a, b) => a.nombre.localeCompare(b.nombre)
+  };
+  alumnosFiltrados.sort(sorters[orden] || sorters.mejor);
+
+  document.getElementById('filters-meta').textContent = alumnosFiltrados.length === alumnosData.length
+    ? `Mostrando todos los alumnos (${alumnosFiltrados.length}).`
+    : `Mostrando ${alumnosFiltrados.length} de ${alumnosData.length} alumnos.`;
+
+  renderTablaAlumnos();
+  renderHeatmap();
+  renderResumenPedagogico();
+  renderAlertas();
+}
+
+function renderTablaAlumnos() {
+  const cont = document.getElementById('tabla-alumnos');
+  if (!alumnosFiltrados.length) {
+    cont.innerHTML = '<div class="empty">No hay alumnos con esos filtros</div>';
+    return;
+  }
+
+  cont.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>#</th><th>Nombre</th><th>Escuela</th><th>Grupo</th><th>Partidas</th><th>Mejor</th><th>Promedio</th><th>Acceso</th><th>Detalle</th><th>Eliminar</th>
+      </tr></thead>
+      <tbody>
+        ${alumnosFiltrados.map((a, i) => `
+          <tr>
+            <td><span class="rank rank-${i + 1}">${i + 1}</span></td>
+            <td><span class="nombre-alumno">${escHtml(a.nombre)}</span><br><span class="partida-fecha">@${escHtml(a.usuario || 'sin-usuario')}</span></td>
+            <td>${escHtml(a.escuela || '—')}</td>
+            <td>${escHtml(a.grupo || '—')}</td>
+            <td>${a.partidas_jugadas}</td>
+            <td><span class="badge badge-green">${a.mejor_puntuacion}</span></td>
+            <td>${Math.round(a.promedio_puntuacion * 10) / 10}</td>
+            <td><button class="tbl-btn tbl-btn-access" onclick="verDetalle(${a.id}, true)">Acceso</button></td>
+            <td><button class="tbl-btn tbl-btn-edit" onclick="verDetalle(${a.id})">Ver</button></td>
+            <td><button class="tbl-btn tbl-btn-del" onclick="eliminarAlumno(${a.id},'${escJs(a.nombre)}',this)">Eliminar</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+}
+
+function renderResumenPedagogico() {
+  const cont = document.getElementById('summary-grid');
+  if (!alumnosFiltrados.length) {
+    cont.innerHTML = '<div class="empty">Sin datos para resumir</div>';
+    return;
+  }
+
+  const erroresPorAlumno = obtenerErroresPorAlumno();
+  const topAlumno = alumnosFiltrados[0];
+  const grupoTop = alumnosFiltrados
+    .filter(a => a.grupo)
+    .reduce((acc, a) => {
+      acc[a.grupo] = (acc[a.grupo] || 0) + a.partidas_jugadas;
+      return acc;
+    }, {});
+  const grupoDestacado = Object.entries(grupoTop).sort((a, b) => b[1] - a[1])[0];
+  const tipoFrecuente = erroresTipoData[0];
+  const inactivos = alumnosFiltrados.filter(a => !a.partidas_jugadas).length;
+  const mayorDificultad = alumnosFiltrados
+    .map(a => ({ nombre: a.nombre, errores: erroresPorAlumno[a.nombre] || 0 }))
+    .sort((a, b) => b.errores - a.errores)[0];
+
+  cont.innerHTML = `
+    <div class="summary-item">
+      <div class="summary-item-label">Alumno líder</div>
+      <div class="summary-item-value"><strong>${topAlumno.mejor_puntuacion}</strong><br>${escHtml(topAlumno.nombre)}</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-item-label">Grupo más activo</div>
+      <div class="summary-item-value">${grupoDestacado ? `<strong>${escHtml(grupoDestacado[0])}</strong><br>${grupoDestacado[1]} partidas` : 'Aún sin grupos registrados'}</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-item-label">Error más frecuente</div>
+      <div class="summary-item-value">${tipoFrecuente ? `<strong>${escHtml(tipoFrecuente.tipo_op)}</strong><br>${tipoFrecuente.total_errores} errores acumulados` : 'Sin errores registrados'}</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-item-label">Alerta pedagógica</div>
+      <div class="summary-item-value">${mayorDificultad && mayorDificultad.errores > 0 ? `<strong>${escHtml(mayorDificultad.nombre)}</strong><br>${mayorDificultad.errores} errores detectados` : `${inactivos} alumno(s) sin partidas aún`}</div>
+    </div>
+  `;
+}
+
+function renderAlertas() {
+  const cont = document.getElementById('alertas-alumnos');
+  if (!alumnosFiltrados.length) {
+    cont.innerHTML = '<div class="empty">Sin alumnos</div>';
+    return;
+  }
+
+  const erroresPorAlumno = obtenerErroresPorAlumno();
+  const alertas = alumnosFiltrados
+    .map(a => ({ ...a, errores_totales: erroresPorAlumno[a.nombre] || 0 }))
+    .filter(a => a.partidas_jugadas === 0 || a.errores_totales >= 5 || (a.partidas_jugadas >= 3 && a.mejor_puntuacion <= 2))
+    .sort((a, b) => (b.errores_totales - a.errores_totales) || (a.mejor_puntuacion - b.mejor_puntuacion))
+    .slice(0, 8);
+
+  if (!alertas.length) {
+    cont.innerHTML = '<div class="empty">No hay alertas importantes con los filtros actuales.</div>';
+    return;
+  }
+
+  cont.innerHTML = alertas.map(a => `
+    <div class="op-row">
+      <div>
+        <div class="op-expr">${escHtml(a.nombre)}</div>
+        <div class="op-meta">${a.partidas_jugadas === 0 ? 'Sin partidas registradas todavía' : `${a.errores_totales} errores · Mejor puntaje: ${a.mejor_puntuacion} · Grupo: ${escHtml(a.grupo || '—')}`}</div>
+      </div>
+      <div><button class="tbl-btn tbl-btn-view" onclick="verDetalle(${a.id})">Ver</button></div>
+    </div>
+  `).join('');
+}
+
+function renderHeatmap() {
+  const cont = document.getElementById('heatmap');
+  if (heatmapData.length === 0) {
+    cont.innerHTML = '<div class="empty">Sin datos aún</div>';
+    return;
+  }
+
+  const permitidos = new Set(alumnosFiltrados.map(a => a.nombre));
+  const data = heatmapData.filter(d => permitidos.size === 0 || permitidos.has(d.nombre));
+  if (!data.length) {
+    cont.innerHTML = '<div class="empty">Sin datos para esos filtros</div>';
+    return;
+  }
+
+  const alumnos = [...new Set(data.map(d => d.nombre))];
+  const tipos = [...new Set(data.map(d => d.tipo_op))];
+  const matrix = {};
+  data.forEach(d => {
+    if (!matrix[d.nombre]) matrix[d.nombre] = {};
+    matrix[d.nombre][d.tipo_op] = d.errores;
+  });
+  const maxVal = Math.max(1, ...data.map(d => d.errores));
+
+  function heatColor(val) {
+    if (!val) return 'rgba(255,255,255,0.02)';
+    const t = val / maxVal;
+    const r = Math.round(30 + t * 218), g = Math.round(60 - t * 50), b = Math.round(30 - t * 20);
+    return `rgba(${r},${g},${b},${0.28 + t * 0.5})`;
+  }
+
+  cont.innerHTML = `
+    <table class="heatmap">
+      <thead><tr>
+        <th style="text-align:left">Alumno</th>
+        ${tipos.map(t => `<th>${escHtml(t)}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${alumnos.map(nombre => `
+          <tr>
+            <td class="alumno-cell">${escHtml(nombre)}</td>
+            ${tipos.map(tipo => {
+              const val = (matrix[nombre] || {})[tipo] || 0;
+              return `<td><div class="cell-val" style="background:${heatColor(val)};color:${val ? '#fca5a5' : '#334155'}">${val || '·'}</div></td>`;
+            }).join('')}
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function verDetalle(id, focusCred = false) {
+  alumnoActual = alumnosData.find(a => a.id === id) || null;
+  if (!alumnoActual) return;
+
+  document.getElementById('det-nombre').textContent = alumnoActual.nombre;
+  document.getElementById('det-stat').textContent = `${alumnoActual.partidas_jugadas} partidas · Mejor: ${alumnoActual.mejor_puntuacion} puntos · Última partida: ${alumnoActual.ultima_partida || 'Sin jugar'}`;
+  document.getElementById('det-usuario').textContent = alumnoActual.usuario || '—';
+  document.getElementById('det-pin').textContent = alumnoActual.pin || '—';
+  document.getElementById('det-kpi-mejor').textContent = alumnoActual.mejor_puntuacion;
+  document.getElementById('det-kpi-promedio').textContent = Math.round(alumnoActual.promedio_puntuacion * 10) / 10;
+  document.getElementById('det-kpi-partidas').textContent = alumnoActual.partidas_jugadas;
+  document.getElementById('det-kpi-nivel').textContent = alumnoActual.nivel_max_alcanzado;
+  document.getElementById('edit-nombre').value = alumnoActual.nombre || '';
+  document.getElementById('edit-edad').value = alumnoActual.edad ?? '';
+  document.getElementById('edit-escuela').value = alumnoActual.escuela || '';
+  document.getElementById('edit-grupo').value = alumnoActual.grupo || '';
   document.getElementById('det-partidas').innerHTML = '<div class="loading">Cargando historial...</div>';
   document.getElementById('detalle-overlay').classList.add('show');
 
   try {
-    const res  = await fetch(`${CONFIG.API_URL}/api/alumno/${id}/historial`);
+    const res = await fetch(`${CONFIG.API_URL}/api/alumno/${id}/historial`);
     const data = await res.json();
-    if (data.length===0) {
-      document.getElementById('det-partidas').innerHTML='<div class="empty">Sin partidas</div>';
-      return;
-    }
-    document.getElementById('det-partidas').innerHTML = data.map(p=>`
-      <div class="partida-row" onclick="verErroresPartida(${p.id})">
-        <div>
-          <div class="partida-fecha">${p.fecha}</div>
-          <div class="partida-errores">${p.total_errores} error${p.total_errores!==1?'es':''} · Nivel máx: ${p.nivel_max}</div>
+    if (!data.length) {
+      document.getElementById('det-partidas').innerHTML = '<div class="empty">Sin partidas</div>';
+    } else {
+      document.getElementById('det-partidas').innerHTML = data.map(p => `
+        <div class="partida-row" onclick="verErroresPartida(${p.id})">
+          <div>
+            <div class="partida-fecha">${p.fecha}</div>
+            <div class="partida-errores">${p.total_errores} error${p.total_errores !== 1 ? 'es' : ''} · Nivel máx: ${p.nivel_max}</div>
+          </div>
+          <div class="partida-score">${p.puntuacion} pts</div>
         </div>
-        <div class="partida-score">${p.puntuacion} pts</div>
-      </div>
-    `).join('');
-  } catch(e) { console.error(e); }
+      `).join('');
+    }
+    if (focusCred) {
+      document.querySelector('.cred-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 async function verErroresPartida(partidaId) {
   try {
-    const res  = await fetch(`${CONFIG.API_URL}/api/partida/${partidaId}/errores`);
+    const res = await fetch(`${CONFIG.API_URL}/api/partida/${partidaId}/errores`);
     const errs = await res.json();
-    if (errs.length===0) { alert('Sin errores en esta partida'); return; }
-    const texto = errs.map(e=>`• ${e.operacion}  →  pusiste ${e.respuesta_dada}, correcto: ${e.respuesta_correcta}  (${e.tipo_op})`).join('\n');
+    if (!errs.length) { alert('Sin errores en esta partida'); return; }
+    const texto = errs.map(e => `• ${e.operacion}  →  pusiste ${e.respuesta_dada}, correcto: ${e.respuesta_correcta}  (${e.tipo_op})`).join('\n');
     alert(`Errores de esta partida:\n\n${texto}`);
-  } catch(e) { console.error(e); }
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 function cerrarDetalle() {
   document.getElementById('detalle-overlay').classList.remove('show');
+}
+
+async function guardarAlumnoActual() {
+  if (!alumnoActual) return;
+  try {
+    const res = await fetch(CONFIG.ENDPOINTS.alumnoActualizar(alumnoActual.id), {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        nombre: document.getElementById('edit-nombre').value.trim(),
+        edad: document.getElementById('edit-edad').value.trim(),
+        escuela: document.getElementById('edit-escuela').value.trim(),
+        grupo: document.getElementById('edit-grupo').value.trim()
+      })
+    });
+    const data = await res.json();
+    if (await handleAuthError(res)) return;
+    if (!res.ok) {
+      alert(data.error || 'No se pudo guardar');
+      return;
+    }
+    await cargarResumen();
+    await verDetalle(alumnoActual.id);
+  } catch (e) {
+    alert('Error al guardar cambios');
+  }
+}
+
+async function regenerarPinActual() {
+  if (!alumnoActual) return;
+  if (!confirm('¿Regenerar el PIN del alumno? El acceso anterior dejará de funcionar.')) return;
+  try {
+    const res = await fetch(CONFIG.ENDPOINTS.alumnoActualizar(alumnoActual.id), {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ regenerar_pin: true })
+    });
+    const data = await res.json();
+    if (await handleAuthError(res)) return;
+    if (!res.ok) {
+      alert(data.error || 'No se pudo regenerar el PIN');
+      return;
+    }
+    await cargarResumen();
+    await verDetalle(alumnoActual.id, true);
+  } catch (e) {
+    alert('Error al regenerar el PIN');
+  }
+}
+
+async function copiarCredencialesActuales() {
+  if (!alumnoActual) return;
+  const texto = `Alumno: ${alumnoActual.nombre}\nUsuario: ${alumnoActual.usuario}\nPIN: ${alumnoActual.pin}`;
+  try {
+    await navigator.clipboard.writeText(texto);
+    alert('Acceso copiado');
+  } catch (e) {
+    alert('No se pudo copiar el acceso');
+  }
+}
+
+function imprimirCredencialActual() {
+  if (!alumnoActual) return;
+  const popup = window.open('', '_blank', 'width=520,height=620');
+  if (!popup) return;
+  popup.document.write(`
+    <html><head><title>Credencial</title><style>
+      body{font-family:Arial,sans-serif;padding:24px;background:#f8fafc;color:#0f172a}
+      .card{border:2px solid #cbd5e1;border-radius:16px;padding:24px;max-width:380px}
+      h1{margin:0 0 6px;font-size:20px}
+      p{margin:6px 0}
+      .val{font-size:26px;font-weight:bold;letter-spacing:2px}
+    </style></head><body>
+      <div class="card">
+        <h1>Snake Matemático</h1>
+        <p>${escHtml(alumnoActual.nombre)}</p>
+        <p>Usuario</p>
+        <div class="val">${escHtml(alumnoActual.usuario || '—')}</div>
+        <p>PIN</p>
+        <div class="val">${escHtml(alumnoActual.pin || '—')}</div>
+        <p>Escuela: ${escHtml(alumnoActual.escuela || '—')}</p>
+        <p>Grupo: ${escHtml(alumnoActual.grupo || '—')}</p>
+      </div>
+      <script>window.print();<\/script>
+    </body></html>
+  `);
+  popup.document.close();
 }
 
 async function eliminarAlumno(id, nombre, btnEl) {
@@ -673,16 +1272,20 @@ async function eliminarAlumno(id, nombre, btnEl) {
   btnEl.textContent = '...';
 
   try {
-    const res = await fetch(`${CONFIG.API_URL}/api/alumno/${id}`, { method: 'DELETE' });
+    const res = await fetch(`${CONFIG.API_URL}/api/alumno/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
     const data = await res.json();
     if (res.ok) {
       cargarTodo();
+      if (alumnoActual && alumnoActual.id === id) cerrarDetalle();
     } else {
       alert(`Error: ${data.error}`);
       btnEl.disabled = false;
       btnEl.textContent = 'Eliminar';
     }
-  } catch(e) {
+  } catch (e) {
     alert('Error de conexión');
     btnEl.disabled = false;
     btnEl.textContent = 'Eliminar';
@@ -690,11 +1293,30 @@ async function eliminarAlumno(id, nombre, btnEl) {
 }
 
 function escHtml(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escAttr(str) {
+  return escHtml(str);
+}
+
+function escJs(str) {
+  return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
 document.getElementById('detalle-overlay').addEventListener('click', e => {
-  if (e.target===e.currentTarget) cerrarDetalle();
+  if (e.target === e.currentTarget) cerrarDetalle();
+});
+
+['filtro-busqueda', 'filtro-escuela', 'filtro-grupo', 'filtro-orden'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', aplicarFiltrosYRender);
+  el.addEventListener('change', aplicarFiltrosYRender);
 });
 
 if (profesorToken) {

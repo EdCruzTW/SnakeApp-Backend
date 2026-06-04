@@ -32,6 +32,8 @@ const CONFIG = {
         operacionesErradas: `${this.API_URL}/api/profesor/operaciones-erradas`,
         exportar: `${this.API_URL}/api/profesor/exportar`,
       }
+      ,
+      alumnoActualizar: (id) => `${this.API_URL}/api/alumno/${id}`
     };
   }
 };
