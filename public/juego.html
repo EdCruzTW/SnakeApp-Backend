@@ -499,9 +499,11 @@ let flashColor, flashTimer, particles;
 let erroresPartida = [];
 let nivelMax = 1;
 let gameStarted = false;
+let previousSnake = [];
 
 function initGame() {
   snake         = [{ x:10, y:10 }, { x:9, y:10 }, { x:8, y:10 }];
+  previousSnake = snake.map(segment => ({ ...segment }));
   dir           = { x:1, y:0 };
   nextDir       = { x:1, y:0 };
   answers       = [];
@@ -659,6 +661,7 @@ function newQuestion() {
 
 function update() {
   if (gameOver) return;
+  previousSnake = snake.map(segment => ({ ...segment }));
   dir = { ...nextDir };
   const head = { x:snake[0].x+dir.x, y:snake[0].y+dir.y };
 
@@ -701,6 +704,23 @@ function update() {
 
   if (!ate) snake.pop();
   answers.forEach(a => a.pulse = (a.pulse||0)+0.05);
+}
+
+function lerp(start, end, alpha) {
+  return start + (end - start) * alpha;
+}
+
+function getInterpolatedSnake(alpha) {
+  const safeAlpha = Math.max(0, Math.min(alpha, 1));
+  const fallbackPrevious = previousSnake.length ? previousSnake : snake;
+
+  return snake.map((segment, index) => {
+    const prevSegment = fallbackPrevious[Math.min(index, fallbackPrevious.length - 1)] || segment;
+    return {
+      x: lerp(prevSegment.x, segment.x, safeAlpha),
+      y: lerp(prevSegment.y, segment.y, safeAlpha)
+    };
+  });
 }
 
 function triggerDeath() {
@@ -784,7 +804,7 @@ async function showGameOver() {
   document.getElementById("overlay").classList.add("show");
 }
 
-function draw() {
+function draw(alpha = 1) {
   ctx.fillStyle = flashTimer>0 ? flashColor : "#090e1c";
   ctx.fillRect(0,0,canvas.width,canvas.height);
   if (flashTimer>0) flashTimer--;
@@ -798,15 +818,26 @@ function draw() {
   }
 
   // Snake
-  snake.forEach((s,i) => {
-    const t = i/snake.length;
+  const renderSnake = getInterpolatedSnake(alpha);
+  renderSnake.forEach((s,i) => {
+    const t = i/renderSnake.length;
     const r = Math.round(34+(2-34)*t), g = Math.round(222+(197-222)*t), b = Math.round(128+(94-128)*t);
     ctx.shadowColor = i===0 ? "#4ade80" : "#22c55e";
     ctx.shadowBlur  = i===0 ? 16 : 7;
     ctx.fillStyle   = i===0 ? "#4ade80" : `rgb(${r},${g},${b})`;
-    const pad = i===0 ? 2 : 3;
-    roundRect(ctx, s.x*SIZE+pad, s.y*SIZE+pad, SIZE-pad*2, SIZE-pad*2, i===0 ? 6 : 4);
+    const pad = i===0 ? 1.6 : 2.2;
+    roundRect(ctx, s.x*SIZE+pad, s.y*SIZE+pad, SIZE-pad*2, SIZE-pad*2, i===0 ? 8 : 6);
     ctx.fill();
+
+    if (i < renderSnake.length - 1) {
+      const next = renderSnake[i + 1];
+      const midX = ((s.x + next.x) / 2) * SIZE;
+      const midY = ((s.y + next.y) / 2) * SIZE;
+      ctx.fillStyle = i===0 ? "#3ddc84" : `rgb(${r},${g},${b})`;
+      roundRect(ctx, midX + pad, midY + pad, SIZE - pad*2, SIZE - pad*2, 6);
+      ctx.fill();
+    }
+
     if (i===0) {
       ctx.shadowBlur = 0;
       ctx.fillStyle = "#020617";
@@ -888,11 +919,17 @@ function getGameSpeed() {
 }
 
 function gameLoop(ts) {
+  let alpha = 1;
   if (gameStarted && !gameOver) {
     const INTERVAL = getGameSpeed();
-    if (ts - lastTime >= INTERVAL) { update(); lastTime = ts; }
+    if (!lastTime) lastTime = ts;
+    if (ts - lastTime >= INTERVAL) {
+      update();
+      lastTime = ts;
+    }
+    alpha = Math.min((ts - lastTime) / INTERVAL, 1);
   }
-  draw();
+  draw(alpha);
   requestAnimationFrame(gameLoop);
 }
 
